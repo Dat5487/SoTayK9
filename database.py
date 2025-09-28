@@ -889,6 +889,91 @@ class DatabaseManager:
         finally:
             conn.close()
     
+    def delete_training_journal(self, journal_id: int) -> bool:
+        """Delete training journal"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('DELETE FROM training_journals WHERE id = ?', (journal_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+            
+        except Exception as e:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+    
+    def get_training_journals_by_trainer(self, trainer_id: int) -> List[Dict[str, Any]]:
+        """Get training journals for a specific trainer"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                SELECT tj.*, d.name as dog_name, d.chip_id, 
+                       t.name as trainer_name, a.name as approver_name
+                FROM training_journals tj
+                JOIN dogs d ON tj.dog_id = d.id
+                JOIN users t ON tj.trainer_id = t.id
+                LEFT JOIN users a ON tj.approved_by = a.id
+                WHERE tj.trainer_id = ?
+                ORDER BY tj.journal_date DESC, tj.created_at DESC
+            ''', (trainer_id,))
+            
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+            
+        finally:
+            conn.close()
+    
+    def get_pending_journals(self) -> List[Dict[str, Any]]:
+        """Get all journals pending approval"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                SELECT tj.*, d.name as dog_name, d.chip_id, 
+                       t.name as trainer_name, a.name as approver_name
+                FROM training_journals tj
+                JOIN dogs d ON tj.dog_id = d.id
+                JOIN users t ON tj.trainer_id = t.id
+                LEFT JOIN users a ON tj.approved_by = a.id
+                WHERE tj.approval_status = 'PENDING'
+                ORDER BY tj.journal_date DESC, tj.created_at DESC
+            ''')
+            
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+            
+        finally:
+            conn.close()
+    
+    def get_approved_journals(self) -> List[Dict[str, Any]]:
+        """Get all approved journals"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute('''
+                SELECT tj.*, d.name as dog_name, d.chip_id, 
+                       t.name as trainer_name, a.name as approver_name
+                FROM training_journals tj
+                JOIN dogs d ON tj.dog_id = d.id
+                JOIN users t ON tj.trainer_id = t.id
+                LEFT JOIN users a ON tj.approved_by = a.id
+                WHERE tj.approval_status = 'APPROVED'
+                ORDER BY tj.journal_date DESC, tj.created_at DESC
+            ''')
+            
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+            
+        finally:
+            conn.close()
+    
     # =============================================================================
     # SESSION MANAGEMENT
     # =============================================================================

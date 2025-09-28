@@ -2480,8 +2480,24 @@ function renderOperationContent(block) {
     return content.join(', ') || 'Chưa ghi';
 }
 
-// Function to load journal data
-function loadJournalData(dogName, date, createNew = false) {
+// Function to load journal data - UPDATED TO USE DATABASE
+async function loadJournalData(dogName, date, createNew = false) {
+    try {
+        // Use the database manager
+        const journalData = await window.journalDBManager.loadJournalData(dogName, date, createNew);
+        
+        if (journalData) {
+            // Convert database format to localStorage format for compatibility
+            const localStorageFormat = convertDatabaseToLocalStorageFormat(journalData);
+            populateJournalForm(localStorageFormat);
+        } else {
+            // No journal found, create new
+            addTrainingBlock();
+            addOperationBlock();
+        }
+    } catch (error) {
+        console.error('Error loading journal data:', error);
+        // Fallback to localStorage if database fails
     const journalKey = 'journal_' + dogName + '_' + date;
     const existingData = localStorage.getItem(journalKey);
     
@@ -2491,7 +2507,60 @@ function loadJournalData(dogName, date, createNew = false) {
     } else {
         addTrainingBlock();
         addOperationBlock();
+        }
     }
+}
+
+// Function to convert database journal format to localStorage format
+function convertDatabaseToLocalStorageFormat(dbJournal) {
+    return {
+        generalInfo: {
+            dogName: dbJournal.dog_name,
+            date: dbJournal.journal_date,
+            hlv: dbJournal.trainer_name
+        },
+        trainingBlocks: dbJournal.training_activities ? 
+            dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
+        operationBlocks: dbJournal.operation_activities ? 
+            dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
+        care: convertCareActivitiesToLocalStorage(dbJournal.care_activities),
+        health: {
+            status: dbJournal.health_status || 'Tốt',
+            weather: dbJournal.weather_conditions || ''
+        },
+        hlvComment: dbJournal.behavior_notes || '',
+        otherIssues: dbJournal.challenges || '',
+        approval: {
+            status: dbJournal.approval_status,
+            leaderStatus: dbJournal.approval_status === 'APPROVED' ? 'Đã duyệt' : 
+                         dbJournal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt',
+            leaderComment: dbJournal.rejection_reason || '',
+            approvedBy: dbJournal.approver_name || '',
+            approvedAt: dbJournal.approved_at || ''
+        },
+        lastModified: dbJournal.updated_at || dbJournal.created_at
+    };
+}
+
+// Function to convert care activities from database format to localStorage format
+function convertCareActivitiesToLocalStorage(careActivities) {
+    const care = { morning: '', afternoon: '', evening: '' };
+    
+    if (careActivities) {
+        const activities = careActivities.split(';').filter(a => a.trim());
+        
+        activities.forEach(activity => {
+            if (activity.includes('Sáng:')) {
+                care.morning = activity.replace('Sáng:', '').trim();
+            } else if (activity.includes('Chiều:')) {
+                care.afternoon = activity.replace('Chiều:', '').trim();
+            } else if (activity.includes('Tối:')) {
+                care.evening = activity.replace('Tối:', '').trim();
+            }
+        });
+    }
+    
+    return care;
 }
 
 // Function to populate journal form with existing data
@@ -3050,8 +3119,22 @@ function notifyDashboardUpdate() {
     localStorage.setItem('dashboard_refresh_trigger', Date.now().toString());
 }
 
-// Function to save signature to journal data
-function saveSignatureToJournal(signatureType, signatureData) {
+// UPDATED: Function to save signature to journal data - NOW USES DATABASE
+async function saveSignatureToJournal(signatureType, signatureData) {
+    try {
+        // Save to database if journal exists
+        if (window.journalDBManager.currentJournalId) {
+            // Update journal with signature data
+            const updateData = {
+                [`${signatureType}_signature`]: JSON.stringify(signatureData),
+                [`${signatureType}_timestamp`]: new Date().toISOString()
+            };
+            
+            await window.journalDBManager.updateJournal(window.journalDBManager.currentJournalId, updateData);
+            console.log('✅ Saved ' + signatureType + ' signature to database');
+        }
+        
+        // Also save to localStorage for backup
     const dogName = document.getElementById('journal_dog_name').value;
     const date = document.getElementById('journal_date').value;
     const journalKey = 'journal_' + dogName + '_' + date;
@@ -3065,11 +3148,46 @@ function saveSignatureToJournal(signatureType, signatureData) {
     journalData.approval[signatureType] = signatureData;
     localStorage.setItem(journalKey, JSON.stringify(journalData));
     
-    console.log('✅ Saved ' + signatureType + ' to journal ' + journalKey);
+        console.log('✅ Saved ' + signatureType + ' signature to localStorage backup');
+        
+    } catch (error) {
+        console.error('Error saving signature:', error);
+        
+        // Fallback to localStorage only
+        const dogName = document.getElementById('journal_dog_name').value;
+        const date = document.getElementById('journal_date').value;
+        const journalKey = 'journal_' + dogName + '_' + date;
+        
+        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        
+        if (!journalData.approval) {
+            journalData.approval = {};
+        }
+        
+        journalData.approval[signatureType] = signatureData;
+        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        
+        console.log('✅ Saved ' + signatureType + ' signature to localStorage fallback');
+    }
 }
 
-// Function to save approval data
-function saveApprovalData(approvalData) {
+// UPDATED: Function to save approval data - NOW USES DATABASE
+async function saveApprovalData(approvalData) {
+    try {
+        // Save to database if journal exists
+        if (window.journalDBManager.currentJournalId) {
+            const updateData = {
+                approval_status: approvalData.status || 'PENDING',
+                approved_by: approvalData.approverId || null,
+                approved_at: approvalData.approvedAt || null,
+                rejection_reason: approvalData.rejectionReason || null
+            };
+            
+            await window.journalDBManager.updateJournal(window.journalDBManager.currentJournalId, updateData);
+            console.log('✅ Saved approval data to database');
+        }
+        
+        // Also save to localStorage for backup
     const dogName = document.getElementById('journal_dog_name').value;
     const date = document.getElementById('journal_date').value;
     const journalKey = 'journal_' + dogName + '_' + date;
@@ -3083,7 +3201,27 @@ function saveApprovalData(approvalData) {
     Object.assign(journalData.approval, approvalData);
     localStorage.setItem(journalKey, JSON.stringify(journalData));
     
-    console.log('✅ Saved approval data to journal');
+        console.log('✅ Saved approval data to localStorage backup');
+        
+    } catch (error) {
+        console.error('Error saving approval data:', error);
+        
+        // Fallback to localStorage only
+        const dogName = document.getElementById('journal_dog_name').value;
+        const date = document.getElementById('journal_date').value;
+        const journalKey = 'journal_' + dogName + '_' + date;
+        
+        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        
+        if (!journalData.approval) {
+            journalData.approval = {};
+        }
+        
+        Object.assign(journalData.approval, approvalData);
+        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        
+        console.log('✅ Saved approval data to localStorage fallback');
+    }
 }
 
 // Functions to remove blocks
@@ -3109,8 +3247,13 @@ function removeLastOperationBlock() {
     }
 }
 
-// SỬA: Function to save journal data - THÊM WORKFLOW CHUYỂN CHO MANAGER
-function saveJournalData() {
+// UPDATED: Function to save journal data - NOW USES DATABASE
+async function saveJournalData() {
+    try {
+        // Use the database manager to save
+        await window.journalDBManager.saveJournalData();
+        
+        // Also save to localStorage for backup/compatibility
     const dogName = document.getElementById('journal_dog_name').value;
     const date = document.getElementById('journal_date').value;
     const journalKey = 'journal_' + dogName + '_' + date;
@@ -3140,7 +3283,7 @@ function saveJournalData() {
         }
     }
     
-    // SỬA: Kiểm tra nếu có chữ ký HLV thì set status để Manager có thể duyệt
+        // Check if journal has HLV signature for manager approval
     if (journalData.approval?.hvlSignature && !journalData.approval?.leaderSignature) {
         journalData.approval.status = 'PENDING_MANAGER_APPROVAL';
         console.log('✅ Journal has HLV signature, set for manager approval');
@@ -3148,13 +3291,52 @@ function saveJournalData() {
     
     localStorage.setItem(journalKey, JSON.stringify(journalData));
     
-    // Notify dashboard về journal save
+        // Notify dashboard about journal save
     notifyDashboardUpdate();
     
-    alert('Nhật ký ' + dogName + ' ngày ' + date + ' đã được lưu thành công!' + 
-          (journalData.approval?.hvlSignature ? '\n\n✅ Nhật ký đã có chữ ký và sẵn sàng cho Manager duyệt!' : ''));
-    
-    console.log('✅ Journal saved successfully:', journalKey);
+        console.log('✅ Journal saved successfully to both database and localStorage:', journalKey);
+        
+    } catch (error) {
+        console.error('Error saving journal:', error);
+        
+        // Fallback to localStorage only if database fails
+        const dogName = document.getElementById('journal_dog_name').value;
+        const date = document.getElementById('journal_date').value;
+        const journalKey = 'journal_' + dogName + '_' + date;
+        
+        const journalData = {
+            generalInfo: {
+                dogName: dogName,
+                date: date,
+                hlv: document.getElementById('journal_hlv').value
+            },
+            trainingBlocks: collectTrainingBlocksData(),
+            operationBlocks: collectOperationBlocksData(),
+            meals: collectMealsData(),
+            care: collectCareData(),
+            health: collectHealthData(),
+            hlvComment: document.getElementById('journal_hlv_comment').value,
+            otherIssues: document.getElementById('journal_other_issues').value,
+            lastModified: new Date().toISOString()
+        };
+        
+        // Preserve existing approval data
+        const existingData = localStorage.getItem(journalKey);
+        if (existingData) {
+            const existing = JSON.parse(existingData);
+            if (existing.approval) {
+                journalData.approval = existing.approval;
+            }
+        }
+        
+        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        notifyDashboardUpdate();
+        
+        alert('Nhật ký đã được lưu vào localStorage (database không khả dụng). ' + 
+              'Vui lòng kiểm tra kết nối và thử lại.');
+        
+        console.log('✅ Journal saved to localStorage as fallback:', journalKey);
+    }
 }
 
 // Data collection functions

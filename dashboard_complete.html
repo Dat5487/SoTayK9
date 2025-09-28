@@ -529,9 +529,9 @@
                 </div>
                 <div class="form-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" id="rememberMe">
+                        <input type="checkbox" id="rememberMe" checked>
                         <span class="checkmark"></span>
-                        Ghi nhớ đăng nhập
+                        Ghi nhớ đăng nhập (7 ngày)
                     </label>
                 </div>
                 <button type="submit" class="btn btn-full-width">Đăng Nhập</button>
@@ -823,37 +823,62 @@
         const USER_STORAGE_KEY = 'k9_current_user';
 
         // Session Management Functions
+        // Enhanced Session Management Functions
         function saveSession(sessionToken, userData, rememberMe = false) {
-            if (rememberMe && sessionToken) {
-                localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-            } else {
-                sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+            try {
+                if (rememberMe && sessionToken) {
+                    // Save to localStorage for persistent sessions
+                    localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+                    console.log('✅ Session saved to localStorage (persistent)');
+                } else if (sessionToken) {
+                    // Save to sessionStorage for temporary sessions
+                    sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                    sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+                    console.log('✅ Session saved to sessionStorage (temporary)');
+                }
+            } catch (error) {
+                console.error('Error saving session:', error);
             }
         }
 
         function getSessionToken() {
+            // Check localStorage first (persistent sessions), then sessionStorage
             return localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem(SESSION_STORAGE_KEY);
         }
 
         function getCurrentUser() {
-            const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
-            return userData ? JSON.parse(userData) : null;
+            try {
+                // Check localStorage first (persistent sessions), then sessionStorage
+                const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
+                return userData ? JSON.parse(userData) : null;
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                return null;
+            }
         }
 
         function clearSession() {
-            localStorage.removeItem(SESSION_STORAGE_KEY);
-            localStorage.removeItem(USER_STORAGE_KEY);
-            sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            sessionStorage.removeItem(USER_STORAGE_KEY);
+            try {
+                localStorage.removeItem(SESSION_STORAGE_KEY);
+                localStorage.removeItem(USER_STORAGE_KEY);
+                sessionStorage.removeItem(SESSION_STORAGE_KEY);
+                sessionStorage.removeItem(USER_STORAGE_KEY);
+                console.log('✅ Session cleared');
+            } catch (error) {
+                console.error('Error clearing session:', error);
+            }
         }
 
         async function validateSession() {
             const sessionToken = getSessionToken();
-            if (!sessionToken) return null;
+            if (!sessionToken) {
+                console.log('❌ No session token found');
+                return null;
+            }
 
             try {
+                console.log('🔍 Validating session token...');
                 const response = await fetch(`${API_BASE_URL}/api/auth/validate-session`, {
                     method: 'POST',
                     headers: {
@@ -865,16 +890,20 @@
                 });
 
                 const result = await response.json();
+                
                 if (result.success) {
-                    // Update stored user data
-                    saveSession(sessionToken, result.data, localStorage.getItem(SESSION_STORAGE_KEY) !== null);
+                    console.log('✅ Session validation successful');
+                    // Update stored user data with fresh data from server
+                    const isPersistent = localStorage.getItem(SESSION_STORAGE_KEY) !== null;
+                    saveSession(sessionToken, result.data, isPersistent);
                     return result.data;
                 } else {
+                    console.log('❌ Session validation failed:', result.error);
                     clearSession();
                     return null;
                 }
             } catch (error) {
-                console.error('Session validation error:', error);
+                console.error('❌ Session validation error:', error);
                 clearSession();
                 return null;
             }
@@ -1108,12 +1137,16 @@
         }
 
 
-        // SỬA QUAN TRỌNG: Dashboard login với event listener
+        // Enhanced initialization with better session handling
         document.addEventListener('DOMContentLoaded', async function () {
+            console.log('🚀 Initializing dashboard...');
+            
             await initializeData();
 
             // Check for existing session
+            console.log('🔍 Checking for existing session...');
             const sessionUser = await validateSession();
+            
             if (sessionUser) {
                 console.log('✅ Valid session found, auto-login');
                 currentDashboardUser = sessionUser;
@@ -1129,8 +1162,14 @@
                 await loadUserList();
                 await loadDogList();
                 loadJournalList();
+                
+                // Show welcome back message
+                showNotification(`Chào mừng trở lại, ${sessionUser.name}!`, 'success');
+            } else {
+                console.log('❌ No valid session found, showing login form');
             }
 
+            // Set up event listeners
             const loginForm = document.getElementById('dashboardLoginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', dashboardLogin);
@@ -1145,9 +1184,11 @@
             if (dogForm) {
                 dogForm.addEventListener('submit', submitDogForm);
             }
+            
+            console.log('✅ Dashboard initialization completed');
         });
 
-        // Dashboard login - SỬA EVENT HANDLING
+        // Enhanced Dashboard login with better session handling
         async function dashboardLogin(event) {
             event.preventDefault();
 
@@ -1155,14 +1196,22 @@
             const password = document.getElementById('adminPassword').value;
             const rememberMe = document.getElementById('rememberMe').checked;
 
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Đang đăng nhập...';
+            submitBtn.disabled = true;
+
             try {
+                console.log(`🔐 Attempting login for user: ${username} (remember: ${rememberMe})`);
+                
                 // Try API authentication first
                 const apiResult = await authenticateUserViaAPI(username, password, rememberMe);
                 let user = null;
 
                 if (apiResult.success) {
                     user = apiResult.data;
-                    console.log('✅ Authentication via API successful');
+                    console.log('✅ API authentication successful');
                 } else {
                     // Fallback to local authentication
                     console.log('⚠️ API authentication failed, trying local authentication');
@@ -1203,6 +1252,7 @@
                     currentDashboardUser = user;
                     currentDashboardRole = user.role;
 
+                    // Hide login form and show dashboard
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('dashboardMain').classList.add('active');
                     document.getElementById('currentUserDisplay').textContent = user.name;
@@ -1210,15 +1260,26 @@
                     document.getElementById('currentRoleDisplay').className =
                         `role-badge role-${user.role.toLowerCase()}`;
 
+                    // Load dashboard data
                     await loadUserList();
                     await loadDogList();
                     loadJournalList();
+
+                    // Show success message
+                    showNotification(`Chào mừng ${user.name}! Đăng nhập thành công.`, 'success');
+                    
+                    console.log(`✅ Login successful for ${user.name} (${user.role})`);
                 } else {
                     alert('Tên đăng nhập hoặc mật khẩu không đúng!');
+                    console.log('❌ Login failed - invalid credentials');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                alert('Có lỗi xảy ra khi đăng nhập!');
+                console.error('❌ Login error:', error);
+                alert('Có lỗi xảy ra khi đăng nhập! Vui lòng thử lại.');
+            } finally {
+                // Restore button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
             }
         }
 
@@ -1791,11 +1852,350 @@
             container.innerHTML = html;
         }
 
-        // SỬA: Journal Management Functions - FIX LỖI XEM JOURNAL + REAL-TIME SYNC
-        function loadJournalList() {
+        // Journal Management Functions - DATABASE API ONLY
+        async function loadJournalList() {
             const container = document.getElementById('journalListContainer');
 
-            // SỬA: FORCE REFRESH - Lấy journals từ localStorage thời gian thực
+            try {
+                // Fetch journals from database API
+                const response = await fetch(`${API_BASE_URL}/api/journals`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch journals');
+                }
+
+                const journals = result.data || [];
+
+                if (journals.length === 0) {
+                    container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
+
+                let html = `
+<table class="data-table">
+<thead>
+<tr>
+<th>Ngày</th>
+<th>CNV</th>
+<th>HLV</th>
+<th>Trạng thái</th>
+<th>Chữ ký</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+                journals.forEach(journal => {
+                    const hasHvlSignature = journal.hvl_signature ? '✅' : '❌';
+                    const hasLeaderSignature = journal.leader_signature ? '✅' : '❌';
+                    const statusClass = journal.approval_status === 'APPROVED' ? 'status-active' : 
+                                      journal.approval_status === 'REJECTED' ? 'status-inactive' : 'status-pending';
+                    const statusText = journal.approval_status === 'APPROVED' ? 'Đã duyệt' :
+                                     journal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt';
+
+                    html += `
+<tr>
+<td>${journal.journal_date}</td>
+<td><strong>${journal.dog_name}</strong></td>
+<td>${journal.trainer_name}</td>
+<td><span class="status-indicator ${statusClass}">${statusText}</span></td>
+<td>HLV: ${hasHvlSignature} | LD: ${hasLeaderSignature}</td>
+<td>
+<button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
+${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" onclick="approveJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Duyệt</button>` : ''}
+<button class="btn btn-danger" onclick="deleteJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xóa</button>
+</td>
+</tr>
+`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                console.log(`✅ Loaded ${journals.length} journals from database`);
+
+            } catch (error) {
+                console.error('Error loading journals from database:', error);
+                container.innerHTML = '<p style="color: red;">❌ Không thể tải nhật ký từ cơ sở dữ liệu. Vui lòng kiểm tra kết nối server.</p>';
+            }
+        }
+
+        async function loadPendingJournals() {
+            const container = document.getElementById('journalListContainer');
+
+            try {
+                // Fetch pending journals from database API
+                const response = await fetch(`${API_BASE_URL}/api/journals/pending`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch pending journals');
+                }
+
+                const journals = result.data || [];
+
+                if (journals.length === 0) {
+                    container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
+
+                let html = `<h4>📋 Nhật ký chờ duyệt (${journals.length})</h4>`;
+                html += `
+<table class="data-table">
+<thead>
+<tr>
+<th>Ngày</th>
+<th>CNV</th>
+<th>HLV</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+                journals.forEach(journal => {
+                    html += `
+<tr>
+<td>${journal.journal_date}</td>
+<td><strong>${journal.dog_name}</strong></td>
+<td>${journal.trainer_name}</td>
+<td>
+<button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
+<button class="btn btn-success" onclick="approveJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Duyệt</button>
+</td>
+</tr>
+`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                console.log(`✅ Loaded ${journals.length} pending journals from database`);
+
+            } catch (error) {
+                console.error('Error loading pending journals from database:', error);
+                container.innerHTML = '<p style="color: red;">❌ Không thể tải nhật ký chờ duyệt từ cơ sở dữ liệu.</p>';
+            }
+        }
+
+        async function loadApprovedJournals() {
+            const container = document.getElementById('journalListContainer');
+
+            try {
+                // Fetch approved journals from database API
+                const response = await fetch(`${API_BASE_URL}/api/journals/approved`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch approved journals');
+                }
+
+                const journals = result.data || [];
+
+                if (journals.length === 0) {
+                    container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
+
+                let html = `<h4>✅ Nhật ký đã duyệt (${journals.length})</h4>`;
+                html += `
+<table class="data-table">
+<thead>
+<tr>
+<th>Ngày</th>
+<th>CNV</th>
+<th>HLV</th>
+<th>Ngày duyệt</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+                journals.forEach(journal => {
+                    html += `
+<tr>
+<td>${journal.journal_date}</td>
+<td><strong>${journal.dog_name}</strong></td>
+<td>${journal.trainer_name}</td>
+<td>${journal.approved_at ? new Date(journal.approved_at).toLocaleDateString('vi-VN') : 'N/A'}</td>
+<td>
+<button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
+</td>
+</tr>
+`;
+                });
+
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+                console.log(`✅ Loaded ${journals.length} approved journals from database`);
+
+            } catch (error) {
+                console.error('Error loading approved journals from database:', error);
+                container.innerHTML = '<p style="color: red;">❌ Không thể tải nhật ký đã duyệt từ cơ sở dữ liệu.</p>';
+            }
+        }
+
+        // SỬA: Function viewJournalFromDashboard - NOW USES DATABASE
+        async function viewJournalFromDashboard(journalId) {
+            try {
+                // Fetch journal details from database
+                const response = await fetch(`${API_BASE_URL}/api/journals/${journalId}`);
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Journal not found');
+                }
+
+                const journal = result.data;
+                
+                // Convert database format to localStorage format for compatibility
+                const localStorageFormat = convertDatabaseJournalToLocalStorage(journal);
+                
+                // Save to localStorage temporarily for the web app to read
+                const journalKey = `journal_${journal.dog_name}_${journal.journal_date}`;
+                localStorage.setItem(journalKey, JSON.stringify(localStorageFormat));
+                
+                // Open web app with journal parameter
+                const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal&journalId=${journalId}`;
+            window.open(url, '_blank', 'width=1200,height=800');
+                
+                console.log(`✅ Opening journal ${journalId} (${journal.dog_name}) in new tab`);
+
+            } catch (error) {
+                console.error('Error viewing journal from database:', error);
+                alert('Có lỗi xảy ra khi xem nhật ký: ' + error.message);
+            }
+        }
+
+        // SỬA: Function approveJournalFromDashboard - NOW USES DATABASE
+        async function approveJournalFromDashboard(journalId) {
+            if (confirm('Bạn có chắc muốn duyệt nhật ký này?')) {
+                try {
+                    const approverId = currentDashboardUser ? currentDashboardUser.id : 1; // Default to admin if no user
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/journals/${journalId}/approve`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            approver_id: approverId,
+                            approved: true,
+                            rejection_reason: null
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Nhật ký đã được duyệt thành công!');
+                        loadJournalList(); // Refresh list
+                        console.log('✅ Journal approved successfully');
+                    } else {
+                        throw new Error(result.error || 'Failed to approve journal');
+                    }
+
+                } catch (error) {
+                    console.error('Error approving journal:', error);
+                    alert('Có lỗi xảy ra khi duyệt nhật ký: ' + error.message);
+                }
+            }
+        }
+
+        // SỬA: Function deleteJournalFromDashboard - NOW USES DATABASE
+        async function deleteJournalFromDashboard(journalId) {
+            if (confirm('Bạn có chắc muốn xóa nhật ký này? Hành động này không thể hoàn tác.')) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/journals/${journalId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('Nhật ký đã được xóa thành công!');
+                    loadJournalList(); // Refresh list
+                        console.log('✅ Journal deleted successfully');
+                    } else {
+                        throw new Error(result.error || 'Failed to delete journal');
+                    }
+
+                } catch (error) {
+                    console.error('Error deleting journal:', error);
+                    alert('Có lỗi xảy ra khi xóa nhật ký: ' + error.message);
+                }
+            }
+        }
+
+        // Helper function to convert database journal to localStorage format
+        function convertDatabaseJournalToLocalStorage(dbJournal) {
+            return {
+                generalInfo: {
+                    dogName: dbJournal.dog_name,
+                    date: dbJournal.journal_date,
+                    hlv: dbJournal.trainer_name
+                },
+                trainingBlocks: dbJournal.training_activities ? 
+                    dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
+                operationBlocks: dbJournal.operation_activities ? 
+                    dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
+                care: convertCareActivitiesToLocalStorage(dbJournal.care_activities),
+                health: {
+                    status: dbJournal.health_status || 'Tốt',
+                    weather: dbJournal.weather_conditions || ''
+                },
+                hlvComment: dbJournal.behavior_notes || '',
+                otherIssues: dbJournal.challenges || '',
+                approval: {
+                    status: dbJournal.approval_status,
+                    leaderStatus: dbJournal.approval_status === 'APPROVED' ? 'Đã duyệt' : 
+                                 dbJournal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt',
+                    leaderComment: dbJournal.rejection_reason || '',
+                    approvedBy: dbJournal.approver_name || '',
+                    approvedAt: dbJournal.approved_at || ''
+                },
+                lastModified: dbJournal.updated_at || dbJournal.created_at
+            };
+        }
+
+        // Helper function to convert care activities
+        function convertCareActivitiesToLocalStorage(careActivities) {
+            const care = { morning: '', afternoon: '', evening: '' };
+            
+            if (careActivities) {
+                const activities = careActivities.split(';').filter(a => a.trim());
+                
+                activities.forEach(activity => {
+                    if (activity.includes('Sáng:')) {
+                        care.morning = activity.replace('Sáng:', '').trim();
+                    } else if (activity.includes('Chiều:')) {
+                        care.afternoon = activity.replace('Chiều:', '').trim();
+                    } else if (activity.includes('Tối:')) {
+                        care.evening = activity.replace('Tối:', '').trim();
+                    }
+                });
+            }
+            
+            return care;
+        }
+
+        // Fallback function for localStorage (kept for compatibility)
+        function loadJournalListFromLocalStorage() {
+            const container = document.getElementById('journalListContainer');
+
             const allJournals = [];
 
             // Duyệt tất cả keys trong localStorage để tìm journals
@@ -1874,170 +2274,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             html += '</tbody></table>';
             container.innerHTML = html;
 
-            console.log(`✅ Loaded ${allJournals.length} journals in real-time`);
-        }
-
-        function loadPendingJournals() {
-            const container = document.getElementById('journalListContainer');
-
-            const allJournals = [];
-
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('journal_')) {
-                    try {
-                        const journalData = JSON.parse(localStorage.getItem(key));
-
-                        if (!(journalData.approval && journalData.approval.leaderStatus && journalData.approval
-                                .leaderStatus.includes('Đã duyệt'))) {
-                            allJournals.push({
-                                key: key,
-                                data: journalData
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Error parsing journal data for key:", key, e);
-                    }
-                }
-            }
-
-            if (allJournals.length === 0) {
-                container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
-                return;
-            }
-
-            let html = `<h4>📋 Nhật ký chờ duyệt (${allJournals.length})</h4>`;
-            html += `
-                    <table class="data-table">
-                    <thead>
-                    <tr>
-                    <th>Ngày</th>
-                    <th>CNV</th>
-                    <th>HLV</th>
-                    <th>Hành động</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                `;
-
-                allJournals.forEach(journal => {
-                    html += `
-                        <tr>
-                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
-                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.dogName) || 'Unknown'}</td>
-                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.hlv) || 'Unknown'}</td>
-                        <td>
-                        <button class="btn btn-info" onclick="viewJournalFromDashboard('${journal.key}')">Xem</button>
-                        <button class="btn btn-success" onclick="approveJournalFromDashboard('${journal.key}')">Duyệt</button>
-                        </td>
-                        </tr>
-                        `;
-                    });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        function loadApprovedJournals() {
-            const container = document.getElementById('journalListContainer');
-
-            const allJournals = [];
-
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('journal_')) {
-                    try {
-                        const journalData = JSON.parse(localStorage.getItem(key));
-
-                        if (journalData.approval && journalData.approval.leaderStatus && journalData.approval
-                            .leaderStatus.includes('Đã duyệt')) {
-                            allJournals.push({
-                                key: key,
-                                data: journalData
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Error parsing journal data for key:", key, e);
-                    }
-                }
-            }
-
-            if (allJournals.length === 0) {
-                container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
-                return;
-            }
-
-            let html = `<h4>✅ Nhật ký đã duyệt (${allJournals.length})</h4>`;
-            html += `
-                <table class="data-table">
-                <thead>
-                <tr>
-                <th>Ngày</th>
-                <th>CNV</th>
-                <th>HLV</th>
-                <th>Ngày duyệt</th>
-                <th>Hành động</th>
-                </tr>
-                </thead>
-                <tbody>
-            `;
-
-            allJournals.forEach(journal => {
-                html += `
-                    <tr>
-                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
-                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.dogName) || 'Unknown'}</td>
-                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.hlv) || 'Unknown'}</td>
-                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
-                    <td>
-                    <button class="btn btn-info" onclick="viewJournalFromDashboard('${journal.key}')">Xem</button>
-                    </td>
-                    </tr>
-                `;
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
-        // SỬA: Function viewJournalFromDashboard - FIX LỖI REDIRECT LOGIN
-        function viewJournalFromDashboard(journalKey) {
-            // SỬA: Mở tab mới với parameter journalKey để hiển thị A4 view
-            const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal`;
-            window.open(url, '_blank', 'width=1200,height=800');
-            console.log(`✅ Opening journal ${journalKey} in new tab`);
-        }
-
-        // Function to approve journal from dashboard
-        function approveJournalFromDashboard(journalKey) {
-            if (confirm('Bạn có chắc muốn duyệt nhật ký này?')) {
-                const journalData = JSON.parse(localStorage.getItem(journalKey));
-
-                if (journalData) {
-                    const currentTime = new Date().toISOString();
-
-                    if (!journalData.approval) journalData.approval = {};
-
-                    journalData.approval.leaderComment = `Đã duyệt bởi ${currentDashboardUser.name} từ Dashboard`;
-                    journalData.approval.leaderStatus = 'Đã duyệt';
-                    journalData.approval.leaderApprovalTime = currentTime;
-
-                    // SỬA: Thêm chữ ký điện tử cho lãnh đạo
-                    journalData.approval.leaderSignature = {
-                        name: currentDashboardUser.name,
-                        role: 'LEADER',
-                        timestamp: currentTime,
-                        id: `SIG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                        hash: btoa(`${currentDashboardUser.name}_LEADER_${currentTime}`),
-                        verified: true
-                    };
-
-                    localStorage.setItem(journalKey, JSON.stringify(journalData));
-
-                    alert('Nhật ký đã được duyệt thành công!');
-                    loadJournalList(); // Refresh list
-                }
-            }
+            console.log(`✅ Loaded ${allJournals.length} journals from localStorage fallback`);
         }
 
         // Web Control Functions

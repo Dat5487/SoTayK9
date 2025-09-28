@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="style.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="journal_db_manager.js"></script>
 
 <!-- THÊM CSS cho Dashboard connection và role-based -->
 <style>
@@ -647,5 +648,36 @@
 </div>
 
 <script src="script.js" defer></script>
+
+<script>
+// Migration function to move localStorage journals to database
+async function migrateJournalsToDatabase() {
+    try {
+        console.log('🔄 Starting journal migration from localStorage to database...');
+        
+        const result = await window.journalDBManager.migrateLocalStorageJournals();
+        
+        if (result.success) {
+            console.log(`✅ Migration completed: ${result.migrated_count}/${result.total_journals} journals migrated`);
+            
+            if (result.errors && result.errors.length > 0) {
+                console.warn('⚠️ Some journals failed to migrate:', result.errors);
+            }
+            
+            // Show migration result to user
+            if (result.migrated_count > 0) {
+                alert(`Đã chuyển đổi ${result.migrated_count} nhật ký từ localStorage sang cơ sở dữ liệu thành công!`);
+            }
+        } else {
+            throw new Error(result.error || 'Migration failed');
+        }
+        
+    } catch (error) {
+        console.error('❌ Migration failed:', error);
+        alert('Không thể chuyển đổi nhật ký từ localStorage sang cơ sở dữ liệu: ' + error.message);
+    }
+}
+
+</script>
 </body>
 </html>

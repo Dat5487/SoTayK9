@@ -94,6 +94,11 @@ def serve_js():
     """Serve JavaScript file"""
     return send_from_directory('.', 'script.js')
 
+@app.route('/journal_db_manager.js')
+def serve_journal_db_manager():
+    """Serve Journal Database Manager JavaScript file"""
+    return send_from_directory('.', 'journal_db_manager.js')
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     """Serve static files from static directory"""
@@ -465,6 +470,176 @@ def approve_training_journal(journal_id):
         
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/<int:journal_id>', methods=['DELETE'])
+def delete_training_journal(journal_id):
+    """Delete training journal"""
+    try:
+        success = db.delete_training_journal(journal_id)
+        if success:
+            return jsonify({"success": True, "message": "Journal deleted successfully"})
+        else:
+            return jsonify({"success": False, "error": "Journal not found"}), 404
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/by-dog/<int:dog_id>', methods=['GET'])
+def get_journals_by_dog(dog_id):
+    """Get all journals for a specific dog"""
+    try:
+        journals = db.get_training_journals_by_dog(dog_id)
+        return jsonify({
+            "success": True,
+            "data": journals,
+            "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/by-trainer/<int:trainer_id>', methods=['GET'])
+def get_journals_by_trainer(trainer_id):
+    """Get all journals for a specific trainer"""
+    try:
+        journals = db.get_training_journals_by_trainer(trainer_id)
+        return jsonify({
+            "success": True,
+            "data": journals,
+            "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/pending', methods=['GET'])
+def get_pending_journals():
+    """Get all journals pending approval"""
+    try:
+        journals = db.get_pending_journals()
+        return jsonify({
+            "success": True,
+            "data": journals,
+            "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/approved', methods=['GET'])
+def get_approved_journals():
+    """Get all approved journals"""
+    try:
+        journals = db.get_approved_journals()
+        return jsonify({
+            "success": True,
+            "data": journals,
+            "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/migrate-from-localstorage', methods=['POST'])
+def migrate_journals_from_localstorage():
+    """Migrate journals from localStorage to database"""
+    try:
+        data = request.get_json()
+        journals_data = data.get('journals', [])
+        
+        migrated_count = 0
+        errors = []
+        
+        for journal_data in journals_data:
+            try:
+                # Convert localStorage journal format to database format
+                db_journal_data = convert_localstorage_to_db_format(journal_data)
+                journal = db.create_training_journal(db_journal_data)
+                migrated_count += 1
+            except Exception as e:
+                errors.append(f"Failed to migrate journal {journal_data.get('key', 'unknown')}: {str(e)}")
+        
+        return jsonify({
+            "success": True,
+            "migrated_count": migrated_count,
+            "total_journals": len(journals_data),
+            "errors": errors
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+def convert_localstorage_to_db_format(localstorage_data):
+    """Convert localStorage journal format to database format"""
+    general_info = localstorage_data.get('generalInfo', {})
+    approval = localstorage_data.get('approval', {})
+    
+    # Extract dog and trainer information
+    dog_name = general_info.get('dogName', '')
+    trainer_name = general_info.get('hlv', '')
+    
+    # Find dog and trainer IDs from database
+    dogs = db.get_all_dogs()
+    users = db.get_all_users()
+    
+    dog_id = None
+    trainer_id = None
+    
+    for dog in dogs:
+        if dog['name'] == dog_name:
+            dog_id = dog['id']
+            break
+    
+    for user in users:
+        if user['name'] == trainer_name:
+            trainer_id = user['id']
+            break
+    
+    if not dog_id or not trainer_id:
+        raise ValueError(f"Could not find dog '{dog_name}' or trainer '{trainer_name}' in database")
+    
+    # Convert training blocks to training activities
+    training_blocks = localstorage_data.get('trainingBlocks', [])
+    training_activities = []
+    for block in training_blocks:
+        if block.get('content'):
+            training_activities.append(block['content'])
+    
+    # Convert operation blocks to operation activities
+    operation_blocks = localstorage_data.get('operationBlocks', [])
+    operation_activities = []
+    for block in operation_blocks:
+        if block.get('content'):
+            operation_activities.append(block['content'])
+    
+    # Convert care data
+    care_data = localstorage_data.get('care', {})
+    care_activities = []
+    if care_data.get('morning'):
+        care_activities.append(f"Sáng: {care_data['morning']}")
+    if care_data.get('afternoon'):
+        care_activities.append(f"Chiều: {care_data['afternoon']}")
+    if care_data.get('evening'):
+        care_activities.append(f"Tối: {care_data['evening']}")
+    
+    # Determine approval status
+    approval_status = 'PENDING'
+    if approval.get('leaderStatus') and 'Đã duyệt' in approval['leaderStatus']:
+        approval_status = 'APPROVED'
+    elif approval.get('leaderStatus') and 'Từ chối' in approval['leaderStatus']:
+        approval_status = 'REJECTED'
+    
+    return {
+        'dog_id': dog_id,
+        'trainer_id': trainer_id,
+        'journal_date': general_info.get('date', ''),
+        'training_activities': '; '.join(training_activities),
+        'care_activities': '; '.join(care_activities),
+        'operation_activities': '; '.join(operation_activities),
+        'health_status': localstorage_data.get('health', {}).get('status', 'Tốt'),
+        'behavior_notes': localstorage_data.get('hlvComment', ''),
+        'weather_conditions': localstorage_data.get('health', {}).get('weather', ''),
+        'challenges': localstorage_data.get('otherIssues', ''),
+        'approval_status': approval_status,
+        'approved_by': None,  # Will be set when approved
+        'approved_at': None,
+        'rejection_reason': approval.get('leaderComment', '') if approval_status == 'REJECTED' else None
+    }
 
 # =============================================================================
 # USER-DOG ASSIGNMENT API ROUTES
