@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K9 Management Dashboard - Complete</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Sửa data table để hiển thị đầy đủ */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            overflow: visible;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px 6px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .data-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Responsive cho dog management table */
+        .data-table td:nth-child(1) {
+            max-width: 80px;
+        }
+
+        .data-table td:nth-child(2) {
+            max-width: 70px;
+        }
+
+        .data-table td:nth-child(3) {
+            max-width: 90px;
+        }
+
+        .data-table td:nth-child(4) {
+            max-width: 100px;
+        }
+
+        .data-table td:nth-child(5) {
+            max-width: 80px;
+        }
+
+        .data-table td:nth-child(6) {
+            min-width: 120px;
+        }
+
+        /* Control panels responsive */
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-height: 400px;
+        }
+
+        /* Button sizing trong table */
+        .data-table .btn {
+            font-size: 11px;
+            padding: 3px 8px;
+            margin: 1px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Login Form Styles */
+        .login-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            margin: 50px auto;
+        }
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-full-width {
+            width: 100%;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336 0%, #da190b 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #2196F3 0%, #0b7dda 100%);
+        }
+
+        /* Dashboard Main Styles */
+        .dashboard-main {
+            display: none;
+        }
+
+        .dashboard-main.active {
+            display: block;
+        }
+
+        .dashboard-nav {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-nav h2 {
+            color: #333;
+            margin: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .role-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .role-admin {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .role-manager {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .role-trainer {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        /* SỬA .control-panels THÀNH LAYOUT VERTICAL */
+        .control-panels {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            min-height: 300px;
+        }
+
+        /* Thêm hiệu ứng hover cho control panels */
+        .control-panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel h3 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Modal Styles - SỬA QUAN TRỌNG */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-pending {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .status-inactive {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .control-panels {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-nav {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        /* Web Control Section */
+        .web-control-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .web-control-section h3 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .web-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .web-link-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .web-link-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            color: white;
+            text-decoration: none;
+        }
+
+        .web-link-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .web-link-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Checkbox styles */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 0;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            display: none;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ddd;
+            border-radius: 3px;
+            margin-right: 8px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked+.checkmark {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .checkbox-label input[type="checkbox"]:checked+.checkmark::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .checkbox-label:hover .checkmark {
+            border-color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>🐕 K9 MANAGEMENT SYSTEM</h1>
+            <p>Hệ Thống Quản Lý Chó Nghiệp Vụ Hải Quan</p>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="login-container">
+            <h2>🔐 Đăng Nhập Dashboard</h2>
+            <form id="dashboardLoginForm">
+                <div class="form-group">
+                    <label for="adminUsername">Tên đăng nhập:</label>
+                    <input type="text" id="adminUsername" placeholder="Nhập tên đăng nhập" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Mật khẩu:</label>
+                    <input type="password" id="adminPassword" placeholder="Nhập mật khẩu" required>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-full-width">Đăng Nhập</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Main -->
+        <div id="dashboardMain" class="dashboard-main">
+            <!-- Navigation -->
+            <div class="dashboard-nav">
+                <h2>Dashboard Quản Lý</h2>
+                <div class="user-info">
+                    <span id="currentUserDisplay">Admin User</span>
+                    <span id="currentRoleDisplay" class="role-badge role-admin">ADMIN</span>
+                    <button class="btn btn-danger" onclick="logoutDashboard()">Đăng Xuất</button>
+                </div>
+            </div>
+
+            <!-- Control Panels -->
+            <div class="control-panels">
+                <!-- User Management Panel -->
+                <div class="control-panel">
+                    <h3>👥 QUẢN LÝ NGƯỜI DÙNG</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-success" onclick="openCreateUserModal()">Tạo User</button>
+                        <button class="btn btn-info" onclick="loadUserList()">Danh Sách</button>
+                        <button class="btn btn-warning" onclick="loadAssignmentList()">Phân Công</button>
+                    </div>
+                    <div id="userListContainer"></div>
+                </div>
+
+                <!-- Dog Management Panel -->
+                <div class="control-panel">
+                    <h3>🐕 QUẢN LÝ CHÓ NGHIỆP VỤ</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-success" onclick="openCreateDogModal()">Thêm Chó</button>
+                        <button class="btn btn-info" onclick="loadDogList()">Danh Sách</button>
+                        <button class="btn btn-warning" onclick="viewDogStatus()">Trạng Thái</button>
+                    </div>
+                    <div id="dogListContainer"></div>
+                </div>
+
+                <!-- Journal Management Panel -->
+                <div class="control-panel">
+                    <h3>📋 QUẢN LÝ NHẬT KÝ</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-info" onclick="loadJournalList()">Tất Cả Nhật Ký</button>
+                        <button class="btn btn-warning" onclick="loadPendingJournals()">Chờ Duyệt</button>
+                        <button class="btn btn-success" onclick="loadApprovedJournals()">Đã Duyệt</button>
+                    </div>
+                    <div id="journalListContainer"></div>
+                </div>
+            </div>
+
+            <!-- Web Control Section -->
+            <div class="web-control-section">
+                <h3>🌐 ĐIỀU KHIỂN WEB APPLICATION</h3>
+                <div class="web-links">
+                    <a href="#" class="web-link-card" onclick="openWebForRole('ADMIN')">
+                        <h4>👑 Admin Access</h4>
+                        <p>Full quyền quản trị</p>
+                    </a>
+                    <a href="#" class="web-link-card" onclick="openWebForRole('TRAINER')">
+                        <h4>🎯 Trainer Access</h4>
+                        <p>Chỉ chó được gán</p>
+                    </a>
+                    <a href="#" class="web-link-card" onclick="openWebForRole('MANAGER')">
+                        <h4>📊 Manager Access</h4>
+                        <p>Duyệt nhật ký</p>
+                    </a>
+                    <a href="index.html" class="web-link-card" target="_blank">
+                        <h4>🔗 Direct Web</h4>
+                        <p>Truy cập trực tiếp</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal - SỬA QUAN TRỌNG -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="userModalTitle">Tạo Người Dùng Mới</h3>
+                <span class="close" onclick="forceCloseUserModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="userName">Họ và tên:</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userUsername">Tên đăng nhập:</label>
+                    <input type="text" id="userUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Mật khẩu:</label>
+                    <input type="password" id="userPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="userRole">Vai trò:</label>
+                    <select id="userRole" required>
+                        <option value="">Chọn vai trò</option>
+                        <option value="TRAINER">Huấn luyện viên</option>
+                        <option value="MANAGER">Quản lý</option>
+                        <option value="ADMIN">Quản trị viên</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userDogs">Chó được phân công:</label>
+                    <select id="userDogs" multiple style="height: 100px;">
+                        <!-- Sẽ được load động từ dogs data -->
+                    </select>
+                    <small>Giữ Ctrl để chọn nhiều chó</small>
+                </div>
+                <button type="submit" class="btn btn-success btn-full-width">Lưu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dog Modal -->
+    <div id="dogModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 id="dogModalTitle">Thêm Chó Nghiệp Vụ Mới</h3>
+                <span class="close" onclick="closeModal('dogModal')">&times;</span>
+            </div>
+            <form id="dogForm">
+                <!-- SỬA: FORM THEO CHUẨN WEB -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Cột trái - Ảnh và thông tin cơ bản -->
+                    <div>
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <img id="dog_modal_image" src="images/default_dog.jpg" alt="Ảnh CNV"
+                                style="width: 150px; height: 150px; border-radius: 10px; border: 2px solid #ddd;">
+                            <h4 style="margin: 10px 0; color: #333;">SƠ YẾU LÝ LỊCH</h4>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dogName">1. Tên CNV:</label>
+                            <input type="text" id="dogName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dogChipId">2. Số hiệu:</label>
+                            <input type="text" id="dogChipId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dogBirthDate">3. Ngày sinh:</label>
+                            <input type="date" id="dogBirthDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogBirthPlace">4. Nơi sinh:</label>
+                            <input type="text" id="dogBirthPlace">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogBreed">5. Giống CNV:</label>
+                            <select id="dogBreed" required>
+                                <option value="">Chọn giống</option>
+                                <option value="German Shepherd">German Shepherd</option>
+                                <option value="Belgian Malinois">Belgian Malinois</option>
+                                <option value="Labrador">Labrador</option>
+                                <option value="Golden Retriever">Golden Retriever</option>
+                                <option value="Rottweiler">Rottweiler</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dogGender">6. Tính biệt:</label>
+                            <select id="dogGender">
+                                <option value="">Chọn giới tính</option>
+                                <option value="Đực">Đực</option>
+                                <option value="Cái">Cái</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải - Thông tin bổ sung -->
+                    <div>
+                        <div class="form-group">
+                            <label for="dogFeatures">7. Đặc điểm ngoại hình:</label>
+                            <textarea id="dogFeatures" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="dogFurColor">8. Màu lông:</label>
+                            <input type="text" id="dogFurColor">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogValue">9. Số giá trị:</label>
+                            <input type="text" id="dogValue">
+                        </div>
+
+                        <hr style="margin: 20px 0;">
+                        <h4 style="color: #333; margin-bottom: 15px;">DÒNG HỌ</h4>
+
+                        <div class="form-group">
+                            <label for="dogFatherName">1. Tên bố:</label>
+                            <input type="text" id="dogFatherName">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogFatherBirth">2. Ngày sinh:</label>
+                            <input type="date" id="dogFatherBirth">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogFatherPlace">3. Nơi sinh:</label>
+                            <input type="text" id="dogFatherPlace">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogFatherBreed">4. Giống:</label>
+                            <input type="text" id="dogFatherBreed">
+                        </div>
+                        <div class="form-group">
+                            <label for="dogFatherFeatures">5. Đặc điểm ngoại hình:</label>
+                            <textarea id="dogFatherFeatures" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="margin: 20px 0;">
+                <!-- SỬA: THÊM PHẦN HUẤN LUYỆN VIÊN QUẢN LÝ -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h4 style="color: #333;">HUẤN LUYỆN VIÊN QUẢN LÝ</h4>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="dogTrainer">Huấn luyện viên phụ trách:</label>
+                        <select id="dogTrainer" onchange="updateTrainerInfo()">
+                            <option value="">Chưa phân công</option>
+                            <!-- Sẽ được load động từ users data -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dogStatus">Trạng thái hoạt động:</label>
+                        <select id="dogStatus" required>
+                            <option value="ACTIVE">Hoạt động</option>
+                            <option value="TRAINING">Đang huấn luyện</option>
+                            <option value="INACTIVE">Nghỉ ngơi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SỬA: 6 TRƯỜNG THÔNG TIN HLV -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label for="hlvTen">1. Họ và tên HLV:</label>
+                        <input type="text" id="hlvTen" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="hlvNgaysinh">2. Ngày tháng năm sinh HLV:</label>
+                        <input type="date" id="hlvNgaysinh">
+                    </div>
+                    <div class="form-group">
+                        <label for="hlvCapbac">3. Cấp bậc:</label>
+                        <input type="text" id="hlvCapbac">
+                    </div>
+                    <div class="form-group">
+                        <label for="hlvChucvu">4. Chức vụ:</label>
+                        <input type="text" id="hlvChucvu">
+                    </div>
+                    <div class="form-group">
+                        <label for="hlvDonvi">5. Đơn vị:</label>
+                        <input type="text" id="hlvDonvi">
+                    </div>
+                    <div class="form-group">
+                        <label for="hlvDaotao">6. Qua trường đào tạo:</label>
+                        <input type="text" id="hlvDaotao">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success btn-full-width" style="margin-top: 20px;">Lưu Hồ Sơ
+                    CNV</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDashboardUser = null;
+        let currentDashboardRole = 'GUEST';
+        let users = [];
+        let dogs = [];
+        let editingUserId = null;
+        let editingDogId = null;
+
+        // API Base URL
+        const API_BASE_URL = window.location.origin;
+
+        // Session Management
+        const SESSION_STORAGE_KEY = 'k9_session_token';
+        const USER_STORAGE_KEY = 'k9_current_user';
+
+        // Session Management Functions
+        function saveSession(sessionToken, userData, rememberMe = false) {
+            if (rememberMe && sessionToken) {
+                localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+            } else {
+                sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+            }
+        }
+
+        function getSessionToken() {
+            return localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem(SESSION_STORAGE_KEY);
+        }
+
+        function getCurrentUser() {
+            const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
+            return userData ? JSON.parse(userData) : null;
+        }
+
+        function clearSession() {
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            sessionStorage.removeItem(USER_STORAGE_KEY);
+        }
+
+        async function validateSession() {
+            const sessionToken = getSessionToken();
+            if (!sessionToken) return null;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/validate-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    // Update stored user data
+                    saveSession(sessionToken, result.data, localStorage.getItem(SESSION_STORAGE_KEY) !== null);
+                    return result.data;
+                } else {
+                    clearSession();
+                    return null;
+                }
+            } catch (error) {
+                console.error('Session validation error:', error);
+                clearSession();
+                return null;
+            }
+        }
+
+        async function logoutUser() {
+            const sessionToken = getSessionToken();
+            if (sessionToken) {
+                try {
+                    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            session_token: sessionToken
+                        })
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+            }
+            clearSession();
+            showLoginForm();
+        }
+
+        // API Functions
+        async function fetchUsersFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`);
+                const result = await response.json();
+                if (result.success) {
+                    return result.data;
+                } else {
+                    console.error('Failed to fetch users:', result.error);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching users from API:', error);
+                return [];
+            }
+        }
+
+        async function fetchDogsFromAPI() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dogs`);
+                const result = await response.json();
+                if (result.success) {
+                    return result.data;
+                } else {
+                    console.error('Failed to fetch dogs:', result.error);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching dogs from API:', error);
+                return [];
+            }
+        }
+
+        async function createUserViaAPI(userData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating user via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function updateUserViaAPI(userId, userData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error updating user via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function deleteUserViaAPI(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error deleting user via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function createDogViaAPI(dogData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dogs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dogData)
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error creating dog via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function updateDogViaAPI(dogId, dogData) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dogs/${dogId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dogData)
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error updating dog via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function deleteDogViaAPI(dogId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/dogs/${dogId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error deleting dog via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        async function authenticateUserViaAPI(username, password, rememberMe = false) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username,
+                        password,
+                        remember_me: rememberMe
+                    })
+                });
+                const result = await response.json();
+
+                if (result.success && result.session_token) {
+                    // Save session if remember_me is true
+                    saveSession(result.session_token, result.data, rememberMe);
+                }
+
+                return result;
+            } catch (error) {
+                console.error('Error authenticating user via API:', error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // Initialize data from API or fallback to localStorage
+        async function initializeData() {
+            console.log('🔄 Initializing data from API...');
+
+            try {
+                // Try to fetch from API first
+                const apiUsers = await fetchUsersFromAPI();
+                const apiDogs = await fetchDogsFromAPI();
+
+                if (apiUsers.length > 0 || apiDogs.length > 0) {
+                    console.log('✅ Data loaded from database API');
+                    users = apiUsers;
+                    dogs = apiDogs;
+                    return;
+                }
+            } catch (error) {
+                console.log('⚠️ API not available, falling back to localStorage');
+            }
+
+            // Fallback to localStorage
+            console.log('🔄 Falling back to localStorage...');
+            users = JSON.parse(localStorage.getItem('k9_users')) || [];
+            dogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
+
+            // If localStorage is also empty, use default data
+            if (users.length === 0 && dogs.length === 0) {
+                console.log('🔄 Using default data...');
+                initializeDefaultData();
+            }
+        }
+
+
+        // SỬA QUAN TRỌNG: Dashboard login với event listener
+        document.addEventListener('DOMContentLoaded', async function () {
+            await initializeData();
+
+            // Check for existing session
+            const sessionUser = await validateSession();
+            if (sessionUser) {
+                console.log('✅ Valid session found, auto-login');
+                currentDashboardUser = sessionUser;
+                currentDashboardRole = sessionUser.role;
+
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboardMain').classList.add('active');
+                document.getElementById('currentUserDisplay').textContent = sessionUser.name;
+                document.getElementById('currentRoleDisplay').textContent = sessionUser.role;
+                document.getElementById('currentRoleDisplay').className =
+                    `role-badge role-${sessionUser.role.toLowerCase()}`;
+
+                await loadUserList();
+                await loadDogList();
+                loadJournalList();
+            }
+
+            const loginForm = document.getElementById('dashboardLoginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', dashboardLogin);
+            }
+
+            const userForm = document.getElementById('userForm');
+            if (userForm) {
+                userForm.addEventListener('submit', submitUserForm);
+            }
+
+            const dogForm = document.getElementById('dogForm');
+            if (dogForm) {
+                dogForm.addEventListener('submit', submitDogForm);
+            }
+        });
+
+        // Dashboard login - SỬA EVENT HANDLING
+        async function dashboardLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            try {
+                // Try API authentication first
+                const apiResult = await authenticateUserViaAPI(username, password, rememberMe);
+                let user = null;
+
+                if (apiResult.success) {
+                    user = apiResult.data;
+                    console.log('✅ Authentication via API successful');
+                } else {
+                    // Fallback to local authentication
+                    console.log('⚠️ API authentication failed, trying local authentication');
+                    user = users.find(u => u.username === username && u.password === password);
+
+                    // Special case: Fix admin password issue
+                    if (!user && username === 'admin' && password === 'admin') {
+                        console.log('🔧 Fixing admin password issue...');
+                        user = users.find(u => u.username === 'admin');
+                        if (user) {
+                            user.password = 'admin'; // Fix the password
+                            console.log('✅ Admin password fixed in memory');
+                        }
+                    }
+
+                    // Additional fallback for known working accounts
+                    if (!user) {
+                        const fallbackAccounts = [
+                            { username: 'admin', password: 'admin', role: 'ADMIN', name: 'Quản trị viên', assignedDogs: ['CNV BI', 'CNV LU', 'CNV RẾCH', 'CNV KY', 'CNV REX'] },
+                            { username: 'trainer1', password: 'trainer', role: 'TRAINER', name: 'Trần Đức Kiên', assignedDogs: ['CNV BI'] },
+                            { username: 'Kien123', password: '123456', role: 'TRAINER', name: 'Trần Đức Kiên (Kien123)', assignedDogs: ['CNV BI', 'CNV LU'] }
+                        ];
+                        
+                        const fallbackUser = fallbackAccounts.find(u => u.username === username && u.password === password);
+                        if (fallbackUser) {
+                            console.log('✅ Using fallback account:', fallbackUser.name);
+                            user = fallbackUser;
+                        }
+                    }
+
+                    // For local authentication, also save to session storage
+                    if (user) {
+                        saveSession(null, user, rememberMe);
+                    }
+                }
+
+                if (user) {
+                    currentDashboardUser = user;
+                    currentDashboardRole = user.role;
+
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('dashboardMain').classList.add('active');
+                    document.getElementById('currentUserDisplay').textContent = user.name;
+                    document.getElementById('currentRoleDisplay').textContent = user.role;
+                    document.getElementById('currentRoleDisplay').className =
+                        `role-badge role-${user.role.toLowerCase()}`;
+
+                    await loadUserList();
+                    await loadDogList();
+                    loadJournalList();
+                } else {
+                    alert('Tên đăng nhập hoặc mật khẩu không đúng!');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Có lỗi xảy ra khi đăng nhập!');
+            }
+        }
+
+        // Logout dashboard
+        async function logoutDashboard() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                await logoutUser();
+                currentDashboardUser = null;
+                currentDashboardRole = 'GUEST';
+
+                // Reset forms
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('rememberMe').checked = false;
+            }
+        }
+
+        // SỬA QUAN TRỌNG: Modal functions
+        function forceCloseUserModal() {
+            const modal = document.getElementById('userModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Reset form
+                const form = document.getElementById('userForm');
+                if (form) {
+                    form.reset();
+                }
+                editingUserId = null;
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // SỬA: Load danh sách chó động cho user modal + FORCE REFRESH
+        function loadDogOptionsForUser() {
+            const dogSelect = document.getElementById('userDogs');
+            if (!dogSelect) return;
+
+            dogSelect.innerHTML = '';
+
+            // SỬA: FORCE REFRESH từ localStorage mỗi lần
+            dogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
+
+            // Load từ dogs data thật
+            dogs.forEach(dog => {
+                const option = document.createElement('option');
+                option.value = dog.name;
+                option.textContent = dog.name;
+                dogSelect.appendChild(option);
+            });
+
+        }
+
+        // User Management Functions
+        function openCreateUserModal() {
+            editingUserId = null;
+            document.getElementById('userModalTitle').textContent = 'Tạo Người Dùng Mới';
+            document.getElementById('userName').value = '';
+            document.getElementById('userUsername').value = '';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userRole').value = '';
+
+            // SỬA: FORCE Load danh sách chó động từ dogs data mới nhất
+            loadDogOptionsForUser();
+            document.getElementById('userModal').style.display = 'block';
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                editingUserId = userId;
+                document.getElementById('userModalTitle').textContent = 'Chỉnh Sửa Người Dùng';
+                document.getElementById('userName').value = user.name;
+                document.getElementById('userUsername').value = user.username;
+                document.getElementById('userPassword').value = user.password;
+                document.getElementById('userRole').value = user.role;
+
+                // SỬA: FORCE Load danh sách chó và set selection
+                loadDogOptionsForUser();
+                setTimeout(() => {
+                    const dogSelect = document.getElementById('userDogs');
+                    for (let option of dogSelect.options) {
+                        option.selected = user.assignedDogs.includes(option.value);
+                    }
+                }, 100);
+
+                document.getElementById('userModal').style.display = 'block';
+            }
+        }
+
+        // SỬA QUAN TRỌNG: Submit user form với FORCE CLOSE
+        async function submitUserForm(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                const userData = {
+                    name: document.getElementById('userName').value,
+                    username: document.getElementById('userUsername').value,
+                    password: document.getElementById('userPassword').value,
+                    role: document.getElementById('userRole').value,
+                    assignedDogs: Array.from(document.getElementById('userDogs').selectedOptions).map(option =>
+                        option.value),
+                    status: 'ACTIVE'
+                };
+
+                let result;
+                if (editingUserId) {
+                    // Update existing user via API
+                    result = await updateUserViaAPI(editingUserId, userData);
+                } else {
+                    // Create new user via API
+                    result = await createUserViaAPI(userData);
+
+                    // SỬA: AUTO-CREATE DOGS FOR NEW TRAINER
+                    if (result.success && userData.role === 'TRAINER') {
+                        const newUserId = result.data.id;
+
+                        // Tự động tạo 2 chó mới cho trainer
+                        const dogName1 =
+                            `CNV ${userData.name.split(' ')[userData.name.split(' ').length - 1].toUpperCase()}1`;
+                        const dogName2 =
+                            `CNV ${userData.name.split(' ')[userData.name.split(' ').length - 1].toUpperCase()}2`;
+
+                        const newDog1 = {
+                            name: dogName1,
+                            chip_id: `CHIP${Date.now()}1`,
+                            breed: 'German Shepherd',
+                            trainer_id: newUserId,
+                            status: 'ACTIVE'
+                        };
+
+                        const newDog2 = {
+                            name: dogName2,
+                            chip_id: `CHIP${Date.now()}2`,
+                            breed: 'Belgian Malinois',
+                            trainer_id: newUserId,
+                            status: 'TRAINING'
+                        };
+
+                        // Create dogs via API
+                        const dog1Result = await createDogViaAPI(newDog1);
+                        const dog2Result = await createDogViaAPI(newDog2);
+
+                        if (dog1Result.success && dog2Result.success) {
+                            console.log(
+                                `✅ Auto-created dogs ${dogName1} and ${dogName2} for trainer ${userData.name}`);
+                        }
+                    }
+                }
+
+                if (result.success) {
+                    // Refresh data from API
+                    await loadUserList();
+                    await loadDogList();
+                    forceRefreshAllTrainerDropdowns();
+
+                    // SỬA QUAN TRỌNG: FORCE CLOSE MODAL NGAY LẬP TỨC
+                    setTimeout(() => {
+                        forceCloseUserModal();
+                    }, 100);
+
+                    // SỬA: TRIGGER refresh web app nếu đang mở NGAY LẬP TỨC
+                    triggerWebAppRefreshImmediately();
+
+                    alert('Người dùng đã được lưu thành công!');
+                } else {
+                    alert(`Lỗi: ${result.error}`);
+                }
+
+            } catch (error) {
+                console.error('❌ Error in submitUserForm:', error);
+                alert('Có lỗi xảy ra khi lưu người dùng!');
+            }
+
+            return false;
+        }
+
+        async function deleteUser(userId) {
+            if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
+                try {
+                    const result = await deleteUserViaAPI(userId);
+
+                    if (result.success) {
+                        await loadUserList();
+                        forceRefreshAllTrainerDropdowns();
+                        triggerWebAppRefreshImmediately();
+                        alert('Người dùng đã được xóa!');
+                    } else {
+                        alert(`Lỗi: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting user:', error);
+                    alert('Có lỗi xảy ra khi xóa người dùng!');
+                }
+            }
+        }
+
+        async function loadUserList() {
+            const container = document.getElementById('userListContainer');
+
+            // Refresh users from API
+            try {
+                const apiUsers = await fetchUsersFromAPI();
+                if (apiUsers.length > 0) {
+                    users = apiUsers;
+                }
+            } catch (error) {
+                console.log('Failed to refresh users from API, using cached data');
+            }
+
+            if (users.length === 0) {
+                container.innerHTML = '<p>Chưa có người dùng nào.</p>';
+                return;
+            }
+
+            let html = `
+<table class="data-table">
+<thead>
+<tr>
+<th>Tên</th>
+<th>Username</th>
+<th>Vai trò</th>
+<th>Chó phân công</th>
+<th>Trạng thái</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+            users.forEach(user => {
+                // Get assigned dogs for this user (should already be in the user object from API)
+                const assignedDogs = user.assignedDogs || [];
+                const assignedDogsText = assignedDogs.length > 0 ? assignedDogs.join(', ') : 'Chưa có';
+
+                html += `
+<tr>
+<td>${user.name}</td>
+<td>${user.username}</td>
+<td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
+<td>${assignedDogsText}</td>
+<td><span class="status-indicator status-${user.status.toLowerCase()}">${user.status}</span></td>
+<td>
+<button class="btn btn-warning" onclick="editUser(${user.id})" style="margin-right: 5px;">Sửa</button>
+<button class="btn btn-danger" onclick="deleteUser(${user.id})">Xóa</button>
+</td>
+</tr>
+`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        async function getUserAssignedDogs(userId) {
+            try {
+                // Get assigned dogs from API
+                const response = await fetch(`${API_BASE_URL}/api/users/${userId}/dogs`);
+                const result = await response.json();
+                if (result.success) {
+                    return result.data.map(dog => dog.name);
+                } else {
+                    console.error('Failed to fetch assigned dogs:', result.error);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error fetching assigned dogs from API:', error);
+                return [];
+            }
+        }
+
+        // SỬA: function loadTrainerOptions để FORCE REFRESH REAL-TIME từ users data MỚI NHẤT
+        function loadTrainerOptions() {
+            const select = document.getElementById('dogTrainer');
+            if (!select) return; // Exit if not found
+
+            select.innerHTML = '<option value="">Chưa phân công</option>';
+
+            // SỬA: FORCE RELOAD users từ localStorage mỗi lần gọi
+            users = JSON.parse(localStorage.getItem('k9_users')) || [];
+
+            // Lấy DISTINCT trainers (không duplicate)
+            const trainers = users.filter(u => u.role === 'TRAINER');
+            const uniqueTrainers = trainers.filter((trainer, index, arr) =>
+                arr.findIndex(t => t.id === trainer.id) === index
+            );
+
+            uniqueTrainers.forEach(trainer => {
+                const option = document.createElement('option');
+                option.value = trainer.id;
+                option.textContent = `${trainer.name} (${trainer.username})`;
+                option.dataset.trainerName = trainer.name;
+                select.appendChild(option);
+            });
+
+            console.log(`✅ FORCE REFRESHED trainer dropdown with ${uniqueTrainers.length} trainers`);
+        }
+
+        // SỬA: THÊM function để FORCE REFRESH TẤT CẢ trainer dropdown NGAY LẬP TỨC
+        function forceRefreshAllTrainerDropdowns() {
+            // Refresh trainer dropdown trong dog modal nếu đang mở
+            const dogModal = document.getElementById('dogModal');
+            if (dogModal && dogModal.style.display !== 'none') {
+                loadTrainerOptions();
+            }
+
+            // Trigger refresh cho tất cả page khác nếu cần
+            console.log('✅ All trainer dropdowns force refreshed immediately');
+        }
+
+        // SỬA: THÊM function updateTrainerInfo
+        function updateTrainerInfo() {
+            const trainerSelect = document.getElementById('dogTrainer');
+            const selectedOption = trainerSelect.options[trainerSelect.selectedIndex];
+            const hlvTenInput = document.getElementById('hlvTen');
+
+            if (selectedOption && selectedOption.value) {
+                hlvTenInput.value = selectedOption.dataset.trainerName || selectedOption.textContent.split(' (')[0];
+            } else {
+                hlvTenInput.value = '';
+            }
+        }
+
+        // SỬA: openCreateDogModal với clear full form + FORCE REFRESH TRAINER DROPDOWN
+        function openCreateDogModal() {
+            editingDogId = null;
+            document.getElementById('dogModalTitle').textContent = 'Thêm Chó Nghiệp Vụ Mới';
+
+            // Clear all form fields
+            document.getElementById('dogName').value = '';
+            document.getElementById('dogChipId').value = '';
+            document.getElementById('dogBirthDate').value = '';
+            document.getElementById('dogBirthPlace').value = '';
+            document.getElementById('dogBreed').value = '';
+            document.getElementById('dogGender').value = '';
+            document.getElementById('dogFeatures').value = '';
+            document.getElementById('dogFurColor').value = '';
+            document.getElementById('dogValue').value = '';
+            document.getElementById('dogFatherName').value = '';
+            document.getElementById('dogFatherBirth').value = '';
+            document.getElementById('dogFatherPlace').value = '';
+            document.getElementById('dogFatherBreed').value = '';
+            document.getElementById('dogFatherFeatures').value = '';
+            document.getElementById('dogTrainer').value = '';
+            document.getElementById('dogStatus').value = 'ACTIVE';
+
+            // SỬA: Clear trainer info
+            document.getElementById('hlvTen').value = '';
+            document.getElementById('hlvNgaysinh').value = '';
+            document.getElementById('hlvCapbac').value = '';
+            document.getElementById('hlvChucvu').value = '';
+            document.getElementById('hlvDonvi').value = '';
+            document.getElementById('hlvDaotao').value = '';
+
+            // SỬA: FORCE Load trainers mới nhất mỗi lần mở modal
+            loadTrainerOptions();
+
+            document.getElementById('dogModal').style.display = 'block';
+        }
+
+        // SỬA: editDog với full form data
+        function editDog(dogId) {
+            const dog = dogs.find(d => d.id === dogId);
+            if (dog) {
+                editingDogId = dogId;
+                document.getElementById('dogModalTitle').textContent = 'Chỉnh Sửa Chó Nghiệp Vụ';
+
+                // Load full data - handle both database and localStorage field names
+                document.getElementById('dogName').value = dog.name || '';
+                document.getElementById('dogChipId').value = dog.chip_id || dog.chipId || '';
+                document.getElementById('dogBirthDate').value = dog.birth_date || dog.birthDate || '';
+                document.getElementById('dogBirthPlace').value = dog.birth_place || dog.birthPlace || '';
+                document.getElementById('dogBreed').value = dog.breed || '';
+                document.getElementById('dogGender').value = dog.gender || '';
+                document.getElementById('dogFeatures').value = dog.features || '';
+                document.getElementById('dogFurColor').value = dog.fur_color || dog.furColor || '';
+                document.getElementById('dogValue').value = dog.value || '';
+                document.getElementById('dogFatherName').value = dog.father_name || dog.fatherName || '';
+                document.getElementById('dogFatherBirth').value = dog.father_birth || dog.fatherBirth || '';
+                document.getElementById('dogFatherPlace').value = dog.father_place || dog.fatherPlace || '';
+                document.getElementById('dogFatherBreed').value = dog.father_breed || dog.fatherBreed || '';
+                document.getElementById('dogFatherFeatures').value = dog.father_features || dog.fatherFeatures || '';
+                document.getElementById('dogStatus').value = dog.status || 'ACTIVE';
+
+                // SỬA: Load trainer info - handle both field name formats
+                document.getElementById('hlvTen').value = dog.hlv_ten || dog.hlvTen || '';
+                document.getElementById('hlvNgaysinh').value = dog.hlv_ngaysinh || dog.hlvNgaysinh || '';
+                document.getElementById('hlvCapbac').value = dog.hlv_capbac || dog.hlvCapbac || '';
+                document.getElementById('hlvChucvu').value = dog.hlv_chucvu || dog.hlvChucvu || '';
+                document.getElementById('hlvDonvi').value = dog.hlv_donvi || dog.hlvDonvi || '';
+                document.getElementById('hlvDaotao').value = dog.hlv_daotao || dog.hlvDaotao || '';
+
+                // SỬA: FORCE REFRESH trainer options trước khi set value
+                loadTrainerOptions();
+                setTimeout(() => {
+                    const trainerId = dog.trainer_id || dog.trainerId;
+                    document.getElementById('dogTrainer').value = trainerId || '';
+                }, 100);
+
+                document.getElementById('dogModal').style.display = 'block';
+            }
+        }
+
+        // SỬA: submitDogForm với event handling
+        async function submitDogForm(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            try {
+                const dogData = {
+                    name: document.getElementById('dogName').value,
+                    chip_id: document.getElementById('dogChipId').value,
+                    birth_date: document.getElementById('dogBirthDate').value,
+                    birth_place: document.getElementById('dogBirthPlace').value,
+                    breed: document.getElementById('dogBreed').value,
+                    gender: document.getElementById('dogGender').value,
+                    features: document.getElementById('dogFeatures').value,
+                    fur_color: document.getElementById('dogFurColor').value,
+                    value: document.getElementById('dogValue').value,
+                    father_name: document.getElementById('dogFatherName').value,
+                    father_birth: document.getElementById('dogFatherBirth').value,
+                    father_place: document.getElementById('dogFatherPlace').value,
+                    father_breed: document.getElementById('dogFatherBreed').value,
+                    father_features: document.getElementById('dogFatherFeatures').value,
+                    trainer_id: parseInt(document.getElementById('dogTrainer').value) || null,
+                    status: document.getElementById('dogStatus').value,
+                    // SỬA: Thêm trainer info
+                    hlv_ten: document.getElementById('hlvTen').value,
+                    hlv_ngaysinh: document.getElementById('hlvNgaysinh').value,
+                    hlv_capbac: document.getElementById('hlvCapbac').value,
+                    hlv_chucvu: document.getElementById('hlvChucvu').value,
+                    hlv_donvi: document.getElementById('hlvDonvi').value,
+                    hlv_daotao: document.getElementById('hlvDaotao').value
+                };
+
+                let result;
+                if (editingDogId) {
+                    // Update existing dog via API
+                    result = await updateDogViaAPI(editingDogId, dogData);
+                } else {
+                    // Create new dog via API
+                    result = await createDogViaAPI(dogData);
+                }
+
+                if (result.success) {
+                    // SỬA: LƯU VÀO PROFILE SYSTEM GIỐNG WEB
+                    const profileData = {
+                        name: dogData.name,
+                        sohieu: dogData.chip_id,
+                        ngaysinh: dogData.birth_date,
+                        noisinh: dogData.birth_place,
+                        giong: dogData.breed,
+                        tinhbiet: dogData.gender,
+                        dacdiem: dogData.features,
+                        maulong: dogData.fur_color,
+                        giatri: dogData.value,
+                        dongho_ba: dogData.father_name,
+                        dongho_ngaysinh: dogData.father_birth,
+                        dongho_noisinh: dogData.father_place,
+                        dongho_giong: dogData.father_breed,
+                        dongho_dacdiem: dogData.father_features,
+                        hlv_ten: dogData.hlv_ten,
+                        hlv_ngaysinh: dogData.hlv_ngaysinh,
+                        hlv_capbac: dogData.hlv_capbac,
+                        hlv_chucvu: dogData.hlv_chucvu,
+                        hlv_donvi: dogData.hlv_donvi,
+                        hlv_daotao: dogData.hlv_daotao
+                    };
+
+                    localStorage.setItem(`profile_${dogData.name}`, JSON.stringify(profileData));
+
+                    closeModal('dogModal');
+                    await loadDogList();
+
+                    // SỬA: TRIGGER refresh web app menu nếu đang mở NGAY LẬP TỨC
+                    triggerWebAppRefreshImmediately();
+
+                    alert('Chó nghiệp vụ đã được lưu thành công với đầy đủ thông tin!');
+                } else {
+                    alert(`Lỗi: ${result.error}`);
+                }
+
+            } catch (error) {
+                console.error('Error in submitDogForm:', error);
+                alert('Có lỗi xảy ra khi lưu chó nghiệp vụ!');
+            }
+        }
+
+        async function deleteDog(dogId) {
+            if (confirm('Bạn có chắc muốn xóa chó nghiệp vụ này?')) {
+                try {
+                    const result = await deleteDogViaAPI(dogId);
+
+                    if (result.success) {
+                        await loadDogList();
+                        triggerWebAppRefreshImmediately();
+                        alert('Chó nghiệp vụ đã được xóa!');
+                    } else {
+                        alert(`Lỗi: ${result.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting dog:', error);
+                    alert('Có lỗi xảy ra khi xóa chó nghiệp vụ!');
+                }
+            }
+        }
+
+        async function loadDogList() {
+            const container = document.getElementById('dogListContainer');
+
+            // Refresh dogs from API
+            try {
+                const apiDogs = await fetchDogsFromAPI();
+                if (apiDogs.length > 0) {
+                    dogs = apiDogs;
+                }
+            } catch (error) {
+                console.log('Failed to refresh dogs from API, using cached data');
+            }
+
+            if (dogs.length === 0) {
+                container.innerHTML = '<p>Chưa có chó nghiệp vụ nào.</p>';
+                return;
+            }
+
+            let html = `
+<table class="data-table">
+<thead>
+<tr>
+<th>Tên CNV</th>
+<th>Số Chip</th>
+<th>Giống</th>
+<th>HLV</th>
+<th>Trạng thái</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+            dogs.forEach(dog => {
+                // Handle both trainer_id and trainerId for compatibility
+                const trainerId = dog.trainer_id || dog.trainerId;
+                const trainer = trainerId ? users.find(u => u.id === trainerId) : null;
+                const statusClass = dog.status.toLowerCase().replace(' ', '-');
+                const chipId = dog.chip_id || dog.chipId;
+
+                html += `
+<tr>
+<td><strong>${dog.name}</strong></td>
+<td>${chipId}</td>
+<td>${dog.breed}</td>
+<td>${trainer ? trainer.name : '<em>Chưa phân công</em>'}</td>
+<td><span class="status-indicator status-${statusClass}">${dog.status}</span></td>
+<td>
+<button class="btn btn-warning" onclick="editDog(${dog.id})" style="margin-right: 5px; font-size: 12px; padding: 4px 8px;">Sửa</button>
+<button class="btn btn-danger" onclick="deleteDog(${dog.id})" style="font-size: 12px; padding: 4px 8px;">Xóa</button>
+</td>
+</tr>
+`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // SỬA: Journal Management Functions - FIX LỖI XEM JOURNAL + REAL-TIME SYNC
+        function loadJournalList() {
+            const container = document.getElementById('journalListContainer');
+
+            // SỬA: FORCE REFRESH - Lấy journals từ localStorage thời gian thực
+            const allJournals = [];
+
+            // Duyệt tất cả keys trong localStorage để tìm journals
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('journal_')) {
+                    try {
+                        const journalData = JSON.parse(localStorage.getItem(key));
+                        const journalInfo = {
+                            id: key,
+                            key: key,
+                            dogName: (journalData.generalInfo && journalData.generalInfo.dogName) || 'Unknown',
+                            date: (journalData.generalInfo && journalData.generalInfo.date) || 'Unknown',
+                            trainer: (journalData.generalInfo && journalData.generalInfo.hlv) || 'Unknown',
+                            status: (journalData.approval && journalData.approval.hvlSignature) ?
+                                'PENDING_APPROVAL' : 'DRAFT',
+                            approvalStatus: (journalData.approval && journalData.approval.leaderStatus) ||
+                                'Chờ duyệt',
+                            data: journalData
+                        };
+
+                        allJournals.push(journalInfo);
+                    } catch (error) {
+                        console.error('Error parsing journal:', key, error);
+                    }
+                }
+            }
+
+            if (allJournals.length === 0) {
+                container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
+                return;
+            }
+
+            // Sắp xếp theo ngày mới nhất
+            allJournals.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            let html = `
+<table class="data-table">
+<thead>
+<tr>
+<th>Ngày</th>
+<th>CNV</th>
+<th>HLV</th>
+<th>Trạng thái</th>
+<th>Chữ ký</th>
+<th>Hành động</th>
+</tr>
+</thead>
+<tbody>
+`;
+
+            allJournals.forEach(journal => {
+                const hasHvlSignature = (journal.data && journal.data.approval && journal.data.approval
+                    .hvlSignature) ? '✅' : '❌';
+                const hasLeaderSignature = (journal.data && journal.data.approval && journal.data.approval
+                    .leaderSignature) ? '✅' : '❌';
+                const statusClass = (journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
+                    'status-active' :
+                    'status-pending';
+
+                html += `
+<tr>
+<td>${journal.date}</td>
+<td><strong>${journal.dogName}</strong></td>
+<td>${journal.trainer}</td>
+<td><span class="status-indicator ${statusClass}">${journal.approvalStatus}</span></td>
+<td>HLV: ${hasHvlSignature} | LD: ${hasLeaderSignature}</td>
+<td>
+<button class="btn btn-info" onclick="viewJournalFromDashboard('${journal.key}')" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
+${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ? `<button class="btn btn-success" onclick="approveJournalFromDashboard('${journal.key}')" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Duyệt</button>` : ''}
+</td>
+</tr>
+`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+
+            console.log(`✅ Loaded ${allJournals.length} journals in real-time`);
+        }
+
+        function loadPendingJournals() {
+            const container = document.getElementById('journalListContainer');
+
+            const allJournals = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('journal_')) {
+                    try {
+                        const journalData = JSON.parse(localStorage.getItem(key));
+
+                        if (!(journalData.approval && journalData.approval.leaderStatus && journalData.approval
+                                .leaderStatus.includes('Đã duyệt'))) {
+                            allJournals.push({
+                                key: key,
+                                data: journalData
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error parsing journal data for key:", key, e);
+                    }
+                }
+            }
+
+            if (allJournals.length === 0) {
+                container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
+                return;
+            }
+
+            let html = `<h4>📋 Nhật ký chờ duyệt (${allJournals.length})</h4>`;
+            html += `
+                    <table class="data-table">
+                    <thead>
+                    <tr>
+                    <th>Ngày</th>
+                    <th>CNV</th>
+                    <th>HLV</th>
+                    <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                allJournals.forEach(journal => {
+                    html += `
+                        <tr>
+                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
+                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.dogName) || 'Unknown'}</td>
+                        <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.hlv) || 'Unknown'}</td>
+                        <td>
+                        <button class="btn btn-info" onclick="viewJournalFromDashboard('${journal.key}')">Xem</button>
+                        <button class="btn btn-success" onclick="approveJournalFromDashboard('${journal.key}')">Duyệt</button>
+                        </td>
+                        </tr>
+                        `;
+                    });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function loadApprovedJournals() {
+            const container = document.getElementById('journalListContainer');
+
+            const allJournals = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('journal_')) {
+                    try {
+                        const journalData = JSON.parse(localStorage.getItem(key));
+
+                        if (journalData.approval && journalData.approval.leaderStatus && journalData.approval
+                            .leaderStatus.includes('Đã duyệt')) {
+                            allJournals.push({
+                                key: key,
+                                data: journalData
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error parsing journal data for key:", key, e);
+                    }
+                }
+            }
+
+            if (allJournals.length === 0) {
+                container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
+                return;
+            }
+
+            let html = `<h4>✅ Nhật ký đã duyệt (${allJournals.length})</h4>`;
+            html += `
+                <table class="data-table">
+                <thead>
+                <tr>
+                <th>Ngày</th>
+                <th>CNV</th>
+                <th>HLV</th>
+                <th>Ngày duyệt</th>
+                <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+            `;
+
+            allJournals.forEach(journal => {
+                html += `
+                    <tr>
+                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
+                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.dogName) || 'Unknown'}</td>
+                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.hlv) || 'Unknown'}</td>
+                    <td>${(journal.data && journal.data.generalInfo && journal.data.generalInfo.date) || 'Unknown'}</td>
+                    <td>
+                    <button class="btn btn-info" onclick="viewJournalFromDashboard('${journal.key}')">Xem</button>
+                    </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // SỬA: Function viewJournalFromDashboard - FIX LỖI REDIRECT LOGIN
+        function viewJournalFromDashboard(journalKey) {
+            // SỬA: Mở tab mới với parameter journalKey để hiển thị A4 view
+            const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal`;
+            window.open(url, '_blank', 'width=1200,height=800');
+            console.log(`✅ Opening journal ${journalKey} in new tab`);
+        }
+
+        // Function to approve journal from dashboard
+        function approveJournalFromDashboard(journalKey) {
+            if (confirm('Bạn có chắc muốn duyệt nhật ký này?')) {
+                const journalData = JSON.parse(localStorage.getItem(journalKey));
+
+                if (journalData) {
+                    const currentTime = new Date().toISOString();
+
+                    if (!journalData.approval) journalData.approval = {};
+
+                    journalData.approval.leaderComment = `Đã duyệt bởi ${currentDashboardUser.name} từ Dashboard`;
+                    journalData.approval.leaderStatus = 'Đã duyệt';
+                    journalData.approval.leaderApprovalTime = currentTime;
+
+                    // SỬA: Thêm chữ ký điện tử cho lãnh đạo
+                    journalData.approval.leaderSignature = {
+                        name: currentDashboardUser.name,
+                        role: 'LEADER',
+                        timestamp: currentTime,
+                        id: `SIG_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                        hash: btoa(`${currentDashboardUser.name}_LEADER_${currentTime}`),
+                        verified: true
+                    };
+
+                    localStorage.setItem(journalKey, JSON.stringify(journalData));
+
+                    alert('Nhật ký đã được duyệt thành công!');
+                    loadJournalList(); // Refresh list
+                }
+            }
+        }
+
+        // Web Control Functions
+        function openWebForRole(role) {
+            const user = getUserByRole(role);
+
+            if (user) {
+                const params = new URLSearchParams({
+                    user: encodeURIComponent(user.name),
+                    role: role,
+                    dogs: user.assignedDogs.join(',')
+                });
+
+                const url = `index.html?${params.toString()}`;
+                window.open(url, '_blank', 'width=1200,height=800');
+            } else {
+                alert(`Không tìm thấy người dùng với vai trò ${role}!`);
+            }
+        }
+
+        function getUserByRole(role) {
+            if (role === 'ADMIN') {
+                return users.find(u => u.role === 'ADMIN') || currentDashboardUser;
+            } else if (role === 'TRAINER') {
+                return users.find(u => u.role === 'TRAINER') || {
+                    name: 'Demo Trainer',
+                    role: 'TRAINER',
+                    assignedDogs: ['CNV BI']
+                };
+            } else if (role === 'MANAGER') {
+                return users.find(u => u.role === 'MANAGER') || {
+                    name: 'Demo Manager',
+                    role: 'MANAGER',
+                    assignedDogs: ['CNV BI', 'CNV LU', 'CNV RËCH', 'CNV KY', 'CNV REX']
+                };
+            }
+            return null;
+        }
+
+        // Assignment Functions
+        function loadAssignmentList() {
+            const container = document.getElementById('userListContainer');
+
+            let html = '<h4>📋 Phân công chó nghiệp vụ</h4>';
+            const trainers = users.filter(u => u.role === 'TRAINER');
+
+            if (trainers.length === 0) {
+                container.innerHTML = html + '<p>Chưa có huấn luyện viên nào.</p>';
+                return;
+            }
+
+            html += `
+                <table class="data-table">
+                <thead>
+                <tr>
+                <th>Huấn luyện viên</th>
+                <th>Chó được phân công</th>
+                <th>Số lượng</th>
+                <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+            `;
+
+            trainers.forEach(trainer => {
+                html += `
+                    <tr>
+                    <td>${trainer.name}</td>
+                    <td>${trainer.assignedDogs.join(', ') || 'Chưa có'}</td>
+                    <td>${trainer.assignedDogs.length}</td>
+                    <td>
+                    <button class="btn btn-warning" onclick="editUser(${trainer.id})">Chỉnh sửa</button>
+                    </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function viewDogStatus() {
+            const container = document.getElementById('dogListContainer');
+
+            let html = '<h4>📊 Thống kê trạng thái chó nghiệp vụ</h4>';
+
+            const statusCount = {
+                ACTIVE: dogs.filter(d => d.status === 'ACTIVE').length,
+                TRAINING: dogs.filter(d => d.status === 'TRAINING').length,
+                INACTIVE: dogs.filter(d => d.status === 'INACTIVE').length
+            };
+
+            html += `
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                <div style="background: #4CAF50; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3>${statusCount.ACTIVE}</h3>
+                <p>Đang hoạt động</p>
+                </div>
+                <div style="background: #FF9800; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3>${statusCount.TRAINING}</h3>
+                <p>Đang huấn luyện</p>
+                </div>
+                <div style="background: #f44336; color: white; padding: 15px; border-radius: 8px; text-align: center;">
+                <h3>${statusCount.INACTIVE}</h3>
+                <p>Nghỉ ngơi</p>
+                </div>
+                </div>
+                `;
+
+            // Show unassigned dogs
+            const unassignedDogs = dogs.filter(d => !d.trainerId);
+
+            if (unassignedDogs.length > 0) {
+                html += '<h5>🔄 Chó chưa được phân công:</h5>';
+                html += '<ul>';
+                unassignedDogs.forEach(dog => {
+                    html += `<li>${dog.name} (${dog.breed}) - ${dog.status}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // SỬA: Thêm function trigger refresh web app NGAY LẬP TỨC VÀ MẠNH MẼ
+        function triggerWebAppRefreshImmediately() {
+            // FORCE IMMEDIATE refresh cho tất cả web app tabs đang mở
+            try {
+                // Method 1: Sử dụng localStorage event với timestamp unique
+                localStorage.setItem('dashboard_refresh_trigger', Date.now().toString());
+
+                // Method 2: Broadcast multiple signals
+                localStorage.setItem('dashboard_refresh_users', Date.now().toString());
+                localStorage.setItem('dashboard_refresh_dogs', Date.now().toString());
+
+                // Method 3: Force reload all data signals
+                localStorage.setItem('force_menu_refresh', Date.now().toString());
+
+                console.log('✅ FORCE TRIGGERED immediate web app refresh with multiple signals');
+            } catch (e) {
+                console.log('Error triggering web app refresh:', e);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    if (modal.id === 'userModal') {
+                        forceCloseUserModal();
+                    } else {
+                        modal.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // SỬA: THÊM AUTO-REFRESH LISTENERS cho dashboard + FORCE REFRESH TRAINER DROPDOWN
+
+        // Listen for postMessage from web app
+        window.addEventListener('message', function (event) {
+            if (event.data && event.data.type === 'JOURNAL_UPDATE') {
+                console.log('✅ Received journal update from web app:', event.data.journalKey);
+                // Refresh journal list immediately
+                if (document.getElementById('journalListContainer').innerHTML !== '') {
+                    loadJournalList();
+                }
+                // Show notification
+                showNotification('Nhật ký mới đã được cập nhật!', 'success');
+            }
+        });
+
+        // Listen for localStorage changes
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'dashboard_journal_refresh') {
+                console.log('✅ Journal refresh triggered via localStorage');
+                loadJournalList();
+            }
+        });
+
+        // SỬA: Force refresh on tab focus + REFRESH TRAINER DROPDOWN
+        window.addEventListener('focus', () => {
+            loadJournalList();
+            loadUserList();
+            loadDogList();
+
+            // SỬA: FORCE Refresh trainer dropdown khi focus dashboard
+            const dogModal = document.getElementById('dogModal');
+            if (dogModal && dogModal.style.display !== 'none') {
+                loadTrainerOptions();
+                console.log('✅ Force refreshed trainer dropdown on dashboard focus');
+            }
+        });
+
+        // AUTO-REFRESH JOURNAL LIST EVERY 5 SECONDS để real-time
+        setInterval(() => {
+            if (document.getElementById('journalListContainer').innerHTML !== '' &&
+                !document.getElementById('journalListContainer').innerHTML.includes('Chưa có nhật ký')) {
+                loadJournalList();
+            }
+        }, 5000);
+
+        // SỬA: Notification system
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.dashboard-notification').forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `dashboard-notification notification-${type}`;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-weight: bold;
+                animation: slideIn 0.3s ease;
+            `;
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

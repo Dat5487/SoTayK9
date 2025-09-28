@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "CNV BI",
+    "chipId": "CHIP001",
+    "breed": "German Shepherd",
+    "trainerId": 2,
+    "status": "ACTIVE",
+    "created_at": "2025-08-29T09:03:49.538191"
+  },
+  {
+    "id": 2,
+    "name": "CNV LU",
+    "chipId": "CHIP002",
+    "breed": "Belgian Malinois",
+    "trainerId": 4,
+    "status": "TRAINING",
+    "created_at": "2025-08-29T09:03:49.538197"
+  },
+  {
+    "id": 3,
+    "name": "CNV RẾCH",
+    "chipId": "CHIP003",
+    "breed": "German Shepherd",
+    "trainerId": null,
+    "status": "ACTIVE",
+    "created_at": "2025-08-29T09:03:49.538198"
+  },
+  {
+    "id": 4,
+    "name": "CNV KY",
+    "chipId": "CHIP004",
+    "breed": "Labrador",
+    "trainerId": null,
+    "status": "ACTIVE",
+    "created_at": "2025-08-29T09:03:49.538200"
+  },
+  {
+    "id": 5,
+    "name": "CNV REX",
+    "chipId": "CHIP005",
+    "breed": "Belgian Malinois",
+    "trainerId": null,
+    "status": "INACTIVE",
+    "created_at": "2025-08-29T09:03:49.538202"
+  }
+]

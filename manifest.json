@@ -1,0 +1,160 @@
+{
+  "name": "Hệ Thống Quản Lý Chó Nghiệp Vụ",
+  "short_name": "K9 Management",
+  "description": "Hệ thống quản lý chó nghiệp vụ - Cửa khẩu Móng Cái",
+  "version": "5.1.0",
+  "start_url": "/dashboard_v5.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#667eea",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "vi",
+  "dir": "ltr",
+  
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTYiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIvPgo8dGV4dCB4PSIzNiIgeT0iNDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIzMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFPC90ZXh0Pgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDAiIHgxPSIwIiB5MT0iMCIgeDI9IjcyIiB5Mj0iNzIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjAiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIvPgo8dGV4dCB4PSI0OCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFPC90ZXh0Pgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDAiIHgxPSIwIiB5MT0iMCIgeDI9Ijk2IiB5Mj0iOTYiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMzIiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIvPgo8dGV4dCB4PSI3MiIgeT0iOTAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI2MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFPC90ZXh0Pgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDAiIHgxPSIwIiB5MT0iMCIgeDI9IjE0NCIgeTI9IjE0NCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzc2NGJhMiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDQiIGZpbGw9InVybCgjZ3JhZGllbnQwKSIvPgo8dGV4dCB4PSI5NiIgeT0iMTIwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iODAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+QhTwvdGV4dD4KPGRlZnM+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwIiB4MT0iMCIgeTE9IjAiIHgyPSIxOTIiIHkyPSIxOTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSJ1cmwoI2dyYWRpZW50MCkiLz4KPHN2ZyB4PSIxMjgiIHk9IjEyOCIgd2lkdGg9IjI1NiIgaGVpZ2h0PSIyNTYiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMlM2LjQ4IDIyIDEyIDIyUzIyIDE3LjUyIDIyIDEyUzE3LjUyIDIgMTIgMlpNMTUuNSAxNkg4LjVWOEgxNS41VjE2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwIDEwSDEzVjE0SDEwVjEwWiIgZmlsbD0iIzY2N2VlYSIvPgo8L3N2Zz4KPHR1eHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxODAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+QhTwvdGV4dD4KPHR1eHQgeD0iMjU2IiB5PSI0MjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0OCIgZm9udC13ZWlnaHQ9Im5vcm1hbCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPks5IE1ndDwvdGV4dD4KPGRGZ3M+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwIiB4MT0iMCIgeTE9IjAiIHgyPSI1MTIiIHkyPSI1MTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSJ1cmwoI2dyYWRpZW50MCkiLz4KPHR1eHQgeD0iMTYwIiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0OCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFIEs5PC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjE0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SGXMpCB0aOG7kW5nIHF14bqjbiDDrSc8L3RleHQ+CjxyZWN0IHg9IjIwIiB5PSIxODAiIHdpZHRoPSIyODAiIGhlaWdodD0iMzAwIiByeD0iMTYiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuOSIvPgo8dGV4dCB4PSIxNjAiIHk9IjIyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzMzMzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UXXhuqNuIGzDrSDDqGjDtSBuZ2hp4buHcCB24bulPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjI2MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKIgUXXhuqNuIGzDrSDDqOG7k2Egbmdo4buHcCB24bulPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjI4MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKIgVmnhur90IG5o4bqtdCBrw70gaMOgbmcgbmfDoHk8L3RleHQ+Cjx0ZXh0IHg9IjE2MCIgeT0iMzAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuKcuiBLw60gZHV54buHdCBuw7RpIGR1bmcgb25saW5lPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjMyMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjY2NjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7inKIgVHLhuqcgY+G7qXUgQUkgY2jDoW0gc8OzYzwvdGV4dD4KPHRleHQgeD0iMTYwIiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NjY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4pyiIFh14bql0IEgUERGIGPDoGMgbOG7o2FpIGLDoW8gY8OhbzwvdGV4dD4KPGRGZ3M+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3JhZGllbnQwIiB4MT0iMCIgeTE9IjAiIHgyPSIzMjAiIHkyPSI1NjgiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzY2N2VlYSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K",
+      "sizes": "320x568",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA2MCIgaGVpZ2h0PSI2MDAiIHZpZXdCb3g9IjAgMCAxMDYwIDYwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEwNjAiIGhlaWdodD0iNjAwIiBmaWxsPSJ1cmwoI2dyYWRpZW50MCkiLz4KPHR1eHQgeD0iNTMwIiB5PSIxMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0OCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFIEhlMyB0aG9fdTBuZyBRdeG7o24gbMOtIGNow7MgbmdoaeG7h3AgduG7pTwvdGV4dD4KPHR1eXQgeD0iNTMwIiB5PSIxNDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkRhc2hib2FyZCB2NS4xIC0gQ+G7rWEga2jhuqNuIE3Ds25nIEPDoWk8L3RleHQ+CjxyZWN0IHg9IjgwIiB5PSIyMDAiIHdpZHRoPSI5MDAiIGhlaWdodD0iMzAwIiByeD0iMjAiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuOSIvPgo8dGV4dCB4PSI1MzAiIHk9IjI0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzMzMzMzMyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SOG7hyB0aOG7kW5nIGRhbmggY2hvIHF14bqjbiBsw60gYWRtaW48L3RleHQ+CjxyZWN0IHg9IjEyMCIgeT0iMjcwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSIjZTNmMmZkIiBzdHJva2U9IiM0Mjk5ZTEiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSIyMjAiIHk9IjMwMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMmQ0NzQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5CFIEPDo2cgY2jDsyBuZ2hp4buHcCB24bulPC90ZXh0Pgo8cmVjdCB4PSIzNDAiIHk9IjI3MCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIxMiIgZmlsbD0iI2UzZjJmZCIgc3Ryb2tlPSIjNDI5OWUxIiBzdHJva2Utd2lkdGg9IjIiLz4KPHR1eHQgeD0iNDQwIiB5PSIzMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzJkNDc0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+TniBOaOG6rXQgay1ZIGjGsOG7m25nIG7ElyBuZ8OgeQ8L3RleHQ+CjxyZWN0IHg9IjU2MCIgeT0iMjcwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSIjZTNmMmZkIiBzdHJva2U9IiM0Mjk5ZTEiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI2NjAiIHk9IjMwMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMmQ0NzQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn6S5IEHCuEkgVHJhZGJfXYJUxJMIGNoYUw8L3RleHQ+CjxyZWN0IHg9Ijc4MCIgeT0iMjcwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSIjZTNmMmZkIiBzdHJva2U9IiM0Mjk5ZTEiIHN0cm9rZS13aWR0aD0iMiIvPgo8dGV4dCB4PSI4ODAiIHk9IjMwMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjMmQ0NzQ4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn5OHIEZQRG0gdW5n48+g48KGciDDo2k8L3RleHQ+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iMTA2MCIgeTI9IjYwMCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNjY3ZWVhIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzc2NGJhMiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=",
+      "sizes": "1060x600",
+      "type": "image/svg+xml",
+      "form_factor": "wide",
+      "label": "Desktop Dashboard"
+    }
+  ],
+  
+  "categories": ["business", "productivity", "utilities"],
+  
+  "shortcuts": [
+    {
+      "name": "Viết nhật ký",
+      "short_name": "Nhật ký",
+      "description": "Viết nhật ký huấn luyện hàng ngày",
+      "url": "/dashboard_v5.html?action=write_journal",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiM2NjdlZWEiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTE0IDJINmExIDEgMCAwIDAtMSAxdjE4YTEgMSAwIDAgMCAxIDFoMTJhMSAxIDAgMCAwIDEtMVY4bC02LTZaTS02IDJoOGw2IDZ2MTJINlYyWm0zIDloNnYySDl2LTJabTAgM2g2djJIOXYtMloiLz48L3N2Zz4K",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Duyệt nhật ký",
+      "short_name": "Duyệt",
+      "description": "Xem và duyệt nhật ký của huấn luyện viên",
+      "url": "/dashboard_v5.html?action=approve_journals",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiNkZDZiMjAiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTkgMTZhMSAxIDAgMCAxLS43MS0uMjlMMi45MyA5LjM1YTEgMSAwIDAgMSAxLjQxLTEuNDFMOSAxMi41OWwxMC42Ni0xMC42NWExIDEgMCAwIDEgMS40MSAxLjQxbC0xMS4zNyAxMS4zN0ExIDEgMCAwIDEgOSAxNloiLz48L3N2Zz4K",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "AI Trợ lý",
+      "short_name": "AI Chat",
+      "description": "Hỏi đáp với AI về quy trình chăm sóc",
+      "url": "/dashboard_v5.html?action=open_ai_chat",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiMzOGExNjkiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTE5IDRDMTX2xYSA0IDEyIDV2Nk0xMSAxOUg5QTUgNSAwIDEgMSA5IDVoMmE3IDcgMCAwIDEgNyA3djJhNSA1IDAgMSAxLTUtNXYtMlptMSAwaDJhMyAzIDAgMSAxLTMgM3YtM1ptLTQgMGgxdjFoLTF2LTFaIi8+PC9zdmc+",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Xuất báo cáo",
+      "short_name": "PDF",
+      "description": "Xuất báo cáo PDF",
+      "url": "/dashboard_v5.html?action=export_pdf",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9IiNlNTNlM2UiIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTEzIDJINmE0IDQgMCAwIDAtNCA0djEyYTQgNCAwIDAgMCA0IDRoMTJhNCA0IDAgMCAwIDQtNFY5bC03LTdaTTYgMjBoOVYxMGg3djhIMTZWOEgxNlY2aDJhMiAyIDAgMCAxIDIgMnYxMGEyIDIgMCAwIDEtMiAySDZhMiAyIDAgMCAxLTItMlY2YTIgMiAwIDAgMSAyLTJoN2wtNyA3di03WiIvPjwvc3ZnPgo=",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  
+  "prefer_related_applications": false,
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "handle_links": "preferred",
+  
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  
+  "protocol_handlers": [
+    {
+      "protocol": "k9-management",
+      "url": "/dashboard_v5.html?protocol=%s"
+    }
+  ],
+  
+  "file_handlers": [
+    {
+      "action": "/dashboard_v5.html?file_handler=journals",
+      "accept": {
+        "application/json": [".json", ".k9journal"],
+        "text/csv": [".csv"]
+      }
+    }
+  ],
+  
+  "share_target": {
+    "action": "/dashboard_v5.html?share=true",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

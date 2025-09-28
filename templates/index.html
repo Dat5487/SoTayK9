@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sổ tay chó nghiệp vụ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- Login Page Container -->
+    <div id="loginPage" class="login-page-container">
+        <div class="login-background">
+            <!-- Main Title -->
+            <h1 class="login-main-title">SỔ TAY QUẢN LÝ CHÓ NGHIỆP VỤ HẢI QUAN</h1>
+
+            <div class="login-content-wrapper">
+                <!-- Left Image Grid -->
+                <div class="login-image-grid">
+                    <div class="grid-item large-item">
+                        <img src="{{ url_for('static', filename='images/Hoạt động hải quan 1.jpg') }}" alt="Hoạt động hải quan 1">
+                    </div>
+                    <div class="grid-item">
+                        <img src="{{ url_for('static', filename='images/Hoạt động hải quan 2.jpg') }}" alt="Hoạt động hải quan 2">
+                    </div>
+                    <div class="grid-item">
+                        <img src="{{ url_for('static', filename='images/Hoạt động hải quan 3.jpg') }}" alt="Hoạt động hải quan 3">
+                    </div>
+                    <div class="grid-item">
+                        <img src="{{ url_for('static', filename='images/Hoạt động hải quan 4.jpg') }}" alt="Hoạt động hải quan 4">
+                    </div>
+                    <div class="grid-item">
+                        <img src="{{ url_for('static', filename='images/Hoạt động hải quan 5.jpg') }}" alt="Hoạt động hải quan 5">
+                    </div>
+                </div>
+
+                <!-- Login Form Area -->
+                <div class="login-form-area">
+                    <div class="login-card">
+                        <img src="{{ url_for('static', filename='images/logo-haiquan.png.jpg') }}" alt="Logo Cục Hải Quan" class="login-logo">
+                        <h2 class="login-card-title">CỤC HẢI QUAN</h2>
+                        <p class="login-card-subtitle">BẢO VỆ LỢI ÍCH CHỦ QUYỀN QUỐC GIA</p>
+
+                        <div class="input-group">
+                            <label for="username"><img src="{{ url_for('static', filename='images/user_icon.png') }}" alt="User Icon"></label>
+                            <input type="text" id="username" placeholder="Tên người dùng">
+                        </div>
+                        <div class="input-group">
+                            <label for="password"><img src="{{ url_for('static', filename='images/lock_icon.png') }}" alt="Lock Icon"></label>
+                            <input type="password" id="password" placeholder="Mật khẩu">
+                            <span class="password-toggle" onclick="togglePasswordVisibility()">👁️</span>
+                        </div>
+                        <button class="login-button" onclick="login()">Đăng nhập</button>
+                        <p class="version-text">Phiên bản 2.0.0</p>
+                        <div class="login-links">
+                            <a href="#" onclick="showAdminLogin()">🔧 Quản trị viên</a>
+                            <span>|</span>
+                            <a href="#">Tài liệu hướng dẫn sử dụng</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container (initially hidden) -->
+    <div id="mainApp" class="main-app-container hidden">
+        <div class="top-page-header">
+            <img src="{{ url_for('static', filename='images/logo-haiquan.png.jpg') }}" alt="Logo Hải quan" class="header-logo" />
+            <h1 class="header-title">SỔ TAY CHÓ NGHIỆP VỤ</h1>
+            <img src="{{ url_for('static', filename='images/mongcai-bg.jpg.png') }}" alt="Hải quan Móng Cái" class="header-img" />
+        </div>
+
+        <div class="navigation-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Nhập từ khóa..."
+                    onkeypress="if(event.key==='Enter') performSearch()">
+                <span onclick="performSearch()">🔍</span>
+            </div>
+
+            <div class="buttons-right">
+                <button onclick="chatWithAI()">Tra cứu AI</button>
+                <!-- NEW: Thêm nút gửi duyệt -->
+                <button onclick="submitForApproval()" style="background-color: #28a745;">Gửi duyệt</button>
+                <button onclick="showAdminLogin()">Quản trị</button>
+            </div>
+        </div>
+        
+        <div class="app-container">
+            <div class="sidebar">
+                <ul>
+                    <li onclick="showContent('TỔNG QUAN')">TỔNG QUAN</li>
+                    <li>
+                        <span onclick="toggleSubMenu()" style="cursor: pointer;">HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ</span>
+                        <ul id="dog-sub-menu" class="sub-menu">
+                            <li class="sub-item" onclick="showDogProfileForm('CNV BI')">🐶CNV BI</li>
+                            <li class="sub-item" onclick="showDogProfileForm('CNV LU')">🐶CNV LU</li>
+                            <li class="sub-item" onclick="showDogProfileForm('CNV RẾCH')">🐶CNV RẾCH</li>
+                            <li class="sub-item" onclick="showDogProfileForm('CNV KY')">🐶CNV KY</li>
+                            <li class="sub-item" onclick="showDogProfileForm('CNV REX')">🐶CNV REX</li>
+                            <li class="sub-item" onclick="console.log('Chức năng Thêm chó mới sẽ được cập nhật sau.')">➕ Thêm chó mới</li>
+                        </ul>
+                    </li>
+                    <li onclick="showContent('QUY TRÌNH CHĂM SÓC')">QUY TRÌNH CHĂM SÓC</li>
+                    <li onclick="showContent('QUY TRÌNH SỬ DỤNG')">QUY TRÌNH SỬ DỤNG</li>
+                    <li>
+                        <span onclick="toggleJournalMenu()" style="cursor: pointer;">SỔ NHẬT KÝ HUẤN LUYỆN</span>
+                        <ul id="journal-sub-menu" class="sub-menu">
+                            <li class="sub-item" onclick="showJournalEditForm('CNV BI')">CNV BI</li>
+                            <li class="sub-item" onclick="showJournalEditForm('CNV LU')">CNV LU</li>
+                            <li class="sub-item" onclick="showJournalEditForm('CNV RẾCH')">CNV RẾCH</li>
+                            <li class="sub-item" onclick="showJournalEditForm('CNV KY')">CNV KY</li>
+                            <li class="sub-item" onclick="showJournalEditForm('CNV REX')">CNV REX</li>
+                        </ul>
+                    </li>
+
+                    <li onclick="showContent('QUY TRÌNH HUẤN LUYỆN')">QUY TRÌNH HUẤN LUYỆN</li>
+                    <li onclick="showContent('VIDEO HƯỚNG DẪN')">VIDEO HƯỚNG DẪN</li>
+                </ul>
+            </div>
+            <div class="main-content-area">
+                <div class="title-bar">
+                    <h1 id="title">TỔNG QUAN</h1>
+                    <button id="toggleReadButton" onclick="toggleSpeech()">🔊 Đọc nội dung</button>
+                </div>
+                <div class="content-wrapper">
+                    <div id="content"></div>
+                    <div id="searchResults" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Modal for submission confirmation -->
+    <div id="submitModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🎯 Gửi nhật ký duyệt</h3>
+            <p>Bạn có chắc chắn muốn gửi nhật ký này cho lãnh đạo duyệt không?</p>
+            <div class="modal-buttons">
+                <button onclick="confirmSubmission()" class="btn-confirm">✅ Xác nhận gửi</button>
+                <button onclick="closeModal()" class="btn-cancel">❌ Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+    
+    <!-- NEW: Add backend connection script -->
+    <script>
+        // NEW FUNCTIONS for backend connection
+        function showAdminLogin() {
+            window.open('/admin', '_blank');
+        }
+
+        function submitForApproval() {
+            document.getElementById('submitModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('submitModal').style.display = 'none';
+        }
+
+        function confirmSubmission() {
+            const currentDog = currentDogForJournal || 'CNV BI';
+            const journalDate = document.getElementById('journal_date')?.value || new Date().toISOString().slice(0, 10);
+            const trainerName = hlvInfo.name || 'Huấn luyện viên';
+            
+            // Get all journal data from current form
+            const journalData = collectAllJournalData();
+            
+            fetch('/api/journals/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    dog_name: currentDog,
+                    date: journalDate,
+                    trainer_name: trainerName,
+                    journal_data: journalData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    closeModal();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Có lỗi xảy ra khi gửi nhật ký.');
+            });
+        }
+
+        function collectAllJournalData() {
+            // Collect all current form data
+            const data = {
+                generalInfo: {
+                    date: document.getElementById('journal_date')?.value || new Date().toISOString().slice(0, 10),
+                    dog: currentDogForJournal || 'CNV BI',
+                    trainer: hlvInfo.name || 'Huấn luyện viên'
+                },
+                training: {
+                    comment: document.getElementById('journal_hlv_comment')?.value || ''
+                },
+                care: {
+                    lunchTime: document.getElementById('lunchTime')?.value || '',
+                    dinnerTime: document.getElementById('dinnerTime')?.value || '',
+                    healthStatus: document.querySelector('input[name="health_status"]:checked')?.value || 'Bình thường',
+                    otherIssues: document.getElementById('journal_other_issues')?.value || ''
+                },
+                approval: {
+                    status: 'submitted',
+                    submitted_at: new Date().toISOString()
+                }
+            };
+            return data;
+        }
+
+        // Add modal styles
+        const modalStyle = document.createElement('style');
+        modalStyle.textContent = `
+            .modal {
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.4);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .modal-content {
+                background-color: #fefefe;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                max-width: 400px;
+                width: 90%;
+            }
+            .modal-buttons {
+                margin-top: 20px;
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+            }
+            .btn-confirm {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+            .btn-cancel {
+                background-color: #dc3545;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        `;
+        document.head.appendChild(modalStyle);
+    </script>
+</body>
+</html>

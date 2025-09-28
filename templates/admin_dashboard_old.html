@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Quản trị - Sổ tay chó nghiệp vụ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.8;
+            transform: translateY(-1px);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid;
+        }
+        
+        .stat-card.users { border-left-color: #007bff; }
+        .stat-card.pending { border-left-color: #ffc107; }
+        .stat-card.journals { border-left-color: #28a745; }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            color: #495057;
+            margin: 0;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-success { background-color: #d4edda; color: #155724; }
+        .badge-warning { background-color: #fff3cd; color: #856404; }
+        .badge-danger { background-color: #f8d7da; color: #721c24; }
+        .badge-primary { background-color: #cce7ff; color: #004085; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.25);
+        }
+        
+        .alert {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>🛡️ Dashboard Quản trị</h1>
+            <div class="header-actions">
+                <span>Xin chào, Admin</span>
+                <a href="/" class="btn btn-primary">🏠 Trang chính</a>
+                <button onclick="adminLogout()" class="btn btn-danger">🚪 Đăng xuất</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card users">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="stat-label">👥 Tổng người dùng</div>
+            </div>
+            <div class="stat-card pending">
+                <div class="stat-number">{{ pending_approvals }}</div>
+                <div class="stat-label">⏳ Chờ duyệt</div>
+            </div>
+            <div class="stat-card journals">
+                <div class="stat-number">{{ total_journals }}</div>
+                <div class="stat-label">📔 Tổng nhật ký</div>
+            </div>
+        </div>
+
+        <!-- Pending Approvals -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">⏳ Nhật ký chờ duyệt</h2>
+                <button onclick="refreshPendingJournals()" class="btn btn-primary">🔄 Làm mới</button>
+            </div>
+            <div class="section-content">
+                <div id="pendingJournalsContainer">
+                    <div class="text-center">
+                        <p>🔄 Đang tải danh sách nhật ký chờ duyệt...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">👥 Quản lý người dùng</h2>
+                <button onclick="showCreateUserModal()" class="btn btn-success">➕ Thêm người dùng</button>
+            </div>
+            <div class="section-content">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tên đăng nhập</th>
+                                <th>Họ và tên</th>
+                                <th>Vai trò</th>
+                                <th>Đơn vị</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td>{{ user.full_name }}</td>
+                                <td>
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge badge-danger">👑 Admin</span>
+                                    {% elif user.role == 'manager' %}
+                                        <span class="badge badge-warning">👨‍💼 Manager</span>
+                                    {% elif user.role == 'trainer' %}
+                                        <span class="badge badge-primary">🐕‍🦺 Trainer</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">{{ user.role.title() }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.department or '-' }}</td>
+                                <td>
+                                    {% if user.is_active %}
+                                        <span class="badge badge-success">✅ Hoạt động</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">❌ Vô hiệu</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <h3>➕ Tạo người dùng mới</h3>
+            <form id="createUserForm" onsubmit="createUser(event)">
+                <div class="form-group">
+                    <label for="newUsername">Tên đăng nhập:</label>
+                    <input type="text" id="newUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Mật khẩu:</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newFullName">Họ và tên:</label>
+                    <input type="text" id="newFullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="newRole">Vai trò:</label>
+                    <select id="newRole" required>
+                        <option value="">Chọn vai trò</option>
+                        <option value="trainer">🐕‍🦺 Trainer - Huấn luyện viên</option>
+                        <option value="manager">👨‍💼 Manager - Quản lý</option>
+                        <option value="admin">👑 Admin - Quản trị viên</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newDepartment">Đơn vị:</label>
+                    <input type="text" id="newDepartment" placeholder="VD: Cửa khẩu Móng Cái">
+                </div>
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-success">✅ Tạo người dùng</button>
+                    <button type="button" onclick="closeModal('createUserModal')" class="btn btn-danger">❌ Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Journal Review Modal -->
+    <div id="journalReviewModal" class="modal">
+        <div class="modal-content">
+            <h3 id="journalModalTitle">📔 Chi tiết nhật ký</h3>
+            <div id="journalModalContent">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="form-group text-center">
+                <button onclick="approveJournal()" class="btn btn-success">✅ Duyệt</button>
+                <button onclick="rejectJournal()" class="btn btn-danger">❌ Từ chối</button>
+                <button onclick="closeModal('journalReviewModal')" class="btn btn-primary">🔙 Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentJournalId = null;
+
+        function refreshPendingJournals() {
+            const container = document.getElementById('pendingJournalsContainer');
+            container.innerHTML = '<div class="text-center"><p>🔄 Đang tải...</p></div>';
+            
+            fetch('/api/journals/pending')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.journals.length > 0) {
+                            let html = '<table class="table"><thead><tr><th>Chó nghiệp vụ</th><th>Ngày</th><th>Huấn luyện viên</th><th>Thời gian gửi</th><th>Thao tác</th></tr></thead><tbody>';
+                            
+                            data.journals.forEach(journal => {
+                                html += `
+                                    <tr>
+                                        <td><strong>🐕 ${journal.dog_name}</strong></td>
+                                        <td>📅 ${journal.journal_date}</td>
+                                        <td>👤 ${journal.trainer_name}</td>
+                                        <td>⏰ ${journal.submitted_at}</td>
+                                        <td>
+                                            <button onclick="reviewJournal(${journal.id}, '${journal.dog_name}', '${journal.journal_date}')" 
+                                                    class="btn btn-primary">👁️ Xem chi tiết</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                            
+                            html += '</tbody></table>';
+                            container.innerHTML = html;
+                        } else {
+                            container.innerHTML = '<div class="alert alert-info text-center">✅ Không có nhật ký nào chờ duyệt</div>';
+                        }
+                    } else {
+                        container.innerHTML = '<div class="alert alert-danger text-center">❌ Không thể tải danh sách nhật ký</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    container.innerHTML = '<div class="alert alert-danger text-center">❌ Có lỗi xảy ra khi tải dữ liệu</div>';
+                });
+        }
+
+        function reviewJournal(journalId, dogName, journalDate) {
+            currentJournalId = journalId;
+            document.getElementById('journalModalTitle').innerHTML = `📔 Nhật ký ${dogName} - ${journalDate}`;
+            
+            // Simple review content - you can expand this
+            document.getElementById('journalModalContent').innerHTML = `
+                <div class="alert alert-info">
+                    <p><strong>🐕 Chó nghiệp vụ:</strong> ${dogName}</p>
+                    <p><strong>📅 Ngày:</strong> ${journalDate}</p>
+                    <p><strong>📝 Nội dung:</strong> Nhật ký huấn luyện đã được gửi để duyệt.</p>
+                </div>
+                <div class="form-group">
+                    <label for="approvalComment">💬 Ý kiến duyệt:</label>
+                    <textarea id="approvalComment" rows="3" placeholder="Nhập ý kiến của bạn..."></textarea>
+                </div>
+            `;
+            
+            document.getElementById('journalReviewModal').style.display = 'block';
+        }
+
+        function approveJournal() {
+            if (!currentJournalId) return;
+            
+            const comment = document.getElementById('approvalComment').value;
+            
+            fetch(`/api/journals/${currentJournalId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ comment: comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    closeModal('journalReviewModal');
+                    refreshPendingJournals();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Có lỗi xảy ra khi duyệt nhật ký.');
+            });
+        }
+
+        function rejectJournal() {
+            if (!currentJournalId) return;
+            
+            const comment = document.getElementById('approvalComment').value;
+            if (!comment.trim()) {
+                alert('⚠️ Vui lòng nhập lý do từ chối.');
+                return;
+            }
+            
+            fetch(`/api/journals/${currentJournalId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ comment: comment })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    closeModal('journalReviewModal');
+                    refreshPendingJournals();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Có lỗi xảy ra khi từ chối nhật ký.');
+            });
+        }
+
+        function showCreateUserModal() {
+            document.getElementById('createUserModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            currentJournalId = null;
+        }
+
+        function createUser(event) {
+            event.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('newUsername').value,
+                password: document.getElementById('newPassword').value,
+                full_name: document.getElementById('newFullName').value,
+                role: document.getElementById('newRole').value,
+                department: document.getElementById('newDepartment').value
+            };
+            
+            fetch('/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    closeModal('createUserModal');
+                    location.reload(); // Refresh page to show new user
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Có lỗi xảy ra khi tạo người dùng.');
+            });
+        }
+
+        function adminLogout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất không?')) {
+                fetch('/api/admin/logout', { method: 'POST' })
+                .then(() => {
+                    window.location.href = '/admin';
+                });
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Load pending journals on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshPendingJournals();
+        });
+    </script>
+</body>
+</html>
