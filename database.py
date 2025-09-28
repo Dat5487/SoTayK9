@@ -242,8 +242,8 @@ class DatabaseManager:
             password = user_data['password']
             
             cursor.execute('''
-                INSERT INTO users (name, username, password, role, status, email, phone, department)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO users (name, username, password, role, status, email, phone, department, signature)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 user_data['name'],
                 user_data['username'],
@@ -252,7 +252,8 @@ class DatabaseManager:
                 user_data.get('status', 'ACTIVE'),
                 user_data.get('email'),
                 user_data.get('phone'),
-                user_data.get('department')
+                user_data.get('department'),
+                user_data.get('signature')
             ))
             
             user_id = cursor.lastrowid
@@ -418,6 +419,11 @@ class DatabaseManager:
         user = self.get_user_by_username(username)
         if user and password == user['password']:  # Plain text comparison
             del user['password']  # Remove password from response
+            
+            # Get assigned dogs for this user
+            assigned_dog_names = self.get_user_assigned_dog_names(user['id'])
+            user['assignedDogs'] = assigned_dog_names
+            
             return user
         return None
     
@@ -1149,58 +1155,10 @@ class DatabaseManager:
     # DATA MIGRATION FROM JSON
     # =============================================================================
     
-    def migrate_from_json(self, users_file: str = 'data/users.json', dogs_file: str = 'data/dogs.json'):
-        """Migrate data from JSON files to database"""
-        print("🔄 Starting data migration from JSON to SQLite...")
-        
-        # Migrate users
-        if os.path.exists(users_file):
-            with open(users_file, 'r', encoding='utf-8') as f:
-                users_data = json.load(f)
-            
-            for user_data in users_data:
-                try:
-                    # Remove assignedDogs as it will be handled separately
-                    assigned_dogs = user_data.pop('assignedDogs', [])
-                    
-                    # Create user
-                    user = self.create_user(user_data)
-                    print(f"✅ Migrated user: {user['name']}")
-                    
-                    # Handle dog assignments
-                    for dog_name in assigned_dogs:
-                        # Find dog by name and assign
-                        dogs = self.get_all_dogs()
-                        dog = next((d for d in dogs if d['name'] == dog_name), None)
-                        if dog:
-                            self.assign_dog_to_user(user['id'], dog['id'])
-                            
-                except Exception as e:
-                    print(f"❌ Error migrating user {user_data.get('name', 'Unknown')}: {e}")
-        
-        # Migrate dogs
-        if os.path.exists(dogs_file):
-            with open(dogs_file, 'r', encoding='utf-8') as f:
-                dogs_data = json.load(f)
-            
-            for dog_data in dogs_data:
-                try:
-                    # Rename chipId to chip_id for database consistency
-                    if 'chipId' in dog_data:
-                        dog_data['chip_id'] = dog_data.pop('chipId')
-                    
-                    dog = self.create_dog(dog_data)
-                    print(f"✅ Migrated dog: {dog['name']}")
-                    
-                except Exception as e:
-                    print(f"❌ Error migrating dog {dog_data.get('name', 'Unknown')}: {e}")
-        
-        print("✅ Data migration completed!")
 
 # Global database instance
 db = DatabaseManager()
 
 if __name__ == "__main__":
-    # Initialize database and migrate data
-    db.migrate_from_json()
+    # Initialize database
     print("🎉 Database setup completed!")

@@ -928,7 +928,6 @@
                 }
             } catch (error) {
                 console.error('❌ Error loading dogs:', error);
-                renderFallbackDogsTable();
             }
         }
 
@@ -982,32 +981,8 @@
             console.log('✅ Rendered dogs table successfully');
         }
 
-        function renderFallbackDogsTable() {
-            console.log('🔄 Rendering fallback dogs table');
-            const tbody = document.getElementById('dogs-table-body');
-            
-            if (!tbody) return;
-            
-            const fallbackData = [
-                {id: 1, name: 'Max', chip_id: 'CNV001', breed: 'German Shepherd', age: 3, specialty: 'Drug Detection', status: 'Active', trainer: {full_name: 'John Trainer'}},
-                {id: 2, name: 'Luna', chip_id: 'CNV002', breed: 'Belgian Malinois', age: 2, specialty: 'Explosive Detection', status: 'Training', trainer: null},
-                {id: 3, name: 'Rex', chip_id: 'CNV003', breed: 'Labrador Retriever', age: 4, specialty: 'Search & Rescue', status: 'Active', trainer: {full_name: 'Trainer Team'}}
-            ];
-            
-            currentDogs = fallbackData;
-            renderDogsTable();
-        }
 
         // ============= MY DOGS (FOR TRAINER) =============
-        async function loadMyDogsWithFallback() {
-            try {
-                await loadMyDogs();
-            } catch (error) {
-                console.log('❌ API failed, using fallback data');
-                renderFallbackMyDogs();
-            }
-        }
-
         async function loadMyDogs() {
             try {
                 const token = localStorage.getItem('token');

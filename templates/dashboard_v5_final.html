@@ -1636,41 +1636,9 @@ function showMessage(type, message) {
                 console.error('Error loading dogs:', error);
             }
             
-            // Fallback data giống như trong hình
-            const fallbackDogs = [
-                {
-                    id: 1,
-                    name: 'Max',
-                    chip_id: 'CNV001',
-                    breed: 'German Shepherd',
-                    age: '3 tuổi',
-                    specialty: 'Drug Detection',
-                    trainer_name: 'John Trainer',
-                    status: 'active'
-                },
-                {
-                    id: 2,
-                    name: 'Luna',
-                    chip_id: 'CNV002', 
-                    breed: 'Belgian Malinois',
-                    age: '2 tuổi',
-                    specialty: 'Explosive Detection',
-                    trainer_name: 'Chưa gán',
-                    status: 'training'
-                },
-                {
-                    id: 3,
-                    name: 'Rex',
-                    chip_id: 'CNV003',
-                    breed: 'Labrador Retriever',
-                    age: '4 tuổi',
-                    specialty: 'Search & Rescue',
-                    trainer_name: 'Trainer Team',
-                    status: 'active'
-                }
-            ];
-            currentDogs = fallbackDogs;
-            renderDogsTable(fallbackDogs);
+            // No fallback data - only use database
+            currentDogs = [];
+            renderDogsTable([]);
         }
 
         function renderDogsTable(dogs) {
@@ -1730,38 +1698,9 @@ function showMessage(type, message) {
                 console.error('Error loading users:', error);
             }
             
-            // Fallback data giống như trong hình
-            const fallbackUsers = [
-                {
-                    id: 1,
-                    username: 'admin',
-                    full_name: 'Quản trị viên hệ thống',
-                    role: 'ADMIN',
-                    department: 'IT Department',
-                    phone: 'N/A',
-                    is_active: true
-                },
-                {
-                    id: 2,
-                    username: 'manager1',
-                    full_name: 'Trần Thị Hương',
-                    role: 'MANAGER', 
-                    department: 'Cửa khẩu Móng Cái',
-                    phone: '0123456789',
-                    is_active: true
-                },
-                {
-                    id: 3,
-                    username: 'trainer1',
-                    full_name: 'John Trainer',
-                    role: 'TRAINER',
-                    department: 'Training Unit',
-                    phone: '0987654321',
-                    is_active: true
-                }
-            ];
-            currentUsers = fallbackUsers;
-            renderUsersTable(fallbackUsers);
+            // No fallback data - only use database
+            currentUsers = [];
+            renderUsersTable([]);
         }
 
         function renderUsersTable(users) {

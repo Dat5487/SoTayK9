@@ -9,15 +9,14 @@ app = Flask(__name__)
 CORS(app)
 
 def initialize_database():
-    """Initialize database and migrate data if needed"""
+    """Initialize database"""
     try:
         # Check if database is empty
         users = db.get_all_users()
         if not users:
-            print("🔄 Database is empty, migrating from JSON files...")
-            db.migrate_from_json()
+            print("⚠️ Database is empty - no data available")
         else:
-            print("✅ Database already initialized")
+            print("✅ Database initialized with existing data")
     except Exception as e:
         print(f"❌ Error initializing database: {e}")
         raise
@@ -98,6 +97,49 @@ def serve_js():
 def serve_journal_db_manager():
     """Serve Journal Database Manager JavaScript file"""
     return send_from_directory('.', 'journal_db_manager.js')
+
+@app.route('/signatures/<filename>')
+def serve_signature(filename):
+    """Serve signature images"""
+    try:
+        return send_from_directory('signatures', filename)
+    except FileNotFoundError:
+        return jsonify({"error": "Signature file not found"}), 404
+
+@app.route('/api/upload-signature', methods=['POST'])
+def upload_signature():
+    """Upload signature image"""
+    try:
+        if 'signature' not in request.files:
+            return jsonify({"success": False, "error": "No signature file provided"}), 400
+        
+        file = request.files['signature']
+        
+        if file.filename == '':
+            return jsonify({"success": False, "error": "No file selected"}), 400
+        
+        # Validate file type
+        if not file.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            return jsonify({"success": False, "error": "Invalid file type. Only PNG, JPG, JPEG allowed"}), 400
+        
+        # Generate unique filename
+        import uuid
+        import os
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4().hex}{file_extension}"
+        
+        # Save file to signatures directory
+        file_path = os.path.join('signatures', unique_filename)
+        file.save(file_path)
+        
+        return jsonify({
+            "success": True,
+            "filename": unique_filename,
+            "message": "Signature uploaded successfully"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
@@ -364,31 +406,6 @@ def get_dashboard_stats():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route('/api/dashboard/init', methods=['POST'])
-def initialize_dashboard_data():
-    """Initialize dashboard with default data if database is empty"""
-    try:
-        # Check if database has data
-        users = db.get_all_users()
-        dogs = db.get_all_dogs()
-        
-        if len(users) == 0 or len(dogs) == 0:
-            # Initialize with default data
-            db.migrate_from_json()
-            return jsonify({
-                "success": True, 
-                "message": "Dashboard initialized with default data",
-                "initialized": True
-            })
-        else:
-            return jsonify({
-                "success": True, 
-                "message": "Dashboard already has data",
-                "initialized": False
-            })
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
 
 # =============================================================================
 # TRAINING JOURNAL API ROUTES

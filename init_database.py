@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 K9 Management System - Database Initialization Script
-This script initializes the SQLite database and migrates data from JSON files
+This script initializes the SQLite database
 """
 
 import os
@@ -9,7 +9,7 @@ import sys
 from database import DatabaseManager
 
 def main():
-    """Initialize database and migrate data"""
+    """Initialize database"""
     print("🚀 K9 Management System - Database Initialization")
     print("=" * 50)
     
@@ -21,12 +21,9 @@ def main():
         # Check if database is empty
         users = db.get_all_users()
         if users:
-            print(f"📊 Database already contains {len(users)} users")
-            print("🔄 Skipping migration (database not empty)")
+            print(f"📊 Database contains {len(users)} users")
         else:
-            print("🔄 Database is empty, starting migration...")
-            db.migrate_from_json()
-            print("✅ Migration completed successfully")
+            print("⚠️ Database is empty - no data available")
         
         # Display current data
         users = db.get_all_users()

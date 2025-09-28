@@ -318,11 +318,13 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 30px;
             border-radius: 15px;
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             position: relative;
         }
@@ -504,6 +506,25 @@
         .checkbox-label:hover .checkmark {
             border-color: #007bff;
         }
+
+        /* Custom scrollbar for modal */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #5a6fd8;
+        }
     </style>
 </head>
 
@@ -618,7 +639,7 @@
                 <h3 id="userModalTitle">Tạo Người Dùng Mới</h3>
                 <span class="close" onclick="forceCloseUserModal()">&times;</span>
             </div>
-            <form id="userForm">
+            <form id="userForm" style="padding-bottom: 20px;">
                 <div class="form-group">
                     <label for="userName">Họ và tên:</label>
                     <input type="text" id="userName" required>
@@ -646,6 +667,17 @@
                         <!-- Sẽ được load động từ dogs data -->
                     </select>
                     <small>Giữ Ctrl để chọn nhiều chó</small>
+                </div>
+                <div class="form-group">
+                    <label for="userSignature">Chữ ký:</label>
+                    <input type="file" id="userSignature" accept="image/*" onchange="previewSignature(this)">
+                    <small>Chọn file ảnh chữ ký (PNG, JPG, JPEG)</small>
+                    <div id="signaturePreview" style="margin-top: 10px; display: none;">
+                        <img id="signaturePreviewImg" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">
+                        <div style="margin-top: 5px;">
+                            <button type="button" class="btn btn-danger" onclick="clearSignature()" style="font-size: 12px; padding: 4px 8px;">Xóa chữ ký</button>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-success btn-full-width">Lưu</button>
             </form>
@@ -814,9 +846,85 @@
         let dogs = [];
         let editingUserId = null;
         let editingDogId = null;
+        let selectedSignatureFile = null;
 
         // API Base URL
         const API_BASE_URL = window.location.origin;
+
+        // Signature Preview Functions
+        function previewSignature(input) {
+            const file = input.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Vui lòng chọn file ảnh hợp lệ (PNG, JPG, JPEG)');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 2MB');
+                    input.value = '';
+                    return;
+                }
+                
+                selectedSignatureFile = file;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewImg = document.getElementById('signaturePreviewImg');
+                    const previewDiv = document.getElementById('signaturePreview');
+                    
+                    previewImg.src = e.target.result;
+                    previewDiv.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function clearSignature() {
+            const input = document.getElementById('userSignature');
+            const previewDiv = document.getElementById('signaturePreview');
+            
+            input.value = '';
+            previewDiv.style.display = 'none';
+            selectedSignatureFile = null;
+        }
+        
+        function loadExistingSignature(signaturePath) {
+            if (signaturePath) {
+                const previewImg = document.getElementById('signaturePreviewImg');
+                const previewDiv = document.getElementById('signaturePreview');
+                
+                previewImg.src = `signatures/${signaturePath}`;
+                previewDiv.style.display = 'block';
+            }
+        }
+        
+        async function uploadSignatureFile(file) {
+            try {
+                const formData = new FormData();
+                formData.append('signature', file);
+                
+                const response = await fetch(`${API_BASE_URL}/api/upload-signature`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    return result.filename;
+                } else {
+                    console.error('Upload error:', result.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                return null;
+            }
+        }
 
         // Session Management
         const SESSION_STORAGE_KEY = 'k9_session_token';
@@ -826,15 +934,15 @@
         // Enhanced Session Management Functions
         function saveSession(sessionToken, userData, rememberMe = false) {
             try {
-                if (rememberMe && sessionToken) {
+            if (rememberMe && sessionToken) {
                     // Save to localStorage for persistent sessions
-                    localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+                localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
                     console.log('✅ Session saved to localStorage (persistent)');
                 } else if (sessionToken) {
                     // Save to sessionStorage for temporary sessions
-                    sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                    sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+                sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
                     console.log('✅ Session saved to sessionStorage (temporary)');
                 }
             } catch (error) {
@@ -850,8 +958,8 @@
         function getCurrentUser() {
             try {
                 // Check localStorage first (persistent sessions), then sessionStorage
-                const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
-                return userData ? JSON.parse(userData) : null;
+            const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
+            return userData ? JSON.parse(userData) : null;
             } catch (error) {
                 console.error('Error parsing user data:', error);
                 return null;
@@ -860,10 +968,10 @@
 
         function clearSession() {
             try {
-                localStorage.removeItem(SESSION_STORAGE_KEY);
-                localStorage.removeItem(USER_STORAGE_KEY);
-                sessionStorage.removeItem(SESSION_STORAGE_KEY);
-                sessionStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+            localStorage.removeItem(USER_STORAGE_KEY);
+            sessionStorage.removeItem(SESSION_STORAGE_KEY);
+            sessionStorage.removeItem(USER_STORAGE_KEY);
                 console.log('✅ Session cleared');
             } catch (error) {
                 console.error('Error clearing session:', error);
@@ -1128,12 +1236,6 @@
             console.log('🔄 Falling back to localStorage...');
             users = JSON.parse(localStorage.getItem('k9_users')) || [];
             dogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
-
-            // If localStorage is also empty, use default data
-            if (users.length === 0 && dogs.length === 0) {
-                console.log('🔄 Using default data...');
-                initializeDefaultData();
-            }
         }
 
 
@@ -1227,21 +1329,6 @@
                         }
                     }
 
-                    // Additional fallback for known working accounts
-                    if (!user) {
-                        const fallbackAccounts = [
-                            { username: 'admin', password: 'admin', role: 'ADMIN', name: 'Quản trị viên', assignedDogs: ['CNV BI', 'CNV LU', 'CNV RẾCH', 'CNV KY', 'CNV REX'] },
-                            { username: 'trainer1', password: 'trainer', role: 'TRAINER', name: 'Trần Đức Kiên', assignedDogs: ['CNV BI'] },
-                            { username: 'Kien123', password: '123456', role: 'TRAINER', name: 'Trần Đức Kiên (Kien123)', assignedDogs: ['CNV BI', 'CNV LU'] }
-                        ];
-                        
-                        const fallbackUser = fallbackAccounts.find(u => u.username === username && u.password === password);
-                        if (fallbackUser) {
-                            console.log('✅ Using fallback account:', fallbackUser.name);
-                            user = fallbackUser;
-                        }
-                    }
-
                     // For local authentication, also save to session storage
                     if (user) {
                         saveSession(null, user, rememberMe);
@@ -1319,23 +1406,51 @@
         }
 
         // SỬA: Load danh sách chó động cho user modal + FORCE REFRESH
-        function loadDogOptionsForUser() {
+        async function loadDogOptionsForUser() {
             const dogSelect = document.getElementById('userDogs');
             if (!dogSelect) return;
 
-            dogSelect.innerHTML = '';
+            dogSelect.innerHTML = '<option value="">Đang tải...</option>';
 
-            // SỬA: FORCE REFRESH từ localStorage mỗi lần
-            dogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
-
-            // Load từ dogs data thật
-            dogs.forEach(dog => {
+            try {
+                // Load dogs from database API
+                const response = await fetch(`${API_BASE_URL}/api/dogs`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    dogSelect.innerHTML = '';
+                    
+                    // Populate dropdown with dogs from database
+                    result.data.forEach(dog => {
                 const option = document.createElement('option');
                 option.value = dog.name;
                 option.textContent = dog.name;
                 dogSelect.appendChild(option);
             });
 
+                    console.log('✅ Loaded ' + result.data.length + ' dogs from database for user assignment');
+                } else {
+                    throw new Error(result.error || 'Failed to load dogs');
+                }
+            } catch (error) {
+                console.error('❌ Error loading dogs for user assignment:', error);
+                dogSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                
+                // Fallback to localStorage if API fails
+                try {
+                    const fallbackDogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
+                    dogSelect.innerHTML = '';
+                    fallbackDogs.forEach(dog => {
+                        const option = document.createElement('option');
+                        option.value = dog.name;
+                        option.textContent = dog.name;
+                        dogSelect.appendChild(option);
+                    });
+                    console.log('⚠️ Using localStorage fallback for dogs');
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                }
+            }
         }
 
         // User Management Functions
@@ -1346,6 +1461,10 @@
             document.getElementById('userUsername').value = '';
             document.getElementById('userPassword').value = '';
             document.getElementById('userRole').value = '';
+            document.getElementById('userSignature').value = '';
+            
+            // Clear signature preview
+            clearSignature();
 
             // SỬA: FORCE Load danh sách chó động từ dogs data mới nhất
             loadDogOptionsForUser();
@@ -1361,15 +1480,21 @@
                 document.getElementById('userUsername').value = user.username;
                 document.getElementById('userPassword').value = user.password;
                 document.getElementById('userRole').value = user.role;
+                document.getElementById('userSignature').value = '';
+                
+                // Load existing signature if available
+                loadExistingSignature(user.signature);
 
                 // SỬA: FORCE Load danh sách chó và set selection
                 loadDogOptionsForUser();
                 setTimeout(() => {
                     const dogSelect = document.getElementById('userDogs');
+                    if (dogSelect && user.assignedDogs) {
                     for (let option of dogSelect.options) {
                         option.selected = user.assignedDogs.includes(option.value);
                     }
-                }, 100);
+                    }
+                }, 500); // Increased timeout to ensure async loading completes
 
                 document.getElementById('userModal').style.display = 'block';
             }
@@ -1381,6 +1506,17 @@
             event.stopPropagation();
 
             try {
+                let signaturePath = null;
+                
+                // Upload signature file if selected
+                if (selectedSignatureFile) {
+                    signaturePath = await uploadSignatureFile(selectedSignatureFile);
+                    if (!signaturePath) {
+                        alert('Lỗi khi tải lên file chữ ký!');
+                        return;
+                    }
+                }
+                
                 const userData = {
                     name: document.getElementById('userName').value,
                     username: document.getElementById('userUsername').value,
@@ -1388,6 +1524,7 @@
                     role: document.getElementById('userRole').value,
                     assignedDogs: Array.from(document.getElementById('userDogs').selectedOptions).map(option =>
                         option.value),
+                    signature: signaturePath,
                     status: 'ACTIVE'
                 };
 
@@ -1509,6 +1646,7 @@
 <th>Username</th>
 <th>Vai trò</th>
 <th>Chó phân công</th>
+<th>Chữ ký</th>
 <th>Trạng thái</th>
 <th>Hành động</th>
 </tr>
@@ -1527,6 +1665,7 @@
 <td>${user.username}</td>
 <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
 <td>${assignedDogsText}</td>
+<td>${user.signature ? `<img src="signatures/${user.signature}" alt="Chữ ký" style="width: 60px; height: 30px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"><span style="display:none; color: #999; font-size: 11px;">File không tồn tại</span>` : '<em>Chưa có</em>'}</td>
 <td><span class="status-indicator status-${user.status.toLowerCase()}">${user.status}</span></td>
 <td>
 <button class="btn btn-warning" onclick="editUser(${user.id})" style="margin-right: 5px;">Sửa</button>
@@ -1868,14 +2007,14 @@
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                    container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
-                    return;
-                }
+                container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
+                return;
+            }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
-                let html = `
+            let html = `
 <table class="data-table">
 <thead>
 <tr>
@@ -1898,7 +2037,7 @@
                     const statusText = journal.approval_status === 'APPROVED' ? 'Đã duyệt' :
                                      journal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt';
 
-                    html += `
+                html += `
 <tr>
 <td>${journal.journal_date}</td>
 <td><strong>${journal.dog_name}</strong></td>
@@ -1912,10 +2051,10 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
 </td>
 </tr>
 `;
-                });
+            });
 
-                html += '</tbody></table>';
-                container.innerHTML = html;
+            html += '</tbody></table>';
+            container.innerHTML = html;
 
                 console.log(`✅ Loaded ${journals.length} journals from database`);
 
@@ -1940,43 +2079,43 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                    container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
-                    return;
-                }
+                container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
+                return;
+            }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
                 let html = `<h4>📋 Nhật ký chờ duyệt (${journals.length})</h4>`;
-                html += `
-<table class="data-table">
-<thead>
-<tr>
-<th>Ngày</th>
-<th>CNV</th>
-<th>HLV</th>
-<th>Hành động</th>
-</tr>
-</thead>
-<tbody>
-`;
+            html += `
+                    <table class="data-table">
+                    <thead>
+                    <tr>
+                    <th>Ngày</th>
+                    <th>CNV</th>
+                    <th>HLV</th>
+                    <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                `;
 
                 journals.forEach(journal => {
                     html += `
-<tr>
+                        <tr>
 <td>${journal.journal_date}</td>
 <td><strong>${journal.dog_name}</strong></td>
 <td>${journal.trainer_name}</td>
 <td>
 <button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
 <button class="btn btn-success" onclick="approveJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Duyệt</button>
-</td>
-</tr>
-`;
-                });
+                        </td>
+                        </tr>
+                        `;
+                    });
 
-                html += '</tbody></table>';
-                container.innerHTML = html;
+            html += '</tbody></table>';
+            container.innerHTML = html;
 
                 console.log(`✅ Loaded ${journals.length} pending journals from database`);
 
@@ -2001,44 +2140,44 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                    container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
-                    return;
-                }
+                container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
+                return;
+            }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
                 let html = `<h4>✅ Nhật ký đã duyệt (${journals.length})</h4>`;
-                html += `
-<table class="data-table">
-<thead>
-<tr>
-<th>Ngày</th>
-<th>CNV</th>
-<th>HLV</th>
-<th>Ngày duyệt</th>
-<th>Hành động</th>
-</tr>
-</thead>
-<tbody>
-`;
+            html += `
+                <table class="data-table">
+                <thead>
+                <tr>
+                <th>Ngày</th>
+                <th>CNV</th>
+                <th>HLV</th>
+                <th>Ngày duyệt</th>
+                <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+            `;
 
                 journals.forEach(journal => {
-                    html += `
-<tr>
+                html += `
+                    <tr>
 <td>${journal.journal_date}</td>
 <td><strong>${journal.dog_name}</strong></td>
 <td>${journal.trainer_name}</td>
 <td>${journal.approved_at ? new Date(journal.approved_at).toLocaleDateString('vi-VN') : 'N/A'}</td>
 <td>
 <button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
-</td>
-</tr>
-`;
-                });
+                    </td>
+                    </tr>
+                `;
+            });
 
-                html += '</tbody></table>';
-                container.innerHTML = html;
+            html += '</tbody></table>';
+            container.innerHTML = html;
 
                 console.log(`✅ Loaded ${journals.length} approved journals from database`);
 
