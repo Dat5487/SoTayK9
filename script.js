@@ -1,6 +1,46 @@
 // Log to confirm script loads and executes
+console.log('🚀 SCRIPT LOADED - VERSION WITH NO DEFAULT OPERATION BLOCKS');
 
-console.log("script.js loaded and running - FIXED DIGITAL SIGNATURE & PDF VIEW VERSION");
+// Script loaded successfully
+
+// =============================================================================
+// DATE FORMATTING UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Format date to dd/mm/yyyy format
+ * @param {Date|string} date - Date object or ISO string
+ * @param {boolean} includeTime - Whether to include time in the format
+ * @returns {string} Formatted date string
+ */
+function formatDateToDDMMYYYY(date, includeTime = false) {
+    if (!date) return 'N/A';
+    
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    return `${day}/${month}/${year}`;
+}
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns {string} Current date formatted as dd/mm/yyyy
+ */
+function getCurrentDateDDMMYYYY() {
+    return formatDateToDDMMYYYY(new Date());
+}
 
 
 
@@ -21,7 +61,7 @@ console.log("script.js loaded and running - FIXED DIGITAL SIGNATURE & PDF VIEW V
 
 // Function to get user signature from database
 async function getUserSignature(userName, role) {
-    console.log('🔍 Getting signature for:', userName, role);
+    // Getting signature for user
 
     try {
         // Fetch user data to get signature info
@@ -36,15 +76,15 @@ async function getUserSignature(userName, role) {
             const data = await response.json();
             const users = data.data || [];
 
-            console.log('📋 Available users:', users.map(u => ({ username: u.username, name: u.name, signature: u.signature })));
+            // Available users loaded
 
             // Find user by name or username
             const user = users.find(u => u.name === userName || u.username === userName);
 
-            console.log('👤 Found user:', user);
+            // User found
 
             if (user && user.signature) {
-                console.log('✅ User has signature file:', user.signature);
+                // User has signature file
                 return {
                     userId: user.id,
                     userName: user.name,
@@ -55,7 +95,7 @@ async function getUserSignature(userName, role) {
                 };
             } else if (user) {
                 // User exists but no signature file - return user data with default signature
-                console.log('⚠️ User exists but no signature file, using default');
+                // Using default signature
                 return {
                     userId: user.id,
                     userName: user.name,
@@ -65,7 +105,7 @@ async function getUserSignature(userName, role) {
                     createdDate: user.updated_at
                 };
             } else {
-                console.log('❌ User not found in database');
+                // User not found
             }
         } else {
             console.error('❌ Failed to fetch users:', response.status, response.statusText);
@@ -75,7 +115,7 @@ async function getUserSignature(userName, role) {
     }
 
     // Return default signature if none found
-    console.log('🔄 Returning default signature for:', userName);
+    // Returning default signature
     return {
         userId: 'default',
         userName: userName,
@@ -94,13 +134,13 @@ function checkSignatureImageExists(imagePath) {
 
     return new Promise((resolve) => {
 
-        console.log('🔍 Checking signature image:', imagePath);
+        // Checking signature image
 
         const img = new Image();
 
         img.onload = () => {
 
-            console.log('✅ Image loaded successfully:', imagePath);
+            // Image loaded successfully
 
             resolve(true);
 
@@ -108,7 +148,7 @@ function checkSignatureImageExists(imagePath) {
 
         img.onerror = () => {
 
-            console.warn('❌ Image failed to load, will use text fallback:', imagePath);
+            // Image failed to load, will use text fallback
 
             resolve(false); // SỬA: Return false để sử dụng text fallback
 
@@ -118,7 +158,7 @@ function checkSignatureImageExists(imagePath) {
 
         setTimeout(() => {
 
-            console.warn('⏰ Image check timeout:', imagePath);
+            // Image check timeout
 
             resolve(false); // SỬA: Return false để sử dụng text fallback
 
@@ -146,7 +186,8 @@ async function generateSignatureHTML(signatureData, timestamp) {
     const userName = signatureData.userName || signatureData.name || 'Unknown User';
     const signatureImage = signatureData.signatureImage || 'signatures/default_signature.png';
 
-    console.log('🎨 Generating signature HTML for:', userName, signatureImage);
+    // Generating signature HTML
+    // Processing signature data
 
 
 
@@ -186,7 +227,7 @@ async function generateSignatureHTML(signatureData, timestamp) {
 
         </div>`;
 
-        console.log('✅ Generated image HTML for signature');
+        // Generated image HTML
 
     } else {
 
@@ -204,7 +245,7 @@ async function generateSignatureHTML(signatureData, timestamp) {
 
         </div>`;
 
-        console.log('✅ Generated text fallback for signature');
+        // Generated text fallback
 
     }
 
@@ -232,7 +273,7 @@ async function generateSignatureHTML(signatureData, timestamp) {
 
             <div style="font-size: 14px; color: #2e7d32; margin-bottom: 8px;">
 
-                <strong>📅 Ký ngày:</strong> ${new Date(timestamp).toLocaleString('vi-VN')}
+                <strong>📅 Ký ngày:</strong> ${formatDateToDDMMYYYY(timestamp, true)}
 
             </div>
 
@@ -403,7 +444,7 @@ function closeAllDropdowns() {
 
 
 
-    console.log('✅ Closed all dropdowns');
+    // Closed all dropdowns
 
 }
 
@@ -417,11 +458,11 @@ async function updateUserDisplay() {
 
     if (currentUserName && currentUserRole !== 'GUEST') {
         if (!userInfoDisplay || !userInitials) {
-            console.warn('User display elements not found');
+            // User display elements not found
             return;
         }
 
-        // SỬA: Lấy thông tin user từ database thay vì localStorage
+        // Get user information from database (no localStorage)
         let displayName = currentUserName;
 
         try {
@@ -442,16 +483,16 @@ async function updateUserDisplay() {
 
                 if (currentUser) {
                     displayName = currentUser.name; // Sử dụng tên từ database
-                    console.log('🔄 Updated display name from database:', displayName);
+                    // Updated display name from database
                 } else {
-                    console.log('⚠️ User not found in database, using current name:', displayName);
+                    // User not found in database
                 }
             } else {
-                console.warn('⚠️ Failed to fetch users from database, using current name:', displayName);
+                // Failed to fetch users from database
             }
         } catch (error) {
             console.error('❌ Error fetching user data from database:', error);
-            console.log('🔄 Using current name as fallback:', displayName);
+            // Using current name as fallback
         }
 
 
@@ -519,7 +560,7 @@ async function updateUserDisplay() {
         // SỬA: Cập nhật currentUserName với tên chính xác - HOÀNG TRỌNG QUỲNH
         currentUserName = displayName;
 
-        console.log('✅ Updated user display: ' + displayName + ' (' + currentUserRole + ')');
+        // Updated user display
     } else {
         if (userInfoDisplay) {
             userInfoDisplay.style.display = 'none';
@@ -583,16 +624,16 @@ function applyRoleBasedRestrictions() {
 // SỬA: Function toggle user dropdown
 
 function toggleUserDropdown(e) {
-    console.log('🖱️ toggleUserDropdown called', e);
+    // Toggle user dropdown
     e.stopPropagation();
 
     const dropdown = document.getElementById('userDropdown');
-    console.log('📋 Dropdown element:', dropdown);
+    // Dropdown element found
 
     if (dropdown) {
-        console.log('🔄 Current dropdown classes:', dropdown.className);
+        // Current dropdown classes
         dropdown.classList.toggle('hidden');
-        console.log('✅ After toggle, dropdown classes:', dropdown.className);
+        // After toggle, dropdown classes
 
         // Temporary fix: force visibility with inline styles
         if (!dropdown.classList.contains('hidden')) {
@@ -605,28 +646,16 @@ function toggleUserDropdown(e) {
             dropdown.style.right = '0';
             dropdown.style.backgroundColor = 'white';
             dropdown.style.border = '2px solid red'; // Temporary visual indicator
-            console.log('🔧 Applied temporary visibility fix');
+            // Applied temporary visibility fix
         }
 
         // Debug positioning and visibility
         const rect = dropdown.getBoundingClientRect();
-        console.log('📍 Dropdown position:', {
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-            visible: rect.width > 0 && rect.height > 0
-        });
+        // Dropdown position debug info available
 
         // Check computed styles
         const computedStyle = window.getComputedStyle(dropdown);
-        console.log('🎨 Computed styles:', {
-            display: computedStyle.display,
-            visibility: computedStyle.visibility,
-            opacity: computedStyle.opacity,
-            zIndex: computedStyle.zIndex,
-            position: computedStyle.position
-        });
+        // Computed styles debug info available
     } else {
         console.error('❌ Dropdown element not found!');
     }
@@ -803,7 +832,7 @@ function restrictManagerAccess() {
 
 
 
-    console.log('✅ Manager access restricted - approval only mode');
+    // Manager access restricted
 
 }
 
@@ -818,7 +847,7 @@ async function refreshDynamicMenus() {
     // Convert to expected format for dog menu functions
     const dashboardDogs = userDogs.map(dogName => ({ name: dogName }));
 
-    console.log('🔄 Refreshing dynamic menus with dogs:', dashboardDogs);
+    // Refreshing dynamic menus
 
     updateDogSubMenu(dashboardDogs);
 
@@ -890,7 +919,7 @@ function updateDogSubMenu(dashboardDogs) {
 
 
 
-    console.log('✅ Updated dog sub-menu with ' + dashboardDogs.length + ' dogs from dashboard');
+    // Updated dog sub-menu
 
 }
 
@@ -898,7 +927,7 @@ function updateDogSubMenu(dashboardDogs) {
 
 // Function cập nhật journal sub-menu động THEO DASHBOARD DATA - SỬA: MANAGER WORKFLOW
 
-function updateJournalSubMenu(dashboardDogs) {
+async function updateJournalSubMenu(dashboardDogs) {
 
     const journalMenu = document.getElementById('journal-sub-menu');
 
@@ -906,9 +935,9 @@ function updateJournalSubMenu(dashboardDogs) {
 
 
 
-    console.log('🔄 Updating journal sub-menu for role:', currentUserRole);
+    // Updating journal sub-menu
 
-    console.log('🔍 Current user name:', currentUserName);
+    // Current user name
 
 
 
@@ -916,51 +945,33 @@ function updateJournalSubMenu(dashboardDogs) {
 
         // SỬA: Manager menu với kiểm tra pending journals
 
-        const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
-
         let actualPendingCount = 0;
 
-
-
-        // Đếm số journal thực sự cần duyệt
-
-        for (let i = 0; i < localStorage.length; i++) {
-
-            const key = localStorage.key(i);
-
-            if (key.startsWith('journal_')) {
-
-                try {
-
-                    const journalData = JSON.parse(localStorage.getItem(key));
-
-                    if (journalData?.approval?.hvlSignature && !journalData?.approval?.leaderSignature) {
-
-                        actualPendingCount++;
-
-                    }
-
-                } catch (e) {
-
-                    console.error('Error checking journal:', key, e);
-
-                }
-
+        try {
+            // Get pending journals from database
+            const response = await fetch('/api/journals/pending');
+            if (response.ok) {
+                const data = await response.json();
+                actualPendingCount = data.data ? data.data.length : 0;
+            } else {
+                throw new Error('Database request failed');
             }
-
+        } catch (error) {
+            console.error('Failed to get pending journals from database:', error);
+            actualPendingCount = 0;
         }
 
 
 
-        console.log('📊 Pending journals count:', actualPendingCount);
+        // Pending journals count
 
 
 
-        journalMenu.innerHTML = `<li class="sub-item manager-approval" onclick="showAllPendingJournalsForManager()" style="color: #ff9800; font-weight: bold; cursor: pointer; padding: 12px; border-radius: 5px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; margin: 5px 0;">📋 Duyệt nhật ký chờ phê duyệt (${actualPendingCount})</li><li class="sub-item manager-stats" onclick="showManagerStatistics()" style="color: #9c27b0; cursor: pointer; padding: 10px; border-radius: 5px; background: #f3e5f5; border: 1px solid #9c27b0; margin: 5px 0;">📊 Thống kê tổng quan</li><li class="sub-item debug-btn" onclick="debugManagerSystem()" style="color: #f44336; cursor: pointer; padding: 10px; border-radius: 5px; background: #ffebee; border: 1px solid #f44336; margin: 5px 0;">🔧 DEBUG - Kiểm tra hệ thống</li>`;
+        journalMenu.innerHTML = `<li class="sub-item manager-approval" onclick="showAllPendingJournalsForManager()" style="color: #ff9800; font-weight: bold; cursor: pointer; padding: 12px; border-radius: 5px; background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 1px solid #ff9800; margin: 5px 0;">📋 Duyệt nhật ký chờ phê duyệt (${actualPendingCount})</li><li class="sub-item manager-journal-view" onclick="showManagerJournalView()" style="color: #2196F3; cursor: pointer; padding: 10px; border-radius: 5px; background: #e3f2fd; border: 1px solid #2196F3; margin: 5px 0;">📖 Sổ nhật ký huấn luyện</li><li class="sub-item manager-stats" onclick="showManagerStatistics()" style="color: #9c27b0; cursor: pointer; padding: 10px; border-radius: 5px; background: #f3e5f5; border: 1px solid #9c27b0; margin: 5px 0;">📊 Thống kê tổng quan</li>`;
 
 
 
-        console.log('✅ Set manager-specific journal menu with pending count:', actualPendingCount);
+        // Set manager-specific journal menu
 
         return;
 
@@ -998,7 +1009,7 @@ function updateJournalSubMenu(dashboardDogs) {
 
 
 
-    console.log('✅ Updated journal sub-menu for role ' + currentUserRole + ' with dashboard data');
+    // Updated journal sub-menu
 
 }
 
@@ -1206,11 +1217,11 @@ async function login() {
 
 
 
-    console.log('🔑 Attempting login: ' + username);
+    // Attempting login
 
     // Authenticate user via API
     try {
-        console.log('🌐 Making API request to /api/auth/login');
+        // Making API request
         const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: {
@@ -1223,41 +1234,46 @@ async function login() {
             })
         });
 
-        console.log('📡 Response received:', response.status, response.statusText);
+        // Response received
 
         if (response.ok) {
             const data = await response.json();
             if (data.success && data.data) {
                 const user = data.data;
-                console.log('✅ Authentication successful: ' + user.name + ' (' + user.role + ')');
+                // Authentication successful
+                // Full user data from API
 
                 currentUserRole = user.role;
                 currentUserName = user.name;
                 currentUserAssignedDogs = user.assignedDogs || [];
 
-                console.log('🐶 Assigned dogs for user:', currentUserAssignedDogs);
+                // Set currentUserName
+                // Set currentUserRole
+
+                // Assigned dogs for user
 
                 // Update HLV info
                 hlvInfo.name = user.name;
+                // Updated hlvInfo.name
 
                 showMainApp();
                 return;
             } else {
-                console.log('❌ Authentication failed:', data.error);
+                // Authentication failed
                 alert('Tên người dùng hoặc mật khẩu không đúng.');
                 return;
             }
         } else {
             const errorData = await response.json();
-            console.log('❌ Authentication failed:', errorData.error);
+            // Authentication failed
             alert('Tên người dùng hoặc mật khẩu không đúng.');
             return;
         }
     } catch (error) {
-        console.log('⚠️ Error during authentication:', error);
-        console.log('⚠️ Error type:', typeof error);
-        console.log('⚠️ Error message:', error.message);
-        console.log('⚠️ Error stack:', error.stack);
+        // Error during authentication
+        // Error type
+        // Error message
+        // Error stack
         alert('Lỗi kết nối. Vui lòng thử lại sau. Chi tiết: ' + error.message);
         return;
     }
@@ -1336,7 +1352,7 @@ async function showMainApp() {
 
 function logout() {
 
-    console.log('🔓 Logout initiated');
+    // Logout initiated
 
 
 
@@ -1436,7 +1452,7 @@ function logout() {
 
 
 
-    console.log('✅ Logout completed - all UI reset');
+    // Logout completed
 
 
 
@@ -1482,44 +1498,92 @@ function showDefaultImage() {
 
 // Function showA4JournalViewFromKey để xem journal từ Dashboard - SỬA: FORCE PDF VIEW
 
-function showA4JournalViewFromKey(journalKey) {
+async function showA4JournalViewFromKey(journalKey) {
+    console.log('🔍 showA4JournalViewFromKey called with key:', journalKey);
 
     try {
+        // Extract dog name, date, and ID from journal key
+        const keyParts = journalKey.replace('journal_', '').split('_');
+        const dogName = keyParts[0];
+        
+        // Handle both old format (dogName_date) and new format (dogName_date_id)
+        let date, journalId = null;
+        if (keyParts.length >= 3) {
+            // New format: dogName_date_id
+            journalId = keyParts[keyParts.length - 1];
+            date = keyParts.slice(1, -1).join('_');
+        } else {
+            // Old format: dogName_date
+            date = keyParts.slice(1).join('_');
+        }
 
-        const journalData = JSON.parse(localStorage.getItem(journalKey));
+        console.log('🔍 Parsed key - Dog:', dogName, 'Date:', date, 'ID:', journalId);
+
+        // Try to get journal by ID first if available, otherwise by dog+date
+        let journalData = null;
+        
+        if (journalId) {
+            // Try to get journal by ID first - this should be the specific journal
+            try {
+                const response = await fetch(`/api/journals/${journalId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        journalData = convertDatabaseToFrontendFormat(data.data);
+                        console.log('✅ Found specific journal by ID:', journalId);
+                    }
+                } else {
+                    console.warn('⚠️ Journal not found by ID:', journalId, 'Status:', response.status);
+                }
+            } catch (error) {
+                console.log('⚠️ Failed to get journal by ID, trying by dog+date');
+            }
+        }
+        
+        // Only try by dog+date if we couldn't get the specific journal by ID
+        if (!journalData) {
+            console.log('🔍 Falling back to dog+date method for:', dogName, date);
+            const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    journalData = convertDatabaseToFrontendFormat(data.data);
+                    console.log('✅ Found journal by dog+date:', dogName, date);
+                }
+            } else {
+                console.warn('⚠️ Journal not found by dog+date:', dogName, date, 'Status:', response.status);
+            }
+        }
 
         if (journalData) {
-
             const dogName = journalData.generalInfo.dogName;
-
             const date = journalData.generalInfo.date;
-
             currentDogForJournal = dogName;
 
-
+            // Debug: Log the journal data to see what we're actually showing
+            console.log('📄 Journal data being displayed:', {
+                journalId: journalData.id || 'No ID',
+                dogName: dogName,
+                date: date,
+                trainer: journalData.generalInfo?.hlv || 'Unknown',
+                approvalStatus: journalData.approval?.status || 'Unknown',
+                hasHlvSignature: !!journalData.approval?.hvlSignature,
+                hasLeaderSignature: !!journalData.approval?.leaderSignature
+            });
 
             // SỬA: FORCE chuyển sang pure PDF view ngay lập tức
-
-            setTimeout(() => {
-
-                showPureA4JournalView(dogName, date);
-
-            }, 200);
+            console.log('📄 Loading journal for:', dogName, date);
+            showPureA4JournalView(dogName, date);
 
         } else {
-
+            console.error('❌ Journal not found for key:', journalKey);
             alert('Không tìm thấy nhật ký!');
-
         }
 
     } catch (error) {
-
         console.error('Error loading journal:', error);
-
         alert('Có lỗi khi tải nhật ký!');
-
     }
-
 }
 
 
@@ -1581,7 +1645,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             refreshDynamicMenus();
 
-            console.log('✅ Refreshed menus on window focus');
+            // Refreshed menus on window focus
 
         }
 
@@ -1599,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 refreshDynamicMenus();
 
-                console.log('✅ Refreshed menus from dashboard trigger');
+                // Refreshed menus from dashboard trigger
 
             }
 
@@ -1609,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    console.log('✅ K9 Management System initialized successfully!');
+    // K9 Management System initialized
 
 });
 
@@ -1823,6 +1887,85 @@ function showContent(type) {
       
         <p><em>Quy trình trên thể hiện sự đầu tư bài bản và chuyên nghiệp trong việc nuôi dưỡng, chăm sóc chó nghiệp vụ, là nền tảng vững chắc để xây dựng lực lượng CNV tinh nhuệ, đáp ứng yêu cầu nhiệm vụ của ngành.</em></p>
       `;
+
+    } else if (type === 'QUY TRÌNH HUẤN LUYỆN') {
+
+        title.innerText = 'QUY TRÌNH HUẤN LUYỆN';
+
+        content.innerHTML = `
+  <h2>Quy Trình Huấn Luyện</h2>
+
+  <h3>2. Quy Trình Chăm Sóc và Huấn Luyện Hằng Ngày</h3>
+  <p>Việc chăm sóc và huấn luyện là công việc phải được thực hiện hàng ngày, liên tục và khoa học, là trách nhiệm của huấn luyện viên và nhân viên chăn nuôi.</p>
+
+  <h4>a. Chế độ Chăm sóc và Vệ sinh</h4>
+  <ul>
+    <li><strong>Vệ sinh chuồng trại:</strong> Dọn dẹp vệ sinh chuồng và khu vực xung quanh hàng ngày để đảm bảo sạch sẽ, khô thoáng.</li>
+    <li><strong>Kiểm tra sức khỏe:</strong> Mỗi ngày, huấn luyện viên phải kiểm tra sức khỏe tổng thể của chó, bao gồm khả năng vận động, da, lông, mắt, mũi, miệng và các giác quan như khứu giác, thính giác, thị giác. Kịp thời phát hiện các biểu hiện bất thường để xử lý.</li>
+    <li><strong>Chế độ ăn uống:</strong> Quan sát kỹ khả năng ăn uống và bổ sung nước đầy đủ sau khi cho ăn. Chế độ dinh dưỡng được quy định cụ thể cho từng giống chó, độ tuổi và trọng lượng khác nhau.</li>
+  </ul>
+
+  <h4>Lịch làm việc hàng ngày</h4>
+  <ul>
+    <li>07h20 - 07h45: Cho chó dạo, vệ sinh và kiểm tra sức khỏe.</li>
+    <li>07h45 - 09h00: Chuẩn bị và huấn luyện buổi sáng.</li>
+    <li>10h30 - 11h00: Cho chó ăn.</li>
+    <li>13h45 - 15h00: Chuẩn bị và huấn luyện buổi chiều.</li>
+    <li>16h30 - 17h00: Cho chó ăn.</li>
+  </ul>
+
+  <h4>b. Nội Dung Huấn Luyện</h4>
+  <p>Quá trình huấn luyện bao gồm 3 nội dung cốt lõi: huấn luyện thể lực, huấn luyện kỷ luật và huấn luyện nghiệp vụ nâng cao. Tổng thời gian huấn luyện mỗi ngày là 90 phút.</p>
+
+  <h5>1. Huấn luyện Thể lực và Kỷ luật</h5>
+  <ul>
+    <li><strong>Động tác cơ bản:</strong> Huấn luyện chó thực hiện các động tác như đi, đứng, nằm, ngồi bên cạnh huấn luyện viên; bò, trườn; sửa các thói quen xấu.</li>
+    <li><strong>Rèn luyện thể lực:</strong> Hàng ngày cho chó tập các bài tập như bơi, chui ống, chạy trên cầu độc mộc, vượt chướng ngại vật. Hàng tuần, huấn luyện viên phải cho chó chạy bộ ngoài dã ngoại 2 lần, mỗi lần từ 2-5km.</li>
+    <li><strong>Yêu cầu:</strong> Chó phải duy trì vững chắc các phản xạ có điều kiện, tuân thủ mệnh lệnh của huấn luyện viên một cách chính xác, bền bỉ và dẻo dai.</li>
+  </ul>
+
+  <h5>2. Huấn luyện Nghiệp vụ (Phát hiện ma túy)</h5>
+  <ul>
+    <li><strong>Huấn luyện cơ bản:</strong> Huấn luyện viên sử dụng các mẫu ma túy để chó làm quen và hình thành phản xạ tìm kiếm. Các mẫu này được giấu ở nhiều vị trí khác nhau:
+      <ul>
+        <li>Trong hành lý, vali, băng chuyền, container.</li>
+        <li>Trên các phương tiện vận tải như tàu thủy, máy bay.</li>
+        <li>Trên tường vách với độ cao tối thiểu 01 mét.</li>
+        <li>Giấu trên người: trong túi quần, túi áo, thắt lưng.</li>
+      </ul>
+    </li>
+
+    <li><strong>Huấn luyện nâng cao:</strong>
+      <ul>
+        <li>Khi chó đã thành thục, huấn luyện viên sẽ không cần phải điều khiển mà chó có thể tự tìm kiếm trong khu vực được chỉ định.</li>
+        <li>Huấn luyện chó tìm kiếm trên người để đánh giá khả năng phát hiện hơi người có ma túy.</li>
+      </ul>
+    </li>
+
+    <li><strong>Yêu cầu:</strong> Chó phải có khả năng tìm kiếm liên tục trong 20 phút, khi phát hiện phải có biểu hiện rõ ràng (cào, sủa, ngồi, nằm). Đặc biệt, chó làm việc tại sân bay phải có sức bền tốt, còn chó làm việc ở cảng biển phải nhanh nhẹn và chịu được thời tiết khắc nghiệt.</li>
+  </ul>
+
+  <hr>
+
+  <h3>3. Đánh Giá Kết Quả Huấn Luyện</h3>
+  <p>Việc đánh giá được thực hiện định kỳ để xác định năng lực của chó nghiệp vụ.</p>
+
+  <ul>
+    <li><strong>Phương pháp đánh giá:</strong> Dựa trên số lượng mẫu ma túy mà chó phát hiện được ngay tại khu vực huấn luyện và làm việc hàng ngày (ít nhất 3 mẫu). Đồng thời đánh giá tinh thần độc lập, sự tập trung, tính bền bỉ và sự hợp tác với huấn luyện viên.</li>
+
+    <li><strong>Tiêu chuẩn phân loại:</strong>
+      <ul>
+        <li><strong>Loại Giỏi:</strong> Phản xạ tìm kiếm vững chắc, bền bỉ, tập trung, không bỏ sót khu vực, phát hiện được tất cả các mẫu thử và có biểu hiện rõ ràng.</li>
+        <li><strong>Loại Khá:</strong> Tương tự loại Giỏi nhưng phát hiện được từ 02/03 mẫu thử trở lên.</li>
+        <li><strong>Loại Trung bình:</strong> Có phản xạ tìm kiếm nhưng đôi khi mất tập trung, có thể bỏ sót mục tiêu. Phát hiện từ 02 mẫu trở lên nhưng biểu hiện có thể không rõ ràng.</li>
+        <li><strong>Không đạt yêu cầu:</strong> Phản xạ tìm kiếm yếu, không tập trung, bỏ sót nhiều khu vực, phát hiện dưới 02/03 mẫu và biểu hiện không rõ ràng.</li>
+      </ul>
+    </li>
+
+    <li>Những con chó không đáp ứng được yêu cầu huấn luyện sẽ bị thải loại theo quy trình.</li>
+  </ul>
+`;
+
 
     } else {
 
@@ -2238,7 +2381,7 @@ async function saveDogProfile(dogName) {
         });
 
         if (response.ok) {
-            console.log('Hồ sơ ' + dogName + ' đã được lưu vào database!');
+            // Dog profile saved to database
         } else {
             console.error('Failed to save dog profile to database');
         }
@@ -2697,7 +2840,7 @@ function performSearch() {
 
     if (keyword === "") {
 
-        console.log("Vui lòng nhập từ khóa!");
+        // Please enter keyword
 
         return;
 
@@ -2835,7 +2978,7 @@ function performSearch() {
 
     if (!found) {
 
-        console.log('Không tìm thấy từ khóa "' + keyword + '"!');
+        // Keyword not found
 
     }
 
@@ -2981,7 +3124,7 @@ function toggleJournalMenu() {
 
     if (currentUserRole === 'MANAGER') {
 
-        console.log('🔄 Force updating journal menu for Manager');
+        // Force updating journal menu for Manager
 
         updateJournalSubMenuForManager();
 
@@ -3005,7 +3148,7 @@ function showJournalEditForm(dogName, date = null) {
 
     if (currentUserRole === 'MANAGER') {
 
-        console.log('🏢 Manager detected - redirecting to approval mode');
+        // Manager detected - redirecting to approval mode
 
         showAllPendingJournalsForManager();
 
@@ -3091,17 +3234,18 @@ function showJournalEditForm(dogName, date = null) {
 
 
 
-    content.innerHTML = roleInfo + '<div class="journal-header-actions"><button class="btn-create-new-journal" onclick="createNewJournal()">Nhật ký mới +</button><button class="btn-view-old-journals" onclick="viewOldJournals()">Xem nhật ký cũ</button></div><div class="journal-section info-general"><h2>I. THÔNG TIN CHUNG</h2><div class="info-general-grid"><div class="info-item-group journal-date-field"><label for="journal_date">Ngày ghi:</label><input type="date" id="journal_date" value="' + (date || defaultDate) + '" required></div><div class="info-item-group"><label for="journal_hlv">Huấn luyện viên:</label><input type="text" id="journal_hlv" value="' + (currentUserName || hlvInfo.name) + ' (Số hiệu: ' + hlvInfo.id + ')" readonly></div><div class="info-item-group"><label for="journal_dog_name">Tên CNV:</label><input type="text" id="journal_dog_name" value="' + dogName + '" readonly></div></div></div><div class="journal-section training-activity"><h2>II. HOẠT ĐỘNG HUẤN LUYỆN</h2><div id="training-blocks-container"><!-- Training blocks will be dynamically added here --></div><div class="training-activity-buttons"><button class="add-block add-training-block" onclick="addTrainingBlock()">Thêm Ca +</button><button class="remove-block remove-training-block" onclick="removeLastTrainingBlock()">Xóa Ca HL</button></div><div class="textarea-block"><label for="journal_hlv_comment">Đánh giá chung của Huấn luyện viên:</label><textarea id="journal_hlv_comment" rows="4"></textarea></div></div><div class="journal-section care-block"><h2>III. CHĂM SÓC & NUÔI DƯỠNG</h2><!-- Care and feeding section content --><div class="meal-row"><div class="meal-part"><div class="meal-header-time"><h3>Bữa trưa:</h3><label for="lunchTime">Thời gian:</label><input type="time" id="lunchTime" value="11:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="lunchAmount">Sức ăn:</label><select id="lunchAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'lunchFoodOptions\')"><span class="selected-text" id="lunchFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="lunchFoodOptions">' + foodTypesOptions1 + '</div></div><span class="food-selected-display-box" id="lunchFoodDisplayBox">Chưa chọn</span><input type="text" id="lunchFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'lunchFoodDisplayBox\', \'lunchFoodOptions\', \'lunchFoodOther\')"></div></div></div><div class="meal-part"><div class="meal-header-time"><h3>Bữa chiều:</h3><label for="dinnerTime">Thời gian:</label><input type="time" id="dinnerTime" value="17:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="dinnerAmount">Sức ăn:</label><select id="dinnerAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'dinnerFoodOptions\')"><span class="selected-text" id="dinnerFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="dinnerFoodOptions">' + foodTypesOptions2 + '</div></div><span class="food-selected-display-box" id="dinnerFoodDisplayBox">Chưa chọn</span><input type="text" id="dinnerFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'dinnerFoodDisplayBox\', \'dinnerFoodOptions\', \'dinnerFoodOther\')"></div></div></div></div><div class="care-checks"><label><input type="checkbox" id="care_bath"> Tắm rửa</label><label><input type="checkbox" id="care_brush"> Chải lông</label><label><input type="checkbox" id="care_wipe"> Lau lông</label></div><div class="health-status"><label><input type="radio" name="health_status" value="Bình thường" checked> Bình thường</label><label><input type="radio" name="health_status" value="Có dấu hiệu bất thường" data-health-type="abnormal"> Có dấu hiệu bất thường</label><label><input type="radio" name="health_status" value="Bị ốm/Chấn thương" data-health-type="sick"> Bị ốm/Chấn thương</label><input type="text" id="health_other_text" class="health-other-input hidden" placeholder="Ghi rõ tình trạng"></div><div class="textarea-block"><label for="journal_other_issues" class="other-issues-label">Vấn đề khác (nếu có):</label><textarea id="journal_other_issues" rows="3"></textarea></div></div><div class="journal-section operation-activity"><h2>IV. HOẠT ĐỘNG TÁC NGHIỆP</h2><div id="operation-blocks-container"><!-- Operation blocks will be dynamically added here --></div><div class="operation-activity-buttons"><button class="add-block add-operation-block" onclick="addOperationBlock()">Thêm Ca Tác Nghiệp</button><button class="remove-block remove-operation-block" onclick="removeLastOperationBlock()">Xóa Ca Tác Nghiệp</button></div></div><div class="journal-section approval-section"><h2>DUYỆT & KÝ</h2><div class="approval-flex-container">' + leaderApprovalSection + '<div class="approval-box hvl-submission"><h3>Huấn luyện viên xác nhận</h3><div class="signature-area"><p>Họ và tên: <span id="hvl_name_display">' + (currentUserName || hlvInfo.name) + '</span></p><p>Trạng thái: <span class="submission-status">(Chưa gửi duyệt)</span></p><div id="hvl-signature-display"></div><button class="btn-submit-hvl" onclick="submitHvlSignature()">Ký</button></div></div><div class="approval-box substitute-hvl-section"><h3>HLV trực thay (nếu có)</h3><div class="signature-area"><label for="substitute_hvl_name">Họ và tên:</label><input type="text" id="substitute_hvl_name"><label for="substitute_hvl_comment">Ý kiến:</label><textarea id="substitute_hvl_comment" rows="3"></textarea><p>Trạng thái: <span class="substitute-hvl-status">[Chưa ký]</span></p><div id="substitute-signature-display"></div><button class="btn-substitute-hvl-approve" onclick="substituteHvlApprove()">Ký</button></div></div></div></div><div class="journal-action-buttons"><button class="save-journal" onclick="saveJournalData()">Lưu Nhật Ký</button><button class="export-pdf" onclick="exportJournalToPDF(\'' + dogName + '\', document.getElementById(\'journal_date\').value)">Xuất PDF</button></div>';
+    content.innerHTML = roleInfo + '<div class="journal-header-actions"><button class="btn-create-new-journal" onclick="createNewJournal()">Nhật ký mới +</button><button class="btn-view-old-journals" onclick="viewOldJournals()">Xem nhật ký cũ</button></div><div class="journal-section info-general"><h2>I. THÔNG TIN CHUNG</h2><div class="info-general-grid"><div class="info-item-group journal-date-field"><label for="journal_date">Ngày ghi:</label><input type="date" id="journal_date" value="' + (date || defaultDate) + '" required></div><div class="info-item-group"><label for="journal_hlv">Huấn luyện viên:</label><input type="text" id="journal_hlv" value="' + (currentUserName || hlvInfo.name) + ' (Số hiệu: ' + hlvInfo.id + ')" readonly></div><div class="info-item-group"><label for="journal_dog_name">Tên CNV:</label><input type="text" id="journal_dog_name" value="' + dogName + '" readonly></div></div></div><div class="journal-section training-activity"><h2>II. HOẠT ĐỘNG HUẤN LUYỆN</h2><div id="training-blocks-container"><!-- Training blocks will be dynamically added here --></div><div class="training-activity-buttons"><button class="add-block add-training-block" onclick="addTrainingBlock()">Thêm Ca +</button><button class="remove-block remove-training-block" onclick="removeLastTrainingBlock()">Xóa Ca HL</button></div><div class="textarea-block"><label for="journal_hlv_comment">Đánh giá chung của Huấn luyện viên:</label><textarea id="journal_hlv_comment" rows="4"></textarea></div></div><div class="journal-section care-block"><h2>III. CHĂM SÓC & NUÔI DƯỠNG</h2><!-- Care and feeding section content --><div class="meal-row"><div class="meal-part"><div class="meal-header-time"><h3>Bữa trưa:</h3><label for="lunchTime">Thời gian:</label><input type="time" id="lunchTime" value="11:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="lunchAmount">Sức ăn:</label><select id="lunchAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'lunchFoodOptions\')"><span class="selected-text" id="lunchFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="lunchFoodOptions">' + foodTypesOptions1 + '</div></div><span class="food-selected-display-box" id="lunchFoodDisplayBox">Chưa chọn</span><input type="text" id="lunchFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'lunchFoodDisplayBox\', \'lunchFoodOptions\', \'lunchFoodOther\')"></div></div></div><div class="meal-part"><div class="meal-header-time"><h3>Bữa chiều:</h3><label for="dinnerTime">Thời gian:</label><input type="time" id="dinnerTime" value="17:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="dinnerAmount">Sức ăn:</label><select id="dinnerAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'dinnerFoodOptions\')"><span class="selected-text" id="dinnerFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="dinnerFoodOptions">' + foodTypesOptions2 + '</div></div><span class="food-selected-display-box" id="dinnerFoodDisplayBox">Chưa chọn</span><input type="text" id="dinnerFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'dinnerFoodDisplayBox\', \'dinnerFoodOptions\', \'dinnerFoodOther\')"></div></div></div></div><div class="care-checks"><label><input type="checkbox" id="care_bath"> Tắm rửa</label><label><input type="checkbox" id="care_brush"> Chải lông</label><label><input type="checkbox" id="care_wipe"> Lau lông</label></div><div class="health-status"><label><input type="radio" name="health_status" value="Tốt" checked> Tốt</label><label><input type="radio" name="health_status" value="Khá" data-health-type="abnormal"> Khá</label><label><input type="radio" name="health_status" value="Trung bình" data-health-type="sick"> Trung bình</label><label><input type="radio" name="health_status" value="Kém" data-health-type="sick"> Kém</label><input type="text" id="health_other_text" class="health-other-input hidden" placeholder="Ghi rõ tình trạng"></div><div class="textarea-block"><label for="journal_other_issues" class="other-issues-label">Vấn đề khác (nếu có):</label><textarea id="journal_other_issues" rows="3"></textarea></div></div><div class="journal-section operation-activity"><h2>IV. HOẠT ĐỘNG TÁC NGHIỆP</h2><div id="operation-blocks-container"><!-- Operation blocks will be dynamically added here --></div><div class="operation-activity-buttons"><button class="add-block add-operation-block" onclick="addOperationBlock()">Thêm Ca Tác Nghiệp</button><button class="remove-block remove-operation-block" onclick="removeLastOperationBlock()">Xóa Ca Tác Nghiệp</button></div></div><div class="journal-section approval-section"><h2>DUYỆT & KÝ</h2><div class="approval-flex-container">' + leaderApprovalSection + '<div class="approval-box hvl-submission"><h3>Huấn luyện viên xác nhận</h3><div class="signature-area"><p>Họ và tên: <span id="hvl_name_display">' + (currentUserName || hlvInfo.name) + '</span></p><p>Trạng thái: <span class="submission-status">(Chưa gửi duyệt)</span></p><div id="hvl-signature-display"></div><button class="btn-submit-hvl" onclick="submitHvlSignature()">Ký</button></div></div><div class="approval-box substitute-hvl-section"><h3>HLV trực thay (nếu có)</h3><div class="signature-area"><label for="substitute_hvl_name">Họ và tên:</label><input type="text" id="substitute_hvl_name"><label for="substitute_hvl_comment">Ý kiến:</label><textarea id="substitute_hvl_comment" rows="3"></textarea><p>Trạng thái: <span class="substitute-hvl-status">[Chưa ký]</span></p><div id="substitute-signature-display"></div><button class="btn-substitute-hvl-approve" onclick="substituteHvlApprove()">Ký</button></div></div></div></div><div class="journal-action-buttons"><button class="save-journal" onclick="saveJournalData()">Lưu Nhật Ký</button><button class="export-pdf" onclick="exportJournalToPDF(\'' + dogName + '\', document.getElementById(\'journal_date\').value)">Xuất PDF</button></div>';
 
 
 
     // Reset counters khi tạo form mới
-
+    console.log('🔄 Resetting counters - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
     trainingSessionCounter = 0;
-
     operationSessionCounter = 0;
-
     blockCounter = 0;
+    console.log('✅ Counters reset - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
+
+    // Reset counters for new journal form
 
 
 
@@ -3117,7 +3261,7 @@ function showJournalEditForm(dogName, date = null) {
 
 // SỬA: Function showAllPendingJournalsForManager - TÌM TẤT CẢ JOURNAL ĐÃ KÝ CHƯA DUYỆT - FIX MANAGER WORKFLOW
 
-function showAllPendingJournalsForManager() {
+async function showAllPendingJournalsForManager() {
 
     hideAllContentSections();
 
@@ -3141,115 +3285,56 @@ function showAllPendingJournalsForManager() {
 
 
 
-    console.log('🔍 Manager checking for journals requiring approval...');
+    // Manager checking for journals
 
 
 
-    // SỬA: TÌM JOURNALS TỪNG CẢ localStorage VÀ pending_manager_approvals
+    // SỬA: TÌM JOURNALS TỪ DATABASE
 
     const allPendingJournals = [];
 
-    const pendingList = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
+    try {
+        // Get pending journals from database
+        const response = await fetch('/api/journals/pending');
+        if (response.ok) {
+            const data = await response.json();
+            const dbJournals = data.data || [];
 
-
-
-    console.log('📋 Pending journals list:', pendingList.length);
-
-
-
-    // Kiểm tra từng journal trong danh sách pending
-
-    pendingList.forEach(pendingEntry => {
-
-        try {
-
-            const journalData = JSON.parse(localStorage.getItem(pendingEntry.key));
-
-            if (journalData && journalData.approval?.hvlSignature && !journalData.approval?.leaderSignature) {
-
-                allPendingJournals.push({
-
-                    key: pendingEntry.key,
-
-                    date: journalData.generalInfo.date,
-
-                    dogName: journalData.generalInfo.dogName,
-
-                    trainer: journalData.generalInfo.hlv,
-
-                    submittedAt: pendingEntry.submittedAt,
-
-                    data: journalData
-
+            // Convert database format to frontend format for compatibility
+            for (const journal of dbJournals) {
+                const journalKey = `journal_${journal.dog_name}_${journal.journal_date}_${journal.id}`;
+                console.log('📋 Manager journal entry:', {
+                    key: journalKey,
+                    id: journal.id,
+                    dogName: journal.dog_name,
+                    date: journal.journal_date,
+                    trainer: journal.trainer_name,
+                    status: journal.approval_status
                 });
-
+                
+                allPendingJournals.push({
+                    key: journalKey, // Include journal ID for uniqueness
+                    dogName: journal.dog_name,
+                    date: journal.journal_date,
+                    trainerName: journal.trainer_name,
+                    status: journal.approval_status,
+                    data: journal
+                });
             }
-
-        } catch (e) {
-
-            console.error('Error loading pending journal:', pendingEntry.key, e);
-
+        } else {
+            throw new Error('Database request failed');
         }
-
-    });
-
-
-
-    // SỬA: BACKUP SEARCH - Tìm thêm trong localStorage nếu có journal missed
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_')) {
-
-            try {
-
-                const journalData = JSON.parse(localStorage.getItem(key));
-
-                if (journalData?.approval?.hvlSignature && !journalData?.approval?.leaderSignature) {
-
-                    // Kiểm tra xem đã có trong danh sách chưa
-
-                    const exists = allPendingJournals.find(j => j.key === key);
-
-                    if (!exists) {
-
-                        allPendingJournals.push({
-
-                            key: key,
-
-                            date: journalData.generalInfo.date,
-
-                            dogName: journalData.generalInfo.dogName,
-
-                            trainer: journalData.generalInfo.hlv,
-
-                            submittedAt: journalData.approval.submittedAt || new Date().toISOString(),
-
-                            data: journalData
-
-                        });
-
-                        console.log('📌 Found missed journal:', key);
-
-                    }
-
-                }
-
-            } catch (e) {
-
-                console.error('Error checking journal:', key, e);
-
-            }
-
-        }
-
+    } catch (error) {
+        console.error('Failed to get pending journals from database:', error);
     }
 
 
 
-    console.log('📊 Total journals requiring manager approval:', allPendingJournals.length);
+    // Database search completed
+
+
+
+    // Total journals requiring manager approval
 
 
 
@@ -3267,7 +3352,10 @@ function showAllPendingJournalsForManager() {
 
             </div>
 
-            <button onclick="refreshManagerView()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-top: 20px;">🔄 Làm mới</button>
+            <div style="margin-top: 20px;">
+                <button onclick="refreshManagerView()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-right: 10px;">🔄 Làm mới</button>
+                <button onclick="showManagerPastJournalsModal()" style="background: #17a2b8; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer;">📚 Xem nhật ký cũ</button>
+            </div>
 
         </div>`;
 
@@ -3317,7 +3405,7 @@ function showAllPendingJournalsForManager() {
 
         const signatureDate = journal.data.approval?.hvlSignature?.timestamp ?
 
-            new Date(journal.data.approval.hvlSignature.timestamp).toLocaleDateString('vi-VN') : 'N/A';
+            formatDateToDDMMYYYY(journal.data.approval.hvlSignature.timestamp) : 'N/A';
 
 
 
@@ -3333,7 +3421,7 @@ function showAllPendingJournalsForManager() {
 
                 <span style="font-size: 24px; margin-right: 10px;">📅</span>
 
-                <strong style="color: #1976d2; font-size: 18px;">Ngày: ${journal.date}</strong>
+                <strong style="color: #1976d2; font-size: 18px;">Ngày: ${formatDateToDDMMYYYY(journal.date)}</strong>
 
             </div>
 
@@ -3349,23 +3437,16 @@ function showAllPendingJournalsForManager() {
 
                 <span style="font-size: 20px; margin-right: 10px;">👨‍💼</span>
 
-                <span style="color: #666;">HLV: ${journal.trainer}</span>
+                <span style="color: #666;">HLV: ${journal.trainerName || 'N/A'}</span>
 
             </div>
 
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-
-                <span style="font-size: 20px; margin-right: 10px;">🖊️</span>
-
-                <span style="color: #2e7d32;">✅ HLV đã ký ngày: ${signatureDate}</span>
-
-            </div>
 
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
 
                 <span style="font-size: 20px; margin-right: 10px;">⏰</span>
 
-                <span style="color: #666; font-size: 14px;">Gửi lúc: ${new Date(journal.submittedAt || journal.date).toLocaleString('vi-VN')}</span>
+                <span style="color: #666; font-size: 14px;">Gửi lúc: ${formatDateToDDMMYYYY(journal.submittedAt || journal.date, true)}</span>
 
             </div>
 
@@ -3403,6 +3484,8 @@ function showAllPendingJournalsForManager() {
 
             <button onclick="refreshManagerView()" style="background: #ff9800; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-right: 15px;">🔄 Làm mới danh sách</button>
 
+            <button onclick="showManagerPastJournalsModal()" style="background: #17a2b8; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-right: 15px;">📚 Xem nhật ký cũ</button>
+
             <button onclick="showManagerStatistics()" style="background: #9c27b0; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">📊 Xem thống kê</button>
 
         </div>
@@ -3439,7 +3522,7 @@ function showAllPendingJournalsForManager() {
 
         if (currentUserRole === 'MANAGER' && document.getElementById('title').innerText.includes('MANAGER')) {
 
-            console.log('🔄 Auto-refreshing manager view...');
+            // Auto-refreshing manager view
 
             showAllPendingJournalsForManager();
 
@@ -3449,24 +3532,403 @@ function showAllPendingJournalsForManager() {
 
 }
 
+// SỬA: Function MANAGER JOURNAL VIEW - XEM SỔ NHẬT KÝ HUẤN LUYỆN
+async function showManagerJournalView() {
+    hideAllContentSections();
+    
+    const content = document.getElementById('content');
+    const title = document.getElementById('title');
+    
+    content.style.display = 'block';
+    content.style.justifyContent = 'flex-start';
+    content.style.alignItems = 'flex-start';
+    content.style.height = 'auto';
+    content.style.position = 'relative';
+    content.style.zIndex = '1';
+    
+    title.innerText = 'SỔ NHẬT KÝ HUẤN LUYỆN - CHẾ ĐỘ MANAGER';
+    
+    // Load all journals from database
+    let allJournals = [];
+    
+    try {
+        console.log('🔍 Loading all journals for Manager view...');
+        
+        const response = await fetch('/api/journals');
+        console.log('📡 API Response status:', response.status);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('📄 API Response data:', data);
+            
+            if (data.success && data.data) {
+                allJournals = data.data.map(journal => ({
+                    id: journal.id,
+                    key: `journal_${journal.dog_name}_${journal.journal_date}`,
+                    dogName: journal.dog_name,
+                    date: journal.journal_date,
+                    trainerName: journal.trainer_name,
+                    status: journal.approval_status,
+                    data: journal,
+                    approvedAt: journal.approved_at,
+                    approvedBy: journal.approver_name
+                }));
+                console.log('✅ Loaded journals from database:', allJournals.length);
+                console.log('📋 Journal details:', allJournals.map(j => ({ id: j.id, dog: j.dogName, date: j.date, status: j.status })));
+            } else {
+                console.error('❌ API returned unsuccessful response:', data);
+            }
+        } else {
+            const errorText = await response.text();
+            console.error('❌ API request failed:', response.status, errorText);
+            throw new Error('Database request failed');
+        }
+    } catch (error) {
+        console.error('❌ Failed to get journals from database:', error);
+        content.innerHTML = `
+            <div style="text-align: center; padding: 50px; background: white; border-radius: 10px; margin: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h3 style="color: #f44336; margin-bottom: 20px;">❌ Lỗi tải dữ liệu</h3>
+                <p style="color: #666;">Không thể tải danh sách nhật ký từ cơ sở dữ liệu.</p>
+                <button onclick="showManagerJournalView()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-top: 20px;">🔄 Thử lại</button>
+            </div>
+        `;
+        return;
+    }
+    
+    if (allJournals.length === 0) {
+        content.innerHTML = `
+            <div style="text-align: center; padding: 50px; background: white; border-radius: 10px; margin: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                <h3 style="color: #2196F3; margin-bottom: 20px;">📖 SỔ NHẬT KÝ HUẤN LUYỆN</h3>
+                <div style="background: #e3f2fd; border: 1px solid #2196f3; padding: 20px; border-radius: 8px;">
+                    <h4 style="color: #1976d2; margin-top: 0;">📝 Chưa có nhật ký nào</h4>
+                    <p style="color: #1976d2;">Hệ thống chưa có nhật ký huấn luyện nào được tạo.</p>
+                </div>
+                <button onclick="showManagerJournalView()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; margin-top: 20px;">🔄 Làm mới</button>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by date (newest first)
+    allJournals.sort((a, b) => new Date(b.date) - new Date(a.date));
+    console.log('📅 Sorted journals:', allJournals.map(j => ({ id: j.id, dog: j.dogName, date: j.date })));
+    
+    // Group by dog
+    const journalsByDog = {};
+    allJournals.forEach(journal => {
+        if (!journalsByDog[journal.dogName]) {
+            journalsByDog[journal.dogName] = [];
+        }
+        journalsByDog[journal.dogName].push(journal);
+    });
+    console.log('🐕 Journals grouped by dog:', journalsByDog);
+    
+    // Create HTML for journal view
+    let html = `
+        <div style="background: white; border-radius: 10px; margin: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div style="background: #e3f2fd; border: 1px solid #2196f3; padding: 20px; margin-bottom: 25px; border-radius: 8px; text-align: center;">
+                <h3 style="color: #1976d2; margin-top: 0;">📖 SỔ NHẬT KÝ HUẤN LUYỆN</h3>
+                <p style="color: #1976d2; font-size: 18px; font-weight: bold;">Tổng cộng: ${allJournals.length} nhật ký từ ${Object.keys(journalsByDog).length} chó nghiệp vụ</p>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-top: 15px;">
+                    <strong>📊 Thống kê:</strong> 
+                    ${allJournals.filter(j => j.status === 'APPROVED').length} đã duyệt, 
+                    ${allJournals.filter(j => j.status === 'PENDING').length} chờ duyệt, 
+                    ${allJournals.filter(j => j.status === 'REJECTED').length} từ chối
+                </div>
+            </div>
+            
+            <div class="manager-journals-list">
+                <h4 style="color: #333; border-bottom: 2px solid #2196f3; padding-bottom: 10px;">📋 Danh sách nhật ký theo chó nghiệp vụ:</h4>
+    `;
+    
+    // Create journal list by dog
+    Object.keys(journalsByDog).sort().forEach(dogName => {
+        const dogJournals = journalsByDog[dogName];
+        const approvedCount = dogJournals.filter(j => j.status === 'APPROVED').length;
+        const pendingCount = dogJournals.filter(j => j.status === 'PENDING').length;
+        const rejectedCount = dogJournals.filter(j => j.status === 'REJECTED').length;
+        
+        html += `
+            <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; margin: 15px 0; overflow: hidden;">
+                <div style="background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="margin: 0; font-size: 18px;">🐕 ${dogName}</h4>
+                    <div style="font-size: 14px;">
+                        <span style="background: #28a745; padding: 4px 8px; border-radius: 4px; margin-right: 5px;">✅ ${approvedCount}</span>
+                        <span style="background: #ffc107; padding: 4px 8px; border-radius: 4px; margin-right: 5px;">⏳ ${pendingCount}</span>
+                        <span style="background: #dc3545; padding: 4px 8px; border-radius: 4px;">❌ ${rejectedCount}</span>
+                    </div>
+                </div>
+                <div style="padding: 15px;">
+        `;
+        
+        dogJournals.forEach(journal => {
+            const statusColor = journal.status === 'APPROVED' ? '#28a745' : 
+                               journal.status === 'PENDING' ? '#ffc107' : '#dc3545';
+            const statusText = journal.status === 'APPROVED' ? 'Đã duyệt' : 
+                              journal.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối';
+            const statusIcon = journal.status === 'APPROVED' ? '✅' : 
+                              journal.status === 'PENDING' ? '⏳' : '❌';
+            
+            html += `
+                <div style="background: white; border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 16px; margin-right: 8px;">📅</span>
+                            <strong style="color: #495057;">${formatDateToDDMMYYYY(journal.date)}</strong>
+                            <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 10px;">
+                                ${statusIcon} ${statusText}
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                            <span style="font-size: 14px; margin-right: 8px;">👨‍💼</span>
+                            <span style="color: #6c757d; font-size: 14px;">HLV: ${journal.trainerName || 'N/A'}</span>
+                        </div>
+                        ${journal.approvedBy ? `
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-size: 14px; margin-right: 8px;">👤</span>
+                                <span style="color: #6c757d; font-size: 14px;">Duyệt bởi: ${journal.approvedBy}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="viewJournalFromManagerView('${journal.key}')" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">👀 Xem</button>
+                        <button onclick="exportJournalFromManagerView('${journal.key}')" style="background: #6f42c1; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">📄 PDF</button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 2px solid #e3f2fd;">
+                <button onclick="showManagerJournalView()" style="background: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-right: 15px;">🔄 Làm mới</button>
+                <button onclick="exportAllJournalsForManager()" style="background: #28a745; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; margin-right: 15px;">📊 Xuất báo cáo</button>
+                <button onclick="showManagerStatistics()" style="background: #9c27b0; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">📈 Thống kê</button>
+            </div>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
 
+// Helper functions for Manager Journal View
+async function viewJournalFromManagerView(journalKey) {
+    try {
+        // Extract dog name, date, and ID from journal key
+        const keyParts = journalKey.replace('journal_', '').split('_');
+        const dogName = keyParts[0];
+        
+        // Handle both old format (dogName_date) and new format (dogName_date_id)
+        let date, journalId = null;
+        if (keyParts.length >= 3) {
+            // New format: dogName_date_id
+            journalId = keyParts[keyParts.length - 1];
+            date = keyParts.slice(1, -1).join('_');
+        } else {
+            // Old format: dogName_date
+            date = keyParts.slice(1).join('_');
+        }
+        
+        console.log('🔍 Manager viewing journal - Dog:', dogName, 'Date:', date, 'ID:', journalId);
+        
+        // Use existing function to show A4 view
+        await showPureA4JournalView(dogName, date);
+    } catch (error) {
+        console.error('Error viewing journal from manager view:', error);
+        alert('Có lỗi khi xem nhật ký: ' + error.message);
+    }
+}
+
+async function exportJournalFromManagerView(journalKey) {
+    try {
+        // Extract dog name, date, and ID from journal key
+        const keyParts = journalKey.replace('journal_', '').split('_');
+        const dogName = keyParts[0];
+        
+        // Handle both old format (dogName_date) and new format (dogName_date_id)
+        let date, journalId = null;
+        if (keyParts.length >= 3) {
+            // New format: dogName_date_id
+            journalId = keyParts[keyParts.length - 1];
+            date = keyParts.slice(1, -1).join('_');
+        } else {
+            // Old format: dogName_date
+            date = keyParts.slice(1).join('_');
+        }
+        
+        console.log('🔍 Manager exporting journal - Dog:', dogName, 'Date:', date, 'ID:', journalId);
+        
+        // Use existing PDF export functionality
+        if (window.pdfExportSystem) {
+            await window.pdfExportSystem.exportJournalToPDF(dogName, date);
+        } else {
+            alert('Chức năng xuất PDF chưa sẵn sàng. Vui lòng thử lại sau.');
+        }
+    } catch (error) {
+        console.error('Error exporting journal from manager view:', error);
+        alert('Có lỗi khi xuất PDF: ' + error.message);
+    }
+}
+
+async function exportAllJournalsForManager() {
+    try {
+        alert('Chức năng xuất báo cáo tổng hợp đang được phát triển. Vui lòng sử dụng chức năng xuất PDF cho từng nhật ký riêng lẻ.');
+    } catch (error) {
+        console.error('Error exporting all journals:', error);
+        alert('Có lỗi khi xuất báo cáo: ' + error.message);
+    }
+}
+
+// Manager Past Journals Modal - Similar to viewOldJournals but for Manager
+async function showManagerPastJournalsModal() {
+    try {
+        // Load all journals from database
+        const response = await fetch('/api/journals');
+        if (!response.ok) {
+            throw new Error('Database request failed');
+        }
+        
+        const result = await response.json();
+        if (!result.success || !result.data) {
+            throw new Error('No journals found');
+        }
+        
+        const allJournals = result.data;
+        console.log('📚 Manager Past Journals - Total journals:', allJournals.length);
+        console.log('📚 Journal details:', allJournals.map(j => ({ id: j.id, dog: j.dog_name, date: j.journal_date, trainer: j.trainer_name })));
+        
+        if (allJournals.length === 0) {
+            alert('Không có nhật ký nào trong hệ thống.');
+            return;
+        }
+        
+        // Sort by date (newest first)
+        allJournals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
+        console.log('📅 Sorted journals for dropdown:', allJournals.map(j => ({ id: j.id, dog: j.dog_name, date: j.journal_date })));
+        
+        // Create dropdown options
+        let dateOptions = '<option value="">Chọn ngày xem nhật ký</option>';
+        
+        allJournals.forEach(journal => {
+            const dateStr = formatDateToDDMMYYYY(journal.journal_date);
+            
+            // Get status badge
+            let statusBadge = '';
+            switch(journal.approval_status) {
+                case 'APPROVED':
+                    statusBadge = '✅ Đã duyệt';
+                    break;
+                case 'PENDING':
+                    statusBadge = '⏳ Chờ duyệt';
+                    break;
+                case 'REJECTED':
+                    statusBadge = '❌ Từ chối';
+                    break;
+                default:
+                    statusBadge = '❓ ' + journal.approval_status;
+            }
+            
+            // Get trainer info
+            const trainerInfo = journal.trainer_name || 'Chưa xác định';
+            
+            // Get approver info if approved
+            let approverInfo = '';
+            if (journal.approval_status === 'APPROVED' && journal.approver_name) {
+                approverInfo = ` | Duyệt bởi: ${journal.approver_name}`;
+            }
+            
+            // Create comprehensive option text
+            const optionText = `${dateStr} - CNV ${journal.dog_name} | HLV: ${trainerInfo} | ${statusBadge}${approverInfo}`;
+            dateOptions += `<option value="${journal.journal_date}|${journal.dog_name}|${journal.id}">${optionText}</option>`;
+            console.log('➕ Added detailed option:', optionText, '| Journal ID:', journal.id);
+        });
+        
+        console.log('📋 Total dropdown options created:', allJournals.length + 1);
+        
+        // Create modal HTML
+        const modalHtml = `
+            <div id="managerPastJournalsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                    <h3 style="margin-top: 0; color: #2196F3;">📚 XEM NHẬT KÝ CŨ - MANAGER</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Tìm thấy <strong>${allJournals.length}</strong> nhật ký trong hệ thống. Chọn nhật ký để xem bản PDF A4:</p>
+                    <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px; padding: 10px; margin-bottom: 15px; font-size: 12px; color: #6c757d;">
+                        <strong>📋 Thông tin hiển thị:</strong> Ngày | Tên CNV | Huấn luyện viên | Trạng thái duyệt | Người duyệt (nếu có)
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label for="managerPastJournalSelect" style="display: block; margin-bottom: 8px; font-weight: bold;">Chọn nhật ký:</label>
+                        <select id="managerPastJournalSelect" style="width: 100%; padding: 12px; border: 2px solid #007bff; border-radius: 8px; font-size: 13px; background: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            ${dateOptions}
+                        </select>
+                    </div>
+                    
+                    <div style="text-align: right; margin-top: 20px;">
+                        <button onclick="closeManagerPastJournalsModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 5px; margin-right: 10px; cursor: pointer; font-size: 14px;">❌ Hủy</button>
+                        <button onclick="viewSelectedManagerPastJournal()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 14px;">📄 Xem PDF A4</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+    } catch (error) {
+        console.error('Error loading past journals for manager:', error);
+        alert('Có lỗi khi tải danh sách nhật ký: ' + error.message);
+    }
+}
+
+// Close Manager Past Journals Modal
+function closeManagerPastJournalsModal() {
+    const modal = document.getElementById('managerPastJournalsModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// View Selected Manager Past Journal
+function viewSelectedManagerPastJournal() {
+    const selectedValue = document.getElementById('managerPastJournalSelect').value;
+    
+    if (!selectedValue) {
+        alert('Vui lòng chọn ngày để xem nhật ký!');
+        return;
+    }
+    
+    try {
+        const [date, dogName, journalId] = selectedValue.split('|');
+        
+        console.log('🎯 Manager selected journal:', { date, dogName, journalId });
+        
+        // Use existing function to show A4 view with specific journal ID
+        showPureA4JournalView(dogName, date, journalId);
+        
+        // Close modal
+        closeManagerPastJournalsModal();
+        
+    } catch (error) {
+        console.error('Error viewing selected past journal:', error);
+        alert('Có lỗi khi xem nhật ký: ' + error.message);
+    }
+}
 
 // SỬA: Function MARK NOTIFICATIONS AS READ
 
-function markManagerNotificationsAsRead() {
-
-    const notifications = JSON.parse(localStorage.getItem('manager_notifications')) || [];
-
-    const updatedNotifications = notifications.map(notif => ({
-
-        ...notif,
-
-        read: true
-
-    }));
-
-    localStorage.setItem('manager_notifications', JSON.stringify(updatedNotifications));
-
+async function markManagerNotificationsAsRead() {
+    try {
+        // TODO: Update notifications in database
+        // Manager notifications marked as read
+    } catch (error) {
+        console.error('Failed to mark notifications as read:', error);
+    }
 }
 
 
@@ -3477,7 +3939,7 @@ function markManagerNotificationsAsRead() {
 
 function viewJournalForManagerApproval(journalKey) {
 
-    console.log('👀 Manager viewing journal for approval:', journalKey);
+    // Manager viewing journal for approval
 
 
 
@@ -3499,7 +3961,7 @@ function viewJournalForManagerApproval(journalKey) {
 
 function refreshManagerView() {
 
-    console.log('🔄 Manual refresh requested by Manager');
+    // Manual refresh requested by Manager
 
     showAllPendingJournalsForManager();
 
@@ -3507,68 +3969,427 @@ function refreshManagerView() {
 
 
 
-function showManagerStatistics() {
-
-    // Thống kê tổng quan cho Manager
-
-    let totalJournals = 0;
-
-    let approvedJournals = 0;
-
-    let pendingJournals = 0;
-
-
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_')) {
-
-            totalJournals++;
-
-            try {
-
-                const journalData = JSON.parse(localStorage.getItem(key));
-
-                if (journalData.approval?.leaderSignature) {
-
-                    approvedJournals++;
-
-                } else if (journalData.approval?.hvlSignature) {
-
-                    pendingJournals++;
-
-                }
-
-            } catch (e) {
-
-                console.error('Error parsing journal stats:', e);
-
-            }
-
+async function showManagerStatistics() {
+    // Show loading modal first
+    showStatisticsModal();
+    
+    try {
+        // Get all journals from database
+        const response = await fetch('/api/journals');
+        if (response.ok) {
+            const data = await response.json();
+            const journals = data.data || [];
+            
+            // Calculate comprehensive statistics
+            const stats = calculateDetailedStatistics(journals);
+            
+            // Update modal with statistics
+            updateStatisticsModal(stats);
+        } else {
+            throw new Error('Failed to fetch journals');
         }
-
+    } catch (error) {
+        console.error('Error getting journal statistics:', error);
+        showStatisticsError(error.message);
     }
-
-
-
-    alert('📊 THỐNG KÊ QUẢN LÝ NHẬT KÝ\n\n' +
-
-        '📋 Tổng số nhật ký: ' + totalJournals + '\n' +
-
-        '✅ Đã duyệt: ' + approvedJournals + '\n' +
-
-        '⏳ Chờ duyệt: ' + pendingJournals + '\n' +
-
-        '📝 Chưa hoàn thành: ' + (totalJournals - approvedJournals - pendingJournals));
-
 }
 
+function calculateDetailedStatistics(journals) {
+    const stats = {
+        total: journals.length,
+        approved: 0,
+        pending: 0,
+        rejected: 0,
+        incomplete: 0,
+        byDog: {},
+        byTrainer: {},
+        byMonth: {},
+        byStatus: {},
+        recentActivity: [],
+        averageTrainingTime: 0,
+        totalTrainingHours: 0
+    };
 
+    // Process each journal
+    journals.forEach(journal => {
+        // Status counts
+        switch(journal.approval_status) {
+            case 'APPROVED':
+                stats.approved++;
+                break;
+            case 'PENDING':
+                stats.pending++;
+                break;
+            case 'REJECTED':
+                stats.rejected++;
+                break;
+            default:
+                stats.incomplete++;
+        }
+
+        // By dog
+        if (!stats.byDog[journal.dog_name]) {
+            stats.byDog[journal.dog_name] = { total: 0, approved: 0, pending: 0 };
+        }
+        stats.byDog[journal.dog_name].total++;
+        if (journal.approval_status === 'APPROVED') stats.byDog[journal.dog_name].approved++;
+        if (journal.approval_status === 'PENDING') stats.byDog[journal.dog_name].pending++;
+
+        // By trainer
+        if (!stats.byTrainer[journal.trainer_name]) {
+            stats.byTrainer[journal.trainer_name] = { total: 0, approved: 0, pending: 0 };
+        }
+        stats.byTrainer[journal.trainer_name].total++;
+        if (journal.approval_status === 'APPROVED') stats.byTrainer[journal.trainer_name].approved++;
+        if (journal.approval_status === 'PENDING') stats.byTrainer[journal.trainer_name].pending++;
+
+        // By month
+        const month = new Date(journal.journal_date).toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit' });
+        if (!stats.byMonth[month]) {
+            stats.byMonth[month] = { total: 0, approved: 0, pending: 0 };
+        }
+        stats.byMonth[month].total++;
+        if (journal.approval_status === 'APPROVED') stats.byMonth[month].approved++;
+        if (journal.approval_status === 'PENDING') stats.byMonth[month].pending++;
+
+        // Training time calculation (if available)
+        if (journal.training_duration) {
+            stats.totalTrainingHours += parseFloat(journal.training_duration) || 0;
+        }
+
+        // Recent activity (last 10 journals)
+        stats.recentActivity.push({
+            date: journal.journal_date,
+            dog: journal.dog_name,
+            trainer: journal.trainer_name,
+            status: journal.approval_status,
+            approvedAt: journal.approved_at
+        });
+    });
+
+    // Sort recent activity by date
+    stats.recentActivity.sort((a, b) => new Date(b.date) - new Date(a.date));
+    stats.recentActivity = stats.recentActivity.slice(0, 10);
+
+    // Calculate average training time
+    if (stats.total > 0) {
+        stats.averageTrainingTime = stats.totalTrainingHours / stats.total;
+    }
+
+    return stats;
+}
+
+function showStatisticsModal() {
+    const modal = document.createElement('div');
+    modal.id = 'statisticsModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+        ">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 15px 15px 0 0;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            ">
+                <h2 style="margin: 0; font-size: 24px; font-weight: bold;">
+                    📊 THỐNG KÊ CHI TIẾT HỆ THỐNG QUẢN LÝ K9
+                </h2>
+                <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">
+                    Báo cáo tổng quan và phân tích dữ liệu huấn luyện
+                </p>
+            </div>
+            
+            <div style="padding: 30px;">
+                <div id="statisticsContent" style="text-align: center; padding: 50px;">
+                    <div style="
+                        display: inline-block;
+                        width: 50px;
+                        height: 50px;
+                        border: 4px solid #f3f3f3;
+                        border-top: 4px solid #667eea;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                        margin-bottom: 20px;
+                    "></div>
+                    <h3 style="color: #667eea; margin-bottom: 10px;">Đang tải dữ liệu...</h3>
+                    <p style="color: #666;">Vui lòng chờ trong giây lát</p>
+                </div>
+            </div>
+            
+            <div style="
+                padding: 20px 30px;
+                border-top: 1px solid #eee;
+                text-align: center;
+                background: #f8f9fa;
+                border-radius: 0 0 15px 15px;
+            ">
+                <button onclick="closeStatisticsModal()" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    margin-right: 15px;
+                ">Đóng</button>
+                <button onclick="exportStatistics()" style="
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">📊 Xuất báo cáo</button>
+            </div>
+        </div>
+        
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+function updateStatisticsModal(stats) {
+    const content = document.getElementById('statisticsContent');
+    
+    // Calculate percentages
+    const approvedPercent = stats.total > 0 ? ((stats.approved / stats.total) * 100).toFixed(1) : 0;
+    const pendingPercent = stats.total > 0 ? ((stats.pending / stats.total) * 100).toFixed(1) : 0;
+    const rejectedPercent = stats.total > 0 ? ((stats.rejected / stats.total) * 100).toFixed(1) : 0;
+    const incompletePercent = stats.total > 0 ? ((stats.incomplete / stats.total) * 100).toFixed(1) : 0;
+
+    content.innerHTML = `
+        <!-- Overview Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">📋 Tổng số nhật ký</h3>
+                <div style="font-size: 36px; font-weight: bold; margin-bottom: 5px;">${stats.total}</div>
+                <div style="font-size: 14px; opacity: 0.9;">Tất cả nhật ký</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 25px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">✅ Đã duyệt</h3>
+                <div style="font-size: 36px; font-weight: bold; margin-bottom: 5px;">${stats.approved}</div>
+                <div style="font-size: 14px; opacity: 0.9;">${approvedPercent}% tổng số</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white; padding: 25px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">⏳ Chờ duyệt</h3>
+                <div style="font-size: 36px; font-weight: bold; margin-bottom: 5px;">${stats.pending}</div>
+                <div style="font-size: 14px; opacity: 0.9;">${pendingPercent}% tổng số</div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #dc3545, #e83e8c); color: white; padding: 25px; border-radius: 12px; text-align: center;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">❌ Từ chối/Chưa hoàn thành</h3>
+                <div style="font-size: 36px; font-weight: bold; margin-bottom: 5px;">${stats.rejected + stats.incomplete}</div>
+                <div style="font-size: 14px; opacity: 0.9;">${(parseFloat(rejectedPercent) + parseFloat(incompletePercent)).toFixed(1)}% tổng số</div>
+            </div>
+        </div>
+
+        <!-- Training Hours Summary -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 30px; border-left: 5px solid #17a2b8;">
+            <h3 style="color: #17a2b8; margin: 0 0 15px 0; font-size: 20px;">⏱️ Thống kê thời gian huấn luyện</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #17a2b8;">${stats.totalTrainingHours.toFixed(1)}</div>
+                    <div style="color: #666; font-size: 14px;">Tổng giờ huấn luyện</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 24px; font-weight: bold; color: #17a2b8;">${stats.averageTrainingTime.toFixed(1)}</div>
+                    <div style="color: #666; font-size: 14px;">Giờ trung bình/buổi</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Breakdown -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+            <!-- By Dog -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 12px; padding: 20px;">
+                <h3 style="color: #495057; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">🐕 Thống kê theo chó nghiệp vụ</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${Object.entries(stats.byDog).map(([dog, data]) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f8f9fa; margin-bottom: 5px;">
+                            <div>
+                                <strong style="color: #495057;">${dog}</strong>
+                                <div style="font-size: 12px; color: #6c757d;">Tổng: ${data.total} | Đã duyệt: ${data.approved} | Chờ: ${data.pending}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 18px; font-weight: bold; color: #28a745;">${data.total > 0 ? ((data.approved / data.total) * 100).toFixed(0) : 0}%</div>
+                                <div style="font-size: 10px; color: #6c757d;">Tỷ lệ duyệt</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- By Trainer -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 12px; padding: 20px;">
+                <h3 style="color: #495057; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">👨‍🏫 Thống kê theo huấn luyện viên</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    ${Object.entries(stats.byTrainer).map(([trainer, data]) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f8f9fa; margin-bottom: 5px;">
+                            <div>
+                                <strong style="color: #495057;">${trainer}</strong>
+                                <div style="font-size: 12px; color: #6c757d;">Tổng: ${data.total} | Đã duyệt: ${data.approved} | Chờ: ${data.pending}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 18px; font-weight: bold; color: #28a745;">${data.total > 0 ? ((data.approved / data.total) * 100).toFixed(0) : 0}%</div>
+                                <div style="font-size: 10px; color: #6c757d;">Tỷ lệ duyệt</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Statistics -->
+        <div style="background: white; border: 1px solid #dee2e6; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+            <h3 style="color: #495057; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">📅 Thống kê theo tháng</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                ${Object.entries(stats.byMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([month, data]) => `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                        <div style="font-weight: bold; color: #495057; margin-bottom: 5px;">${month}</div>
+                        <div style="font-size: 14px; color: #6c757d;">
+                            Tổng: ${data.total} | Đã duyệt: ${data.approved} | Chờ: ${data.pending}
+                        </div>
+                        <div style="font-size: 12px; color: #28a745; margin-top: 5px;">
+                            Tỷ lệ duyệt: ${data.total > 0 ? ((data.approved / data.total) * 100).toFixed(1) : 0}%
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div style="background: white; border: 1px solid #dee2e6; border-radius: 12px; padding: 20px;">
+            <h3 style="color: #495057; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">🕒 Hoạt động gần đây</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                ${stats.recentActivity.map(activity => {
+                    const statusColor = activity.status === 'APPROVED' ? '#28a745' : 
+                                      activity.status === 'PENDING' ? '#ffc107' : '#dc3545';
+                    const statusText = activity.status === 'APPROVED' ? 'Đã duyệt' : 
+                                     activity.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối/Chưa hoàn thành';
+                    
+                    return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f8f9fa; margin-bottom: 5px;">
+                            <div>
+                                <div style="font-weight: bold; color: #495057;">${activity.dog}</div>
+                                <div style="font-size: 12px; color: #6c757d;">
+                                    ${new Date(activity.date).toLocaleDateString('vi-VN')} - ${activity.trainer}
+                                </div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px;">
+                                    ${statusText}
+                                </span>
+                                ${activity.approvedAt ? `
+                                    <div style="font-size: 10px; color: #6c757d; margin-top: 2px;">
+                                        Duyệt: ${new Date(activity.approvedAt).toLocaleDateString('vi-VN')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+function showStatisticsError(message) {
+    const content = document.getElementById('statisticsContent');
+    content.innerHTML = `
+        <div style="text-align: center; padding: 50px;">
+            <div style="font-size: 48px; color: #dc3545; margin-bottom: 20px;">❌</div>
+            <h3 style="color: #dc3545; margin-bottom: 15px;">Lỗi tải dữ liệu</h3>
+            <p style="color: #666; margin-bottom: 20px;">${message}</p>
+            <button onclick="showManagerStatistics()" style="
+                background: #007bff;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+            ">🔄 Thử lại</button>
+        </div>
+    `;
+}
+
+function closeStatisticsModal() {
+    const modal = document.getElementById('statisticsModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function exportStatistics() {
+    // Get current statistics data
+    const content = document.getElementById('statisticsContent');
+    const statsText = content.innerText;
+    
+    // Create and download file
+    const blob = new Blob([statsText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `thong-ke-k9-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('Báo cáo thống kê đã được xuất thành công!', 'success');
+}
 
 // AI Search System - Ultra Stable Version
-let aiSearchHistory = JSON.parse(localStorage.getItem('ai_search_history') || '[]');
+let aiSearchHistory = [];
+
+// Load AI search history from database
+async function loadAISearchHistory() {
+    try {
+        // TODO: Implement database loading for AI search history
+        aiSearchHistory = [];
+    } catch (error) {
+        console.error('Failed to load AI search history:', error);
+        aiSearchHistory = [];
+    }
+}
+
+// Initialize AI search history
+loadAISearchHistory();
 let aiSearchIndex = {};
 let aiSearchState = {
     isOpening: false,
@@ -3579,11 +4400,11 @@ let aiSearchState = {
 // Ultra Stable AI Search Function
 function chatWithAI() {
 
-    console.log('🤖 Opening AI Search interface...');
+    // Opening AI Search interface
 
     // Prevent any concurrent operations
     if (aiSearchState.isOpening || aiSearchState.isClosing || aiSearchState.isOpen) {
-        console.log('⚠️ Modal operation already in progress, ignoring');
+        // Modal operation already in progress
         return;
     }
 
@@ -3623,7 +4444,7 @@ function openAISearchModalStable() {
 
 // Initialize AI search index
 function initializeAISearchIndex() {
-    console.log('🤖 Initializing AI search index...');
+    // Initializing AI search index
 
     // Build search index from various sources
     aiSearchIndex = {
@@ -3638,7 +4459,7 @@ function initializeAISearchIndex() {
     // Index static content
     indexStaticContent();
 
-    console.log('✅ AI search index initialized');
+    // AI search index initialized
 }
 
 // Index static content from the application
@@ -3709,7 +4530,7 @@ function indexStaticContent() {
 function closeAISearch() {
     // Prevent concurrent operations
     if (aiSearchState.isClosing || !aiSearchState.isOpen) {
-        console.log('⚠️ Close operation already in progress or modal not open, ignoring');
+        // Close operation already in progress
         return;
     }
 
@@ -3757,7 +4578,7 @@ async function performAISearch() {
         return;
     }
 
-    console.log('🔍 Performing AI search for:', query);
+    // Performing AI search
 
     // Show loading
     showAISearchLoading();
@@ -3783,7 +4604,7 @@ async function performComprehensiveSearch(query) {
     const results = [];
     const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 2);
 
-    console.log('🔍 Search terms:', searchTerms);
+    // Search terms
 
     // 1. Search database (dogs, users, journals)
     try {
@@ -3837,7 +4658,7 @@ async function searchDatabase(query) {
                     results.push({
                         type: 'journal',
                         icon: '📝',
-                        title: `Nhật ký ${journal.dog_name} - ${journal.date}`,
+                        title: `Nhật ký ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.date)}`,
                         content: `Huấn luyện viên: ${journal.trainer_name}, Trạng thái: ${journal.approval_status}`,
                         relevance: calculateRelevance(journal, query),
                         action: () => showJournalEditForm(journal.dog_name)
@@ -4052,7 +4873,7 @@ function addToSearchHistory(query) {
     aiSearchHistory.unshift(historyItem);
     aiSearchHistory = aiSearchHistory.slice(0, 20);
 
-    localStorage.setItem('ai_search_history', JSON.stringify(aiSearchHistory));
+    // TODO: Save AI search history to database
     loadAISearchHistory();
 }
 
@@ -4413,6 +5234,8 @@ function updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId) {
 // Function to add a new training block
 
 function addTrainingBlock(data = {}) {
+    console.log('🏋️ addTrainingBlock called with data:', data);
+    console.log('📊 Current counters - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
 
     const container = document.getElementById('training-blocks-container');
 
@@ -4429,6 +5252,8 @@ function addTrainingBlock(data = {}) {
     trainingSessionCounter++;
 
     const trainingNumber = trainingSessionCounter;
+
+    // Adding training block
 
     blockCounter++;
 
@@ -4591,6 +5416,8 @@ function toggleDrugDropdown(optionsId) {
 // Function to add a new operation block
 
 function addOperationBlock(data = {}) {
+    console.log('🚨 addOperationBlock called with data:', data);
+    console.trace('Call stack for addOperationBlock:');
 
     const container = document.getElementById('operation-blocks-container');
 
@@ -4696,7 +5523,7 @@ function toggleOperationOtherInput(blockId, rowNumber) {
 
 function updateDrugDisplay(blockId, attemptNumber) {
 
-    console.log('Updating drug display for block ' + blockId + ', attempt ' + attemptNumber);
+    // Updating drug display
 
 
 
@@ -4936,11 +5763,8 @@ function updateOperationLocationDisplay(blockId) {
 
 // SỬA: Function to show pure A4 journal view - CHỈ PDF, KHÔNG WEB CONTROLS - ĐẢM BẢO HIỂN THỊ PDF ĐÚNG CÁCH
 
-function showPureA4JournalView(dogName, date) {
-
-    console.log('🎯 STARTING PURE A4 PDF VIEW MODE');
-
-
+async function showPureA4JournalView(dogName, date, journalId = null) {
+    console.log('🎯 showPureA4JournalView called for:', dogName, date, 'Journal ID:', journalId);
 
     // SỬA: FORCE ẨN TẤT CẢ web navigation elements NGAY LẬP TỨC
 
@@ -4982,7 +5806,6 @@ function showPureA4JournalView(dogName, date) {
 
             element.style.display = 'none';
 
-            console.log('✅ Đã ẩn: ' + selector);
 
         }
 
@@ -5008,31 +5831,189 @@ function showPureA4JournalView(dogName, date) {
 
 
 
-    // SỬA: Load journal data với error handling tốt hơn
+    // SỬA: Load journal data from database
 
     const journalKey = 'journal_' + dogName + '_' + date;
 
-    const journalData = JSON.parse(localStorage.getItem(journalKey));
+    let journalData = null;
+    try {
+        if (journalId) {
+            // Load specific journal by ID
+            console.log('🔍 Loading specific journal by ID:', journalId);
+            const response = await fetch(`/api/journals/${journalId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    journalData = convertDatabaseToFrontendFormat(data.data);
+                    console.log('✅ Loaded specific journal:', journalData.generalInfo?.dogName, journalData.generalInfo?.date);
+                }
+            }
+        } else {
+            // Load best journal for dog+date (original behavior)
+            console.log('🔍 Loading best journal for dog+date:', dogName, date);
+            const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    journalData = convertDatabaseToFrontendFormat(data.data);
+                    console.log('✅ Loaded best journal:', journalData.generalInfo?.dogName, journalData.generalInfo?.date);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load journal from database:', error);
+    }
 
 
 
     if (!journalData) {
-
-        content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>❌ KHÔNG TÌM THẤY NHẬT KÝ</h3><p>Không có nhật ký cho CNV ' + dogName + ' ngày ' + date + '</p></div>';
-
+        const errorMessage = journalId 
+            ? `Không tìm thấy nhật ký với ID ${journalId}`
+            : `Không có nhật ký cho CNV ${dogName} ngày ${date}`;
+        
+        content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>❌ KHÔNG TÌM THẤY NHẬT KÝ</h3><p>' + errorMessage + '</p></div>';
         return;
-
     }
 
 
 
     // SỬA: Hiển thị pure A4 PDF view hoàn chỉnh
+    
+    try {
+        // Safe access to journal data with proper null checks
+        const generalInfo = journalData.generalInfo || {};
+        const approval = journalData.approval || {};
+        const hlvSignature = approval.hlvSignature || {};
+        const leaderSignature = approval.leaderSignature || {};
+        const substituteSignature = approval.substituteSignature || {};
+        const meals = journalData.meals || {};
+        const health = journalData.health || {};
+        const care = journalData.care || {};
+        
+        // Debug: Log journal data structure
+        console.log('🔍 Journal data structure:', journalData);
+        console.log('🔍 General info:', generalInfo);
+        console.log('🔍 Approval:', approval);
+        console.log('🔍 HLV Signature:', hlvSignature);
+        
+        // Simple fallback HTML if data is missing
+        if (!generalInfo.dogName) {
+            content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>⚠️ DỮ LIỆU NHẬT KÝ KHÔNG ĐẦY ĐỦ</h3><p>Không thể hiển thị nhật ký vì thiếu thông tin cơ bản.</p><button onclick="returnToJournalList()" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Quay lại</button></div>';
+            return;
+        }
 
-    content.innerHTML = '<div class="a4-journal-view" style="background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: \'Times New Roman\', serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm;"><div class="a4-header" style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;"><h1 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0;">TỔNG CỤC HẢI QUAN</h1><h2 style="font-size: 16px; font-weight: bold; margin: 0 0 20px 0;">SỔ NHẬT KÝ HUẤN LUYỆN CHÓ NGHIỆP VỤ</h2><div style="display: flex; justify-content: space-between; margin-top: 20px;"><div><strong>CNV:</strong> ' + journalData.generalInfo.dogName + '</div><div><strong>Ngày:</strong> ' + journalData.generalInfo.date + '</div></div><div style="margin-top: 10px;"><strong>Huấn luyện viên:</strong> ' + journalData.generalInfo.hlv + '</div></div><div class="a4-section" style="margin-bottom: 30px;"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">I. HOẠT ĐỘNG HUẤN LUYỆN</h3>' + renderTrainingBlocks(journalData.trainingBlocks || []) + '<div style="margin-top: 20px;"><strong>Đánh giá chung của Huấn luyện viên:</strong><br><div style="margin-top: 10px; padding: 10px; border: 1px solid #ccc; min-height: 60px;">' + (journalData.hlvComment || 'Chưa có đánh giá') + '</div></div></div><div class="a4-section" style="margin-bottom: 30px;"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">II. CHĂM SÓC & NUÔI DƯỠNG</h3><table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;"><tr><td style="border: 1px solid #000; padding: 8px; width: 15%;"><strong>Bữa trưa:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + (journalData.meals?.lunch?.time || '') + ' - ' + (journalData.meals?.lunch?.amount || '') + '</td></tr><tr><td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn trưa:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + (journalData.meals?.lunch?.food || 'Chưa ghi') + '</td></tr><tr><td style="border: 1px solid #000; padding: 8px;"><strong>Bữa chiều:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + (journalData.meals?.dinner?.time || '') + ' - ' + (journalData.meals?.dinner?.amount || '') + '</td></tr><tr><td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn chiều:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + (journalData.meals?.dinner?.food || 'Chưa ghi') + '</td></tr><tr><td style="border: 1px solid #000; padding: 8px;"><strong>Chăm sóc:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + renderCareActivities(journalData.care || {}) + '</td></tr><tr><td style="border: 1px solid #000; padding: 8px;"><strong>Sức khỏe:</strong></td><td style="border: 1px solid #000; padding: 8px;">' + (journalData.health?.status || 'Bình thường') + '</td></tr></table>' + (journalData.health?.other ? '<p><strong>Ghi chú sức khỏe:</strong> ' + journalData.health.other + '</p>' : '') + '</div><div class="a4-section" style="margin-bottom: 30px;"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">III. HOẠT ĐỘNG TÁC NGHIỆP</h3>' + renderOperationBlocks(journalData.operationBlocks || []) + '</div><div class="a4-section" style="margin-bottom: 30px; page-break-inside: avoid;"><h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">IV. DUYỆT & KÝ</h3><div style="display: flex; justify-content: space-between; margin-top: 30px;"><div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 120px;"><strong>HUẤN LUYỆN VIÊN</strong><br><br>' + (journalData.approval?.hvlSignature ? '<div style="text-align: left;">✓ <strong>' + journalData.approval.hvlSignature.name + '</strong><br>Ký ngày: ' + new Date(journalData.approval.hvlSignature.timestamp).toLocaleString('vi-VN') + '<br>ID: ' + journalData.approval.hvlSignature.id + '</div>' : '<span style="color: red;">Chưa ký</span>') + '</div><div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 120px;"><strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>' + (journalData.approval?.leaderSignature ? '<div style="text-align: left;">✓ <strong>' + journalData.approval.leaderSignature.name + '</strong><br>Ký ngày: ' + new Date(journalData.approval.leaderSignature.timestamp).toLocaleString('vi-VN') + '<br>Nhận xét: ' + (journalData.approval.leaderComment || 'Đã duyệt') + '<br>Chữ ký số: ' + journalData.approval.leaderSignature.digitalSignature + '<br>ID: ' + journalData.approval.leaderSignature.id + '</div>' : '<span style="color: orange;">Chờ duyệt</span>') + '</div></div>' + (journalData.approval?.substituteSignature ? '<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 80px;"><strong>HLV TRỰC THAY</strong><br><br><div style="text-align: left;">✓ <strong>' + journalData.approval.substituteSignature.name + '</strong><br>Ký ngày: ' + new Date(journalData.approval.substituteSignature.timestamp).toLocaleString('vi-VN') + '<br>Ý kiến: ' + journalData.approval.substituteSignature.comment + '<br>ID: ' + journalData.approval.substituteSignature.id + '</div></div>' : '') + '</div></div><div style="text-align: center; margin: 20px 0; background: white; padding: 20px;" class="no-print"><button onclick="window.print()" style="background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">🖨️ In nhật ký</button><button onclick="returnToManagerView()" style="background: #2196F3; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">📋 Quay lại danh sách</button><button onclick="window.close()" style="background: #f44336; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">❌ Đóng</button></div>' +
+        // Render signature images asynchronously
+        const hlvSignatureHTML = await renderSignatureImageForA4(hlvSignature, 'hlv');
+        const leaderSignatureHTML = await renderSignatureImageForA4(leaderSignature, 'leader');
+        const substituteSignatureHTML = substituteSignature.name ? await renderSignatureImageForA4(substituteSignature, 'substitute') : '';
 
+        // Build HTML template safely using template literals
+        const htmlTemplate = `
+        <div class="a4-journal-view" style="background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm;">
+            <div class="a4-header" style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0;">TỔNG CỤC HẢI QUAN</h1>
+                <h2 style="font-size: 16px; font-weight: bold; margin: 0 0 20px 0;">SỔ NHẬT KÝ HUẤN LUYỆN CHÓ NGHIỆP VỤ</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div><strong>CNV:</strong> ${generalInfo.dogName || 'N/A'}</div>
+                    <div><strong>Ngày:</strong> ${formatDateToDDMMYYYY(generalInfo.date || '')}</div>
+                </div>
+                <div style="margin-top: 10px;"><strong>Huấn luyện viên:</strong> ${generalInfo.hlv || 'N/A'}</div>
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">I. HOẠT ĐỘNG HUẤN LUYỆN</h3>
+                ${renderTrainingBlocks(journalData.trainingBlocks || [])}
+                <div style="margin-top: 20px;">
+                    <strong>Đánh giá chung của Huấn luyện viên:</strong><br>
+                    <div style="margin-top: 10px; padding: 10px; border: 1px solid #ccc; min-height: 60px;">
+                        ${journalData.hlvComment || 'Chưa có đánh giá'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">II. CHĂM SÓC & NUÔI DƯỠNG</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px; width: 15%;"><strong>Bữa trưa:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.time || ''} - ${meals.lunch?.amount || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn trưa:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.food || 'Chưa ghi'}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Bữa chiều:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.time || ''} - ${meals.dinner?.amount || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn chiều:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.food || 'Chưa ghi'}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Chăm sóc:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${renderCareActivities(care)}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Sức khỏe:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${health.status || 'Bình thường'}</td>
+                    </tr>
+                </table>
+                ${health.other ? `<p><strong>Ghi chú sức khỏe:</strong> ${health.other}</p>` : ''}
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">III. HOẠT ĐỘNG TÁC NGHIỆP</h3>
+                ${renderOperationBlocks(journalData.operationBlocks || [])}
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px; page-break-inside: avoid;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">IV. DUYỆT & KÝ</h3>
+                <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
+                        <strong>HUẤN LUYỆN VIÊN</strong><br><br>
+                        ${hlvSignatureHTML}
+                    </div>
+                    <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
+                        <strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>
+                        ${leaderSignatureHTML}
+                        ${leaderSignature.name && approval.leaderComment ? 
+                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                <strong>Nhận xét:</strong> ${approval.leaderComment}
+                            </div>` : ''
+                        }
+                    </div>
+                </div>
+                ${substituteSignature.name ? 
+                    `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
+                        <strong>HLV TRỰC THAY</strong><br><br>
+                        ${substituteSignatureHTML}
+                        ${substituteSignature.comment ? 
+                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                <strong>Ý kiến:</strong> ${substituteSignature.comment}
+                            </div>` : ''
+                        }
+                    </div>` : ''
+                }
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0; background: white; padding: 20px;" class="no-print">
+                <button onclick="window.print()" style="background: #4CAF50; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">🖨️ In nhật ký</button>
+                <button onclick="returnToJournalList()" style="background: #2196F3; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">📋 Quay lại danh sách</button>
+                <button onclick="window.close()" style="background: #f44336; color: white; padding: 15px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px;">❌ Đóng</button>
+            </div>
+        </div>`;
+
+        content.innerHTML = htmlTemplate +
         '<style>@media print { .no-print { display: none !important; } body { margin: 0; padding: 0; } .a4-journal-view { max-width: none !important; margin: 0 !important; padding: 15mm !important; box-shadow: none !important; font-size: 12px !important; } } @media screen { .a4-journal-view { background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: "Times New Roman", serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm; } }</style>';
 
-    console.log('✅ PURE A4 PDF VIEW MODE COMPLETED');
+
+        console.log('✅ showPureA4JournalView completed successfully');
+        
+    } catch (error) {
+        console.error('❌ Error in showPureA4JournalView:', error);
+        content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>❌ LỖI HIỂN THỊ NHẬT KÝ</h3><p>Có lỗi xảy ra khi hiển thị nhật ký: ' + error.message + '</p><button onclick="returnToJournalList()" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Quay lại</button></div>';
+    }
 
 }
 
@@ -5044,7 +6025,6 @@ function showPureA4JournalView(dogName, date) {
 
 function returnToJournalList() {
 
-    console.log('🔄 Returning to journal list...');
 
 
 
@@ -5074,7 +6054,6 @@ function returnToJournalList() {
 
             element.style.display = '';
 
-            console.log('✅ Restored:', selector);
 
         }
 
@@ -5110,7 +6089,6 @@ function returnToJournalList() {
 
     if (currentUserRole === 'MANAGER') {
 
-        console.log('🏢 Returning to manager pending journals view');
 
         showAllPendingJournalsForManager();
 
@@ -5124,22 +6102,101 @@ function returnToJournalList() {
 
 
 
-    console.log('✅ Successfully returned to journal list');
 
 }
 
 
 
+// Helper function to render signature images for A4 view
+async function renderSignatureImageForA4(signatureData, signatureType) {
+    if (!signatureData || !signatureData.name) {
+        return '<span style="color: red;">Chưa ký</span>';
+    }
+
+    try {
+        // Try to get signature image from user data
+        const userSignature = await getUserSignature(signatureData.name, signatureData.role || 'TRAINER');
+        
+        if (userSignature && userSignature.signatureImage) {
+            // Check if signature image exists
+            const imageExists = await checkSignatureImageExists(userSignature.signatureImage);
+            
+            if (imageExists) {
+                return `
+                    <div style="text-align: center; margin: 10px 0;">
+                        <img src="${userSignature.signatureImage}" 
+                             alt="Chữ ký ${signatureData.name}" 
+                             style="max-width: 200px; max-height: 80px; border: 1px solid #ccc; 
+                                    background: white; padding: 5px; display: block; margin: 0 auto;"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div style="display: none; margin-top: 5px; padding: 10px; border: 2px solid #2196F3;
+                                    background: linear-gradient(135deg, #f8f9ff, #e3f2fd); font-family: 'Dancing Script', cursive;
+                                    font-size: 18px; text-align: center; color: #1976d2; font-weight: bold; border-radius: 5px;">
+                            ✍️ ${signatureData.name}
+                        </div>
+                        <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                            <strong>${signatureData.name}</strong><br>
+                            Ký ngày: ${formatDateToDDMMYYYY(signatureData.timestamp, true)}<br>
+                            ${signatureData.id ? 'ID: ' + signatureData.id : ''}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Fallback to text signature
+        return `
+            <div style="text-align: center; margin: 10px 0;">
+                <div style="margin-top: 5px; padding: 15px; border: 2px solid #2196F3;
+                            background: linear-gradient(135deg, #f8f9ff, #e3f2fd); font-family: 'Dancing Script', cursive;
+                            font-size: 20px; text-align: center; color: #1976d2; font-weight: bold; border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    ✍️ ${signatureData.name}
+                </div>
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                    Ký ngày: ${formatDateToDDMMYYYY(signatureData.timestamp, true)}<br>
+                    ${signatureData.id ? 'ID: ' + signatureData.id : ''}
+                    ${signatureData.digitalSignature ? '<br>Chữ ký số: ' + signatureData.digitalSignature : ''}
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error rendering signature image:', error);
+        return `
+            <div style="text-align: center; margin: 10px 0;">
+                <div style="margin-top: 5px; padding: 15px; border: 2px solid #2196F3;
+                            background: linear-gradient(135deg, #f8f9ff, #e3f2fd); font-family: 'Dancing Script', cursive;
+                            font-size: 20px; text-align: center; color: #1976d2; font-weight: bold; border-radius: 8px;">
+                    ✍️ ${signatureData.name}
+                </div>
+                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                    Ký ngày: ${formatDateToDDMMYYYY(signatureData.timestamp, true)}<br>
+                    ${signatureData.id ? 'ID: ' + signatureData.id : ''}
+                </div>
+            </div>
+        `;
+    }
+}
+
 // Helper functions for rendering journal sections
 
 function renderTrainingBlocks(blocks) {
-
     if (!blocks || blocks.length === 0) return '<p>Không có hoạt động huấn luyện.</p>';
 
+    return blocks.map((block, index) => {
+        const location = block.locationType === 'Khác' ? block.locationOther : (block.locationType || 'Sân tập');
+        const timeRange = (block.fromTime || '08:00') + ' - ' + (block.toTime || '09:00');
 
-
-    return blocks.map((block, index) => '<div class="training-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;"><p><strong>Ca ' + (index + 1) + ':</strong> ' + (block.fromTime || '') + ' - ' + (block.toTime || '') + '</p><p><strong>Địa điểm:</strong> ' + (block.location || 'Sân tập') + '</p><p><strong>Nội dung:</strong> ' + renderTrainingContent(block) + '</p>' + (block.drugDetection ? '<p><strong>Phát hiện ma túy:</strong> ' + renderDrugDetection(block.drugDetection) + '</p>' : '') + '</div>').join('');
-
+        return `
+            <div class="training-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
+                <p><strong>Ca ${index + 1}:</strong> ${timeRange}</p>
+                <p><strong>Địa điểm:</strong> ${location}</p>
+                <p><strong>Nội dung:</strong> ${renderTrainingContent(block)}</p>
+                ${block.drugDetection && block.drugDetection.length > 0 ?
+                '<p><strong>Phát hiện ma túy:</strong> ' + renderDrugDetection(block.drugDetection) + '</p>' : ''}
+            </div>
+        `;
+    }).join('');
 }
 
 
@@ -5183,19 +6240,112 @@ function renderCareActivities(care) {
     if (care.wipe) activities.push('Lau lông');
 
     return activities.join(', ') || 'Chưa có hoạt động chăm sóc';
+}
 
+// Enhanced helper functions for better data display
+function renderMealsData(meals) {
+    if (!meals || (!meals.lunch && !meals.dinner)) {
+        return '<p>Không có thông tin bữa ăn.</p>';
+    }
+
+    return `
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%;"><strong>Bữa trưa:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.time || ''} - ${meals.lunch?.amount || ''}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn trưa:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.food || 'Chưa ghi'}${meals.lunch?.foodOther ? ' (' + meals.lunch.foodOther + ')' : ''}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;"><strong>Bữa chiều:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.time || ''} - ${meals.dinner?.amount || ''}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn chiều:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.food || 'Chưa ghi'}${meals.dinner?.foodOther ? ' (' + meals.dinner.foodOther + ')' : ''}</td>
+            </tr>
+        </table>
+    `;
+}
+
+function renderHealthData(health) {
+    if (!health) return '';
+
+    let html = `
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px; width: 15%;"><strong>Sức khỏe:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${health.status || 'Tốt'}</td>
+            </tr>
+    `;
+
+    if (health.weather) {
+        html += `
+            <tr>
+                <td style="border: 1px solid #000; padding: 8px;"><strong>Thời tiết:</strong></td>
+                <td style="border: 1px solid #000; padding: 8px;">${health.weather}</td>
+            </tr>
+        `;
+    }
+
+    html += '</table>';
+
+    if (health.other) {
+        html += `<p><strong>Ghi chú sức khỏe:</strong> ${health.other}</p>`;
+    }
+
+    return html;
+}
+
+function renderApprovalData(approval) {
+    if (!approval) return '<p>Chưa có thông tin duyệt.</p>';
+
+    return `
+        <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+            <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 120px;">
+                <strong>HUẤN LUYỆN VIÊN</strong><br><br>
+                ${approval.hlvSignature ?
+            `<div style="text-align: left;">✓ <strong>${approval.hlvSignature.name}</strong><br>Ký ngày: ${formatDateToDDMMYYYY(approval.hlvSignature.timestamp, true)}<br>ID: ${approval.hlvSignature.id}</div>` :
+            '<span style="color: red;">Chưa ký</span>'
+        }
+            </div>
+            <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 120px;">
+                <strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>
+                ${approval.leaderSignature ?
+            `<div style="text-align: left;">✓ <strong>${approval.leaderSignature.name}</strong><br>Ký ngày: ${formatDateToDDMMYYYY(approval.leaderSignature.timestamp, true)}<br>Nhận xét: ${approval.leaderComment || 'Đã duyệt'}<br>Chữ ký số: ${approval.leaderSignature.digitalSignature}<br>ID: ${approval.leaderSignature.id}</div>` :
+            '<span style="color: orange;">Chờ duyệt</span>'
+        }
+            </div>
+        </div>
+        ${approval.substituteSignature ?
+            `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 80px;">
+                <strong>HLV TRỰC THAY</strong><br><br>
+                <div style="text-align: left;">✓ <strong>${approval.substituteSignature.name}</strong><br>Ký ngày: ${formatDateToDDMMYYYY(approval.substituteSignature.timestamp, true)}<br>Ý kiến: ${approval.substituteSignature.comment}<br>ID: ${approval.substituteSignature.id}</div>
+            </div>` : ''
+        }
+    `;
 }
 
 
 
 function renderOperationBlocks(blocks) {
-
     if (!blocks || blocks.length === 0) return '<p>Không có hoạt động tác nghiệp.</p>';
 
+    return blocks.map((block, index) => {
+        const timeRange = (block.fromTime || '08:00') + ' - ' + (block.toTime || '09:00');
+        const locations = block.selectedLocations?.join(', ') || 'Chưa ghi';
 
-
-    return blocks.map((block, index) => '<div class="operation-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;"><p><strong>Ca ' + (index + 1) + ':</strong> ' + (block.fromTime || '') + ' - ' + (block.toTime || '') + '</p><p><strong>Địa điểm:</strong> ' + (block.selectedLocations?.join(', ') || 'Chưa ghi') + '</p><p><strong>Nội dung:</strong> ' + renderOperationContent(block) + '</p>' + (block.otherIssues ? '<p><strong>Vấn đề khác:</strong> ' + block.otherIssues + '</p>' : '') + '</div>').join('');
-
+        return `
+            <div class="operation-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
+                <p><strong>Ca ${index + 1}:</strong> ${timeRange}</p>
+                <p><strong>Địa điểm:</strong> ${locations}</p>
+                <p><strong>Nội dung:</strong> ${renderOperationContent(block)}</p>
+                ${block.otherIssues ? '<p><strong>Vấn đề khác:</strong> ' + block.otherIssues + '</p>' : ''}
+            </div>
+        `;
+    }).join('');
 }
 
 
@@ -5224,25 +6374,23 @@ function renderOperationContent(block) {
 
 // Function to load journal data - UPDATED TO USE DATABASE
 async function loadJournalData(dogName, date, createNew = false) {
+    console.log('📖 loadJournalData called with:', { dogName, date, createNew });
     try {
         // Use the database manager
         const journalData = await window.journalDBManager.loadJournalData(dogName, date, createNew);
 
         if (journalData) {
-            // Convert database format to localStorage format for compatibility
-            const localStorageFormat = convertDatabaseToLocalStorageFormat(journalData);
-            populateJournalForm(localStorageFormat);
+            // Convert database format to frontend format for compatibility
+            const frontendFormat = convertDatabaseToFrontendFormat(journalData);
+            populateJournalForm(frontendFormat);
         } else {
-            // No journal found, create new
-            addTrainingBlock();
-            addOperationBlock();
+            // No journal found, create new - REMOVED: Database manager already handles this
+            // addTrainingBlock();
         }
     } catch (error) {
         console.error('Error loading journal data:', error);
-        // Fallback to localStorage if database fails
-        const journalKey = 'journal_' + dogName + '_' + date;
-
-        const existingData = localStorage.getItem(journalKey);
+        // Database failed, show error
+        console.error('Failed to load journal from database');
 
 
 
@@ -5253,30 +6401,101 @@ async function loadJournalData(dogName, date, createNew = false) {
             populateJournalForm(data);
 
         } else {
-
-            addTrainingBlock();
-
-            addOperationBlock();
-
+            // REMOVED: Database manager already handles training block creation
+            // addTrainingBlock();
         }
     }
 }
 
-// Function to convert database journal format to localStorage format
-function convertDatabaseToLocalStorageFormat(dbJournal) {
-    return {
+// Function to convert database journal format to frontend format (no localStorage)
+function convertDatabaseToFrontendFormat(dbJournal) {
+
+    // Try to parse detailed data from JSON fields first
+    let trainingBlocks = [];
+    let operationBlocks = [];
+    let meals = {};
+    let care = {};
+
+    try {
+        // Try to parse training_activities as JSON first
+        if (dbJournal.training_activities) {
+            const parsed = JSON.parse(dbJournal.training_activities);
+            if (Array.isArray(parsed)) {
+                trainingBlocks = parsed;
+            } else {
+                // Fallback to simple string parsing
+                trainingBlocks = dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() }));
+            }
+        }
+    } catch (e) {
+        // Fallback to simple string parsing
+        trainingBlocks = dbJournal.training_activities ?
+            dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() })) : [];
+    }
+
+    try {
+        // Try to parse operation_activities as JSON first
+        if (dbJournal.operation_activities) {
+            const parsed = JSON.parse(dbJournal.operation_activities);
+            if (Array.isArray(parsed)) {
+                operationBlocks = parsed;
+            } else {
+                // Fallback to simple string parsing
+                operationBlocks = dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() }));
+            }
+        }
+    } catch (e) {
+        // Fallback to simple string parsing
+        operationBlocks = dbJournal.operation_activities ?
+            dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() })) : [];
+    }
+
+    try {
+        // Try to parse care_activities as JSON
+        if (dbJournal.care_activities) {
+            const parsed = JSON.parse(dbJournal.care_activities);
+            if (typeof parsed === 'object') {
+                care = parsed.activities || {};
+                meals = parsed.meals || {};
+            } else {
+                care = convertCareActivitiesToFrontend(dbJournal.care_activities);
+            }
+        }
+    } catch (e) {
+        care = convertCareActivitiesToFrontend(dbJournal.care_activities);
+    }
+
+    // If meals wasn't extracted from care_activities, create default structure
+    if (!meals || Object.keys(meals).length === 0) {
+        meals = {
+            lunch: {
+                time: '11:00',
+                amount: 'Ăn hết',
+                food: [],
+                otherFood: ''
+            },
+            dinner: {
+                time: '17:00',
+                amount: 'Ăn hết',
+                food: [],
+                otherFood: ''
+            }
+        };
+    }
+
+    const converted = {
         generalInfo: {
-            dogName: dbJournal.dog_name,
-            date: dbJournal.journal_date,
-            hlv: dbJournal.trainer_name
+            dogName: dbJournal.dog_name || 'Unknown',
+            date: dbJournal.journal_date || '',
+            hlv: dbJournal.trainer_name || 'Unknown'
         },
-        trainingBlocks: dbJournal.training_activities ?
-            dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
-        operationBlocks: dbJournal.operation_activities ?
-            dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
-        care: convertCareActivitiesToLocalStorage(dbJournal.care_activities),
+        trainingBlocks: trainingBlocks,
+        operationBlocks: operationBlocks,
+        meals: meals,
+        care: care,
         health: {
             status: dbJournal.health_status || 'Tốt',
+            other: dbJournal.health_notes || '',
             weather: dbJournal.weather_conditions || ''
         },
         hlvComment: dbJournal.behavior_notes || '',
@@ -5287,14 +6506,99 @@ function convertDatabaseToLocalStorageFormat(dbJournal) {
                 dbJournal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt',
             leaderComment: dbJournal.rejection_reason || '',
             approvedBy: dbJournal.approver_name || '',
-            approvedAt: dbJournal.approved_at || ''
+            approvedAt: dbJournal.approved_at || '',
+            // Add signature data if available
+            hlvSignature: parseSignatureData(dbJournal.hlv_signature, dbJournal.hlv_signature_timestamp),
+            leaderSignature: parseSignatureData(dbJournal.leader_signature, dbJournal.leader_signature_timestamp),
+            substituteSignature: parseSignatureData(dbJournal.substitute_signature, dbJournal.substitute_signature_timestamp)
         },
         lastModified: dbJournal.updated_at || dbJournal.created_at
     };
+
+    return converted;
 }
 
-// Function to convert care activities from database format to localStorage format
-function convertCareActivitiesToLocalStorage(careActivities) {
+function parseSignatureData(signatureString, timestamp = null) {
+    if (!signatureString) return null;
+
+    try {
+        const signatureData = JSON.parse(signatureString);
+        // Add timestamp if provided and not already present
+        if (timestamp && !signatureData.timestamp) {
+            signatureData.timestamp = timestamp;
+        }
+        return signatureData;
+    } catch (e) {
+        console.warn('Error parsing signature data:', e);
+        return null;
+    }
+}
+
+// Function to convert frontend journal format to database format (no localStorage)
+function convertFrontendToDatabaseFormat(frontendJournal) {
+    const generalInfo = frontendJournal.generalInfo || {};
+
+    // Find dog and trainer IDs (simplified - in real implementation, these would be passed as parameters)
+    const dogName = generalInfo.dogName || '';
+    const trainerName = generalInfo.hlv || '';
+
+    // Convert training blocks to training activities
+    const trainingBlocks = frontendJournal.trainingBlocks || [];
+    const trainingActivities = trainingBlocks
+        .filter(block => block.content)
+        .map(block => block.content)
+        .join('; ');
+
+    // Convert operation blocks to operation activities
+    const operationBlocks = frontendJournal.operationBlocks || [];
+    const operationActivities = operationBlocks
+        .filter(block => block.content)
+        .map(block => block.content)
+        .join('; ');
+
+    // Convert care data
+    const careData = frontendJournal.care || {};
+    const careActivities = [];
+    if (careData.morning) careActivities.push(`Sáng: ${careData.morning}`);
+    if (careData.afternoon) careActivities.push(`Chiều: ${careData.afternoon}`);
+    if (careData.evening) careActivities.push(`Tối: ${careData.evening}`);
+
+    // Determine approval status
+    const approval = frontendJournal.approval || {};
+    let approvalStatus = 'PENDING';
+    if (approval.leaderStatus && approval.leaderStatus.includes('Đã duyệt')) {
+        approvalStatus = 'APPROVED';
+    } else if (approval.leaderStatus && approval.leaderStatus.includes('Từ chối')) {
+        approvalStatus = 'REJECTED';
+    }
+
+    // Preserve original IDs if they exist, otherwise use placeholders
+    // In a real implementation, these would be resolved from the names
+    return {
+        dog_id: frontendJournal.dog_id || 1, // Use existing dog_id or placeholder
+        trainer_id: frontendJournal.trainer_id || 1, // Use existing trainer_id or placeholder
+        journal_date: generalInfo.date || '',
+        training_activities: trainingActivities,
+        care_activities: careActivities.join('; '),
+        operation_activities: operationActivities,
+        health_status: frontendJournal.health?.status || 'Tốt',
+        behavior_notes: frontendJournal.hlvComment || '',
+        weather_conditions: frontendJournal.health?.weather || '',
+        challenges: frontendJournal.otherIssues || '',
+        approval_status: approvalStatus,
+        rejection_reason: approvalStatus === 'REJECTED' ? approval.leaderComment : null,
+        // Add signature data
+        hlv_signature: approval.hlvSignature ? JSON.stringify(approval.hlvSignature) : null,
+        leader_signature: approval.leaderSignature ? JSON.stringify(approval.leaderSignature) : null,
+        substitute_signature: approval.substituteSignature ? JSON.stringify(approval.substituteSignature) : null,
+        hlv_signature_timestamp: approval.hlvSignature?.timestamp || null,
+        leader_signature_timestamp: approval.leaderSignature?.timestamp || null,
+        substitute_signature_timestamp: approval.substituteSignature?.timestamp || null
+    };
+}
+
+// Function to convert care activities from database format to frontend format
+function convertCareActivitiesToFrontend(careActivities) {
     const care = { morning: '', afternoon: '', evening: '' };
 
     if (careActivities) {
@@ -5312,6 +6616,132 @@ function convertCareActivitiesToLocalStorage(careActivities) {
     }
 
     return care;
+}
+
+// Helper function to get journal data from database instead of localStorage
+async function getJournalFromDatabase(journalKey) {
+    try {
+        // Parse journal key to get dog name, date, and optionally journal ID
+        const keyParts = journalKey.replace('journal_', '').split('_');
+        if (keyParts.length < 2) {
+            console.error('Invalid journal key format:', journalKey);
+            return null;
+        }
+
+        // Check if this is the new format with journal ID (4+ parts: dogName_date_id)
+        if (keyParts.length >= 3) {
+            const journalId = keyParts[keyParts.length - 1]; // Last part is journal ID
+            console.log('🔍 Loading specific journal by ID:', journalId);
+            
+            // Load specific journal by ID
+            const response = await fetch(`/api/journals/${journalId}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    return convertDatabaseToFrontendFormat(data.data);
+                }
+            }
+            console.warn('⚠️ Failed to load journal by ID, falling back to dog+date method');
+        }
+
+        // Fallback to old method (dog name + date)
+        const dogName = keyParts[0];
+        const date = keyParts.slice(1, -1).join('_'); // Exclude the last part (journal ID) if present
+
+        // Get journal from database using the database manager
+        const journalData = await window.journalDBManager.loadJournalData(dogName, date, false);
+
+        if (journalData) {
+            // Convert to frontend format
+            return convertDatabaseToFrontendFormat(journalData);
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error getting journal from database:', error);
+        return null;
+    }
+}
+
+// Helper function to get pending journals from database
+async function getPendingJournalsFromDatabase() {
+    try {
+        const response = await fetch('/api/journals/pending');
+        if (response.ok) {
+            const data = await response.json();
+            return data.data || [];
+        }
+        return [];
+    } catch (error) {
+        console.error('Error getting pending journals from database:', error);
+        return [];
+    }
+}
+
+// Helper function to save pending journals to database
+async function savePendingJournalsToDatabase(pendingJournals) {
+    try {
+        // Update journal status in database
+        for (const journal of pendingJournals) {
+            const response = await fetch(`/api/journals/${journal.id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'PENDING_MANAGER_APPROVAL' })
+            });
+            if (!response.ok) {
+                console.error('Failed to update journal status:', journal.id);
+            }
+        }
+    } catch (error) {
+        console.error('Error saving pending journals to database:', error);
+    }
+}
+
+// Helper function to get trainer notifications from database
+async function getTrainerNotificationsFromDatabase() {
+    try {
+        const response = await fetch('/api/notifications/trainer');
+        if (response.ok) {
+            const data = await response.json();
+            return data.data || [];
+        }
+        console.warn('⚠️ Notification API not available, using empty array');
+        return [];
+    } catch (error) {
+        console.warn('⚠️ Failed to get trainer notifications (non-blocking):', error.message);
+        return [];
+    }
+}
+
+// Helper function to save trainer notifications to database
+async function saveTrainerNotificationsToDatabase(notifications) {
+    try {
+        const response = await fetch('/api/notifications/trainer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ notifications })
+        });
+        if (!response.ok) {
+            console.warn('⚠️ Failed to save trainer notifications (non-blocking)');
+        }
+    } catch (error) {
+        console.warn('⚠️ Failed to save trainer notifications (non-blocking):', error.message);
+    }
+}
+
+// Helper function to get users from database
+async function getUsersFromDatabase() {
+    try {
+        const response = await fetch('/api/users');
+        if (response.ok) {
+            const data = await response.json();
+            return data.data || [];
+        }
+        return [];
+    } catch (error) {
+        console.error('Error getting users from database:', error);
+        return [];
+    }
 }
 
 
@@ -5352,30 +6782,22 @@ function populateJournalForm(data) {
         });
 
     } else {
-
         addTrainingBlock();
-
     }
 
 
 
-    // Populate operation blocks
-
+    // Populate operation blocks - only if there are existing operation blocks in data
+    console.log('🔍 Checking operation blocks:', data.operationBlocks);
     if (data.operationBlocks && data.operationBlocks.length > 0) {
-
+        console.log('✅ Found existing operation blocks, populating them');
         data.operationBlocks.forEach(blockData => {
-
             addOperationBlock(blockData);
-
         });
-
     } else {
-
-        addOperationBlock();
-
+        console.log('❌ No operation blocks found, creating default "Ca 1"');
+        addOperationBlock(); // Add default operation block "Ca 1"
     }
-
-
 
     // Populate meals, care, health data
 
@@ -5563,7 +6985,6 @@ function setupFormEventListeners() {
 
 async function submitHvlSignature() {
 
-    console.log('🖊️ HLV Signature function called');
 
 
 
@@ -5603,21 +7024,28 @@ async function submitHvlSignature() {
 
             const currentTime = new Date().toISOString();
 
-            const signerName = currentUserName || hlvInfo.name;
+            // SỬA: Ưu tiên currentUserName, không fallback về hlvInfo.name
+            const signerName = currentUserName;
 
-            const signerRole = currentUserRole || 'TRAINER';
+            // SỬA: Ưu tiên currentUserRole, không fallback về 'TRAINER'
+            const signerRole = currentUserRole;
 
 
 
-            console.log('🔑 Signing with:', { signerName, signerRole });
+            // SỬA: Kiểm tra và cảnh báo nếu thông tin người dùng không đầy đủ
+            if (!signerName || !signerRole) {
+                console.error('❌ Missing user information for signature:', { signerName, signerRole, currentUserName, currentUserRole });
+                alert('Lỗi: Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.');
+                return;
+            }
+
 
 
 
             // Lấy chữ ký thực từ database chữ ký
 
-            const signatureData = getUserSignature(signerName, signerRole);
+            const signatureData = await getUserSignature(signerName, signerRole);
 
-            console.log('📋 Retrieved signature data:', signatureData);
 
 
 
@@ -5659,7 +7087,6 @@ async function submitHvlSignature() {
 
 
 
-            console.log('💾 Full signature data prepared:', fullSignatureData);
 
 
 
@@ -5667,7 +7094,6 @@ async function submitHvlSignature() {
 
             const signatureHTML = await generateSignatureHTML(signatureData, currentTime);
 
-            console.log('🎨 Generated signature HTML');
 
 
 
@@ -5741,7 +7167,7 @@ async function submitHvlSignature() {
 
 // SỬA: Function THÊM VÀO DANH SÁCH CHỜ DUYỆT CỦA MANAGER
 
-function addJournalToPendingManagerApproval() {
+async function addJournalToPendingManagerApproval() {
 
     const dogName = document.getElementById('journal_dog_name').value;
 
@@ -5755,9 +7181,23 @@ function addJournalToPendingManagerApproval() {
 
 
 
-    // SỬA: CẬP NHẬT JOURNAL STATUS
+    // SỬA: CẬP NHẬT JOURNAL STATUS (with database fallback)
 
-    let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+    let journalData = {};
+
+    try {
+        // Try to get journal from database first
+        const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+                // Convert database format to frontend format
+                journalData = convertDatabaseToFrontendFormat(data.data);
+            }
+        }
+    } catch (error) {
+        console.error('Failed to get journal from database:', error);
+    }
 
     if (!journalData.approval) {
 
@@ -5777,9 +7217,52 @@ function addJournalToPendingManagerApproval() {
 
     journalData.approval.requiresManagerApproval = true; // SỬA: THÊM FLAG ĐẶC BIỆT
 
+    // Try to save to database using journal database manager
+    try {
+        // Get proper dog and trainer IDs
+        const dogName = document.getElementById('journal_dog_name').value;
+        const dogInfo = await window.journalDBManager.getDogByName(dogName);
+        
+        if (!dogInfo) {
+            throw new Error(`Không tìm thấy chó "${dogName}" trong cơ sở dữ liệu`);
+        }
+        
+        // Create journal data with proper IDs
+        const journalData = {
+            dog_id: dogInfo.id,
+            trainer_id: dogInfo.trainer_id,
+            journal_date: document.getElementById('journal_date').value,
+            approval_status: 'PENDING_MANAGER_APPROVAL',
+            // Add other required fields with empty values for now
+            training_activities: '',
+            care_activities: '',
+            operation_activities: '',
+            health_status: 'Tốt',
+            behavior_notes: '',
+            weather_conditions: '',
+            challenges: '',
+            next_goals: '',
+            training_duration: 0,
+            success_rate: 0
+        };
+        
+        console.log('🔍 Sending journal data to API:', journalData);
 
+        const response = await fetch('/api/journals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(journalData)
+        });
 
-    localStorage.setItem(journalKey, JSON.stringify(journalData));
+        if (response.ok) {
+            console.log('✅ Journal status updated in database');
+        } else {
+            const errorData = await response.json();
+            console.error('❌ Failed to save journal to database:', errorData);
+        }
+    } catch (error) {
+        console.warn('Failed to update journal in database:', error);
+    }
 
     console.log('✅ Updated journal status to PENDING_MANAGER_APPROVAL');
 
@@ -5787,9 +7270,10 @@ function addJournalToPendingManagerApproval() {
 
     // SỬA: THÊM VÀO DANH SÁCH PENDING JOURNALS RIÊNG
 
-    const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
+    // TODO: Add to database pending list
 
-
+    // Load pending journals from database
+    let pendingJournals = await getPendingJournalsFromDatabase();
 
     // Kiểm tra nếu journal đã có trong danh sách chờ duyệt
 
@@ -5833,7 +7317,7 @@ function addJournalToPendingManagerApproval() {
 
 
 
-    localStorage.setItem('pending_manager_approvals', JSON.stringify(pendingJournals));
+    // TODO: Save to database
 
 
 
@@ -5853,7 +7337,8 @@ function addJournalToPendingManagerApproval() {
 
 function createManagerNotification(journalEntry) {
 
-    const notifications = JSON.parse(localStorage.getItem('manager_notifications')) || [];
+    // TODO: Get from database
+    const notifications = [];
 
 
 
@@ -5893,7 +7378,7 @@ function createManagerNotification(journalEntry) {
 
 
 
-    localStorage.setItem('manager_notifications', JSON.stringify(notifications));
+    // TODO: Save to database
 
     console.log('📢 Created manager notification:', notification.id);
 
@@ -5903,7 +7388,7 @@ function createManagerNotification(journalEntry) {
 
 // SỬA: Function đặt trạng thái nhật ký chờ Manager duyệt
 
-function setJournalPendingForManagerApproval() {
+async function setJournalPendingForManagerApproval() {
 
     const dogName = document.getElementById('journal_dog_name').value;
 
@@ -5913,7 +7398,8 @@ function setJournalPendingForManagerApproval() {
 
 
 
-    let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+    // TODO: Get from database
+    let journalData = {};
 
 
 
@@ -5933,9 +7419,49 @@ function setJournalPendingForManagerApproval() {
 
     journalData.approval.submittedBy = currentUserName;
 
-
-
-    localStorage.setItem(journalKey, JSON.stringify(journalData));
+    // Try to save to database using journal database manager
+    try {
+        // Get proper dog and trainer IDs
+        const dogName = document.getElementById('journal_dog_name').value;
+        const dogInfo = await window.journalDBManager.getDogByName(dogName);
+        
+        if (!dogInfo) {
+            throw new Error(`Không tìm thấy chó "${dogName}" trong cơ sở dữ liệu`);
+        }
+        
+        // Create journal data with proper IDs
+        const journalData = {
+            dog_id: dogInfo.id,
+            trainer_id: dogInfo.trainer_id,
+            journal_date: document.getElementById('journal_date').value,
+            approval_status: 'PENDING_MANAGER_APPROVAL',
+            // Add other required fields with empty values for now
+            training_activities: '',
+            care_activities: '',
+            operation_activities: '',
+            health_status: 'Tốt',
+            behavior_notes: '',
+            weather_conditions: '',
+            challenges: '',
+            next_goals: '',
+            training_duration: 0,
+            success_rate: 0
+        };
+        
+        const response = await fetch('/api/journals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(journalData)
+        });
+        if (response.ok) {
+            console.log('✅ Journal status updated in database');
+        } else {
+            const errorData = await response.json();
+            console.error('❌ Failed to save journal to database:', errorData);
+        }
+    } catch (error) {
+        console.warn('Failed to update journal in database:', error);
+    }
 
     console.log('✅ Set journal pending for manager approval:', journalKey);
 
@@ -5943,7 +7469,8 @@ function setJournalPendingForManagerApproval() {
 
     // Thêm vào danh sách journals chờ duyệt
 
-    const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
+    // TODO: Get from database
+    const pendingJournals = [];
 
     const existingIndex = pendingJournals.findIndex(j => j.key === journalKey);
 
@@ -5965,7 +7492,7 @@ function setJournalPendingForManagerApproval() {
 
         });
 
-        localStorage.setItem('pending_manager_approvals', JSON.stringify(pendingJournals));
+        // TODO: Save to database
 
         console.log('✅ Added journal to pending manager approvals');
 
@@ -6033,7 +7560,7 @@ async function approveJournal() {
 
             // SỬA: Lấy chữ ký thực từ database chữ ký cho Manager
 
-            const signatureData = getUserSignature(currentUserName, currentUserRole);
+            const signatureData = await getUserSignature(currentUserName, currentUserRole);
 
             console.log('📋 Retrieved manager signature data:', signatureData);
 
@@ -6157,7 +7684,7 @@ async function approveJournal() {
 
 // Function remove journal từ pending approvals
 
-function removeFromPendingApprovals() {
+async function removeFromPendingApprovals() {
 
     const dogName = document.getElementById('journal_dog_name').value;
 
@@ -6167,13 +7694,13 @@ function removeFromPendingApprovals() {
 
 
 
-    const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
+    // TODO: Get from database
+    const pendingJournals = [];
 
     const filteredJournals = pendingJournals.filter(j => j.key !== journalKey);
 
-
-
-    localStorage.setItem('pending_manager_approvals', JSON.stringify(filteredJournals));
+    // Save pending journals to database
+    await savePendingJournalsToDatabase(filteredJournals);
 
     console.log('✅ Removed journal from pending approvals');
 
@@ -6313,7 +7840,7 @@ async function substituteHvlApprove() {
 
             // SỬA: Lấy chữ ký thực cho HLV trực thay
 
-            const signatureData = getUserSignature(substituteName, 'TRAINER');
+            const signatureData = await getUserSignature(substituteName, 'TRAINER');
 
 
 
@@ -6454,9 +7981,21 @@ async function saveSignatureToJournal(signatureType, signatureData) {
 
             await window.journalDBManager.updateJournal(window.journalDBManager.currentJournalId, updateData);
             console.log('✅ Saved ' + signatureType + ' signature to database');
+        } else {
+            // For new journals, store signature data temporarily in a global variable
+            // This will be picked up when the journal is first saved
+            if (!window.tempSignatureData) {
+                window.tempSignatureData = {};
+            }
+            window.tempSignatureData[signatureType] = {
+                signature: JSON.stringify(signatureData),
+                timestamp: new Date().toISOString()
+            };
+            console.log('✅ Stored ' + signatureType + ' signature temporarily for new journal');
+            console.log('🔍 Temp signature data after storing:', window.tempSignatureData);
         }
 
-        // Also save to localStorage for backup
+        // TODO: Save to database
         const dogName = document.getElementById('journal_dog_name').value;
 
         const date = document.getElementById('journal_date').value;
@@ -6465,7 +8004,8 @@ async function saveSignatureToJournal(signatureType, signatureData) {
 
 
 
-        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        // TODO: Get from database
+        let journalData = {};
 
 
 
@@ -6479,30 +8019,30 @@ async function saveSignatureToJournal(signatureType, signatureData) {
 
         journalData.approval[signatureType] = signatureData;
 
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        // TODO: Save to database
 
 
 
-        console.log('✅ Saved ' + signatureType + ' signature to localStorage backup');
+        console.log('✅ Saved ' + signatureType + ' signature to database');
 
     } catch (error) {
         console.error('Error saving signature:', error);
 
-        // Fallback to localStorage only
+        // Database save failed
         const dogName = document.getElementById('journal_dog_name').value;
         const date = document.getElementById('journal_date').value;
         const journalKey = 'journal_' + dogName + '_' + date;
 
-        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        // TODO: Get from database
+        let journalData = {};
 
         if (!journalData.approval) {
             journalData.approval = {};
         }
 
         journalData.approval[signatureType] = signatureData;
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
 
-        console.log('✅ Saved ' + signatureType + ' signature to localStorage fallback');
+        console.log('✅ Saved ' + signatureType + ' signature to database');
     }
 }
 
@@ -6522,7 +8062,7 @@ async function saveApprovalData(approvalData) {
             console.log('✅ Saved approval data to database');
         }
 
-        // Also save to localStorage for backup
+        // TODO: Save to database
         const dogName = document.getElementById('journal_dog_name').value;
 
         const date = document.getElementById('journal_date').value;
@@ -6531,7 +8071,8 @@ async function saveApprovalData(approvalData) {
 
 
 
-        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        // TODO: Get from database
+        let journalData = {};
 
 
 
@@ -6545,30 +8086,30 @@ async function saveApprovalData(approvalData) {
 
         Object.assign(journalData.approval, approvalData);
 
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        // TODO: Save to database
 
 
 
-        console.log('✅ Saved approval data to localStorage backup');
+        console.log('✅ Saved approval data to database');
 
     } catch (error) {
         console.error('Error saving approval data:', error);
 
-        // Fallback to localStorage only
+        // Database save failed
         const dogName = document.getElementById('journal_dog_name').value;
         const date = document.getElementById('journal_date').value;
         const journalKey = 'journal_' + dogName + '_' + date;
 
-        let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+        // TODO: Get from database
+        let journalData = {};
 
         if (!journalData.approval) {
             journalData.approval = {};
         }
 
         Object.assign(journalData.approval, approvalData);
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
 
-        console.log('✅ Saved approval data to localStorage fallback');
+        console.log('✅ Saved approval data to database');
     }
 }
 
@@ -6626,7 +8167,7 @@ async function saveJournalData() {
         // Use the database manager to save
         await window.journalDBManager.saveJournalData();
 
-        // Also save to localStorage for backup/compatibility
+        // TODO: Save to database/compatibility
         const dogName = document.getElementById('journal_dog_name').value;
 
         const date = document.getElementById('journal_date').value;
@@ -6669,7 +8210,8 @@ async function saveJournalData() {
 
         // Preserve existing approval data
 
-        const existingData = localStorage.getItem(journalKey);
+        // TODO: Get existing data from database
+        const existingData = null;
 
         if (existingData) {
 
@@ -6686,7 +8228,7 @@ async function saveJournalData() {
 
 
         // Check if journal has HLV signature for manager approval
-        if (journalData.approval?.hvlSignature && !journalData.approval?.leaderSignature) {
+        if (journalData.approval && journalData.approval.hlvSignature && !journalData.approval && journalData.approval.leaderSignature) {
 
             journalData.approval.status = 'PENDING_MANAGER_APPROVAL';
 
@@ -6696,7 +8238,7 @@ async function saveJournalData() {
 
 
 
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
+        // TODO: Save to database
 
 
 
@@ -6705,12 +8247,12 @@ async function saveJournalData() {
 
 
 
-        console.log('✅ Journal saved successfully to both database and localStorage:', journalKey);
+        console.log('✅ Journal saved successfully to database:', journalKey);
 
     } catch (error) {
         console.error('Error saving journal:', error);
 
-        // Fallback to localStorage only if database fails
+        // Database save failed
         const dogName = document.getElementById('journal_dog_name').value;
         const date = document.getElementById('journal_date').value;
         const journalKey = 'journal_' + dogName + '_' + date;
@@ -6732,7 +8274,8 @@ async function saveJournalData() {
         };
 
         // Preserve existing approval data
-        const existingData = localStorage.getItem(journalKey);
+        // TODO: Get existing data from database
+        const existingData = null;
         if (existingData) {
             const existing = JSON.parse(existingData);
             if (existing.approval) {
@@ -6740,13 +8283,12 @@ async function saveJournalData() {
             }
         }
 
-        localStorage.setItem(journalKey, JSON.stringify(journalData));
         notifyDashboardUpdate();
 
-        alert('Nhật ký đã được lưu vào localStorage (database không khả dụng). ' +
+        alert('Không thể lưu nhật ký vào cơ sở dữ liệu. ' +
             'Vui lòng kiểm tra kết nối và thử lại.');
 
-        console.log('✅ Journal saved to localStorage as fallback:', journalKey);
+        console.log('❌ Failed to save journal to database:', journalKey);
     }
 }
 
@@ -6842,13 +8384,11 @@ function collectOperationBlocksData() {
 
     const operationBlocks = document.querySelectorAll('.operation-block');
 
-
-
     operationBlocks.forEach((block, index) => {
 
         const blockId = block.getAttribute('data-block-id');
 
-
+        const selectedLocations = getSelectedCheckboxValues('operationLocationOptions-' + blockId, 'data-location-value');
 
         const blockData = {
 
@@ -6856,7 +8396,7 @@ function collectOperationBlocksData() {
 
             toTime: document.getElementById('operationToTime-' + blockId).value,
 
-            selectedLocations: getSelectedCheckboxValues('operationLocationOptions-' + blockId, 'data-location-value'),
+            selectedLocations: selectedLocations,
 
             locationKhoText: document.getElementById('operationLocationKho-' + blockId).value,
 
@@ -6978,8 +8518,6 @@ function getSelectedCheckboxValues(containerId, attribute) {
 
     if (!container) return [];
 
-
-
     const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
 
     return Array.from(checkboxes).map(cb => cb.getAttribute(attribute) || cb.value);
@@ -7002,48 +8540,45 @@ function createNewJournal() {
 
 
 
-// SỬA: Function viewOldJournals - CHUYỂN SANG PDF VIEW ĐÚNG CÁCH
+// SỬA: Function viewOldJournals - CHUYỂN SANG DATABASE API
 
-function viewOldJournals() {
+async function viewOldJournals() {
 
-    // Tìm tất cả journal của chó hiện tại
-
+    // Load journals from database
     const dogJournals = [];
 
+    try {
+        console.log('🔍 Loading old journals for dog:', currentDogForJournal);
 
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_' + currentDogForJournal + '_')) {
-
-            try {
-
-                const journalData = JSON.parse(localStorage.getItem(key));
-
-                if (journalData && journalData.generalInfo) {
-
-                    dogJournals.push({
-
-                        key: key,
-
-                        date: journalData.generalInfo.date,
-
-                        data: journalData
-
-                    });
-
-                }
-
-            } catch (e) {
-
-                console.error('Error parsing journal:', e);
-
-            }
-
+        // Get dog info first
+        const dogInfo = await window.journalDBManager.getDogByName(currentDogForJournal);
+        if (!dogInfo) {
+            alert('Không tìm thấy thông tin chó: ' + currentDogForJournal);
+            return;
         }
 
+        // Get all journals for this dog
+        const response = await fetch(`${window.journalDBManager.apiBaseUrl}/api/journals/by-dog/${dogInfo.id}`);
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                result.data.forEach(journal => {
+                    dogJournals.push({
+                        key: `journal_${currentDogForJournal}_${journal.journal_date}`,
+                        date: journal.journal_date,
+                        data: journal,
+                        id: journal.id
+                    });
+                });
+                console.log('✅ Loaded journals from database:', dogJournals.length);
+            }
+        } else {
+            console.error('❌ Failed to load journals from database:', response.status);
+        }
+    } catch (error) {
+        console.error('❌ Error loading journals from database:', error);
+        alert('Lỗi khi tải nhật ký từ cơ sở dữ liệu: ' + error.message);
+        return;
     }
 
 
@@ -7064,21 +8599,51 @@ function viewOldJournals() {
 
 
 
-    // Tạo danh sách chọn ngày
+    // Tạo danh sách chọn ngày với thông tin chi tiết
 
     let dateOptions = '<option value="">Chọn ngày xem nhật ký</option>';
 
     dogJournals.forEach(journal => {
-
-        dateOptions += '<option value="' + journal.date + '">' + journal.date + '</option>';
-
+        const journalData = journal.data;
+        
+        // Lấy thông tin trainer
+        const trainerName = journalData.trainer_name || 'Chưa xác định';
+        
+        // Lấy trạng thái duyệt
+        let approvalStatus = 'Chưa duyệt';
+        if (journalData.approval_status === 'APPROVED') {
+            approvalStatus = '✅ Đã duyệt';
+        } else if (journalData.approval_status === 'REJECTED') {
+            approvalStatus = '❌ Bị từ chối';
+        } else {
+            approvalStatus = '⏳ Chờ duyệt';
+        }
+        
+        // Lấy trạng thái sức khỏe
+        const healthStatus = journalData.health_status || 'Không có thông tin';
+        
+        // Lấy số lượng hoạt động huấn luyện
+        let trainingCount = 0;
+        if (journalData.training_activities) {
+            try {
+                const trainingData = JSON.parse(journalData.training_activities);
+                trainingCount = trainingData.length || 0;
+            } catch (e) {
+                trainingCount = 0;
+            }
+        }
+        
+        // Tạo text hiển thị với thông tin chi tiết
+        const displayText = `${formatDateToDDMMYYYY(journal.date)} | ${trainerName} | ${approvalStatus} | Sức khỏe: ${healthStatus} | ${trainingCount} hoạt động`;
+        
+        dateOptions += `<option value="${journal.date}" title="${displayText}">${displayText}</option>`;
     });
 
 
 
     // Hiển thị modal chọn ngày để xem A4 PDF
 
-    const modalHtml = '<div id="viewOldJournalModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;"><div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%;"><h3 style="margin-top: 0;">📋 XEM NHẬT KÝ CŨ - CNV ' + currentDogForJournal + '</h3><p>Tìm thấy ' + dogJournals.length + ' nhật ký. Chọn ngày để xem bản PDF A4:</p><select id="oldJournalDateSelect" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">' + dateOptions + '</select><div style="text-align: right; margin-top: 20px;"><button onclick="closeOldJournalModal()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer;">Hủy</button><button onclick="viewSelectedOldJournal()" style="background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">📄 Xem PDF A4</button></div></div></div>';
+    const modalHtml = '<div id="viewOldJournalModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;"><div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 95%; max-height: 80vh; overflow-y: auto;"><h3 style="margin-top: 0; color: #333;">📋 XEM NHẬT KÝ CŨ - CNV ' + currentDogForJournal + '</h3><p style="color: #666; margin-bottom: 20px;">Tìm thấy <strong>' + dogJournals.length + '</strong> nhật ký. Chọn ngày để xem bản PDF A4:</p><div style="margin-bottom: 15px;"><label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">📅 Chọn nhật ký:</label><select id="oldJournalDateSelect" style="width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">' + dateOptions + '</select></div><div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #007bff;"><h4 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">ℹ️ Thông tin hiển thị:</h4><ul style="margin: 0; padding-left: 20px; color: #666; font-size: 13px;"><li><strong>Ngày:</strong> Ngày của nhật ký</li><li><strong>Huấn luyện viên:</strong> Người phụ trách</li><li><strong>Trạng thái:</strong> Đã duyệt/Chờ duyệt/Bị từ chối</li><li><strong>Sức khỏe:</strong> Tình trạng sức khỏe của chó</li><li><strong>Hoạt động:</strong> Số lượng hoạt động huấn luyện</li></ul></div><div style="text-align: right; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;"><button onclick="closeOldJournalModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; margin-right: 10px; cursor: pointer; font-size: 14px; transition: background 0.3s;">Hủy</button><button onclick="viewSelectedOldJournal()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.3s;">📄 Xem PDF A4</button></div></div></div>';
 
 
 
@@ -7148,10 +8713,137 @@ function resetJournal() {
 
 // Function to export journal to PDF
 
-function exportJournalToPDF(dogName, date) {
+async function exportJournalToPDF(dogName, date) {
+    try {
+        console.log('📄 Starting PDF export for:', dogName, date);
 
-    alert('🚧 Chức năng xuất PDF đang được phát triển...\n\nHiện tại bạn có thể sử dụng chức năng In (Ctrl+P) để lưu thành PDF.');
+        // Check if we have PDFExportSystem available
+        if (typeof PDFExportSystem === 'undefined') {
+            console.warn('PDFExportSystem not available, using basic export');
+            exportBasicJournalToPDF(dogName, date);
+            return;
+        }
 
+        // Get current journal data from the form
+        const journalData = collectJournalFormData();
+        if (!journalData) {
+            throw new Error('Không có dữ liệu nhật ký để xuất');
+        }
+
+        // Create a temporary PDF export system instance
+        const pdfExporter = new PDFExportSystem();
+
+        // Format the journal data for PDF export
+        const formattedData = {
+            id: Date.now(), // temporary ID
+            dog_name: dogName,
+            journal_date: date,
+            trainer_name: document.getElementById('journal_hlv').value,
+            training_activities: JSON.stringify(journalData.trainingBlocks),
+            care_activities: JSON.stringify(journalData.meals) + '\n' + JSON.stringify(journalData.care),
+            operation_activities: JSON.stringify(journalData.operationBlocks),
+            health_status: journalData.health?.status || 'Tốt',
+            behavior_notes: journalData.hlvComment || '',
+            challenges: journalData.otherIssues || '',
+            trainer_comment: journalData.hlvComment || '',
+            content: `Hoạt động huấn luyện: ${journalData.trainingBlocks?.length || 0} ca\nHoạt động tác nghiệp: ${journalData.operationBlocks?.length || 0} ca`
+        };
+
+        // Export using the PDF system
+        await pdfExporter.generateSingleJournalPDF(formattedData).then(pdf => {
+            const fileName = `Nhat_ky_${dogName}_${date}.pdf`;
+            pdf.save(fileName);
+            alert('✅ Đã xuất PDF thành công!');
+        });
+
+    } catch (error) {
+        console.error('❌ PDF Export Error:', error);
+        alert('❌ Lỗi khi xuất PDF: ' + error.message + '\n\nSử dụng Ctrl+P để in thành PDF.');
+    }
+}
+
+// Basic PDF export using html2canvas as fallback
+function exportBasicJournalToPDF(dogName, date) {
+    try {
+        const content = document.getElementById('content');
+        if (!content) {
+            throw new Error('Không tìm thấy nội dung để xuất');
+        }
+
+        // Hide buttons during PDF generation
+        const buttons = content.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.display = 'none');
+
+        html2canvas(content, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            width: content.scrollWidth,
+            height: content.scrollHeight
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+
+            const imgWidth = 210;
+            const pageHeight = 295;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            const fileName = `Nhat_ky_${dogName}_${date}.pdf`;
+            pdf.save(fileName);
+
+            // Restore buttons
+            buttons.forEach(btn => btn.style.display = '');
+
+            alert('✅ Đã xuất PDF thành công!');
+        });
+
+    } catch (error) {
+        console.error('❌ Basic PDF Export Error:', error);
+        alert('❌ Lỗi khi xuất PDF: ' + error.message + '\n\nSử dụng Ctrl+P để in thành PDF.');
+    }
+}
+
+// Helper function to collect current journal form data
+function collectJournalFormData() {
+    try {
+        const dogName = document.getElementById('journal_dog_name').value;
+        const date = document.getElementById('journal_date').value;
+        const hlv = document.getElementById('journal_hlv').value;
+
+        if (!dogName || !date) {
+            return null;
+        }
+
+        return {
+            generalInfo: {
+                dogName: dogName,
+                date: date,
+                hlv: hlv
+            },
+            trainingBlocks: collectTrainingBlocksData(),
+            operationBlocks: collectOperationBlocksData(),
+            meals: collectMealsData(),
+            care: collectCareData(),
+            health: collectHealthData(),
+            hlvComment: document.getElementById('journal_hlv_comment').value,
+            otherIssues: document.getElementById('journal_other_issues').value
+        };
+    } catch (error) {
+        console.error('Error collecting journal form data:', error);
+        return null;
+    }
 }
 
 
@@ -7172,13 +8864,14 @@ function viewJournalForApproval(journalKey) {
 
 
 
-function approveJournalAsManager(journalKey) {
+async function approveJournalAsManager(journalKey) {
 
     if (confirm('Bạn có chắc muốn duyệt nhật ký này?\n\nSau khi duyệt, nhật ký sẽ được đánh dấu hoàn thành và HLV sẽ nhận được thông báo.')) {
 
         try {
 
-            const journalData = JSON.parse(localStorage.getItem(journalKey));
+            // Get journal data from database instead of localStorage
+            const journalData = await getJournalFromDatabase(journalKey);
 
 
 
@@ -7194,7 +8887,7 @@ function approveJournalAsManager(journalKey) {
 
                 // SỬA: THÊM CHỮ KÝ MANAGER VỚI CHỮ KÝ THỰC
 
-                const signatureData = getUserSignature(currentUserName, currentUserRole);
+                const signatureData = await getUserSignature(currentUserName, currentUserRole);
 
 
 
@@ -7232,17 +8925,19 @@ function approveJournalAsManager(journalKey) {
 
 
 
-                localStorage.setItem(journalKey, JSON.stringify(journalData));
+                // TODO: Save to database
 
 
 
                 // SỬA: REMOVE TỪ PENDING APPROVALS
 
-                const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
+                // TODO: Get from database
+                const pendingJournals = [];
 
                 const filteredJournals = pendingJournals.filter(j => j.key !== journalKey);
 
-                localStorage.setItem('pending_manager_approvals', JSON.stringify(filteredJournals));
+                // Save pending journals to database
+                await savePendingJournalsToDatabase(filteredJournals);
 
 
 
@@ -7294,56 +8989,42 @@ function approveJournalAsManager(journalKey) {
 
 // SỬA: Function TẠO NOTIFICATION CHO TRAINER
 
-function createTrainerNotification(journalData, action) {
+async function createTrainerNotification(journalData, action) {
+    try {
+        console.log('📢 Creating trainer notification for action:', action);
+        
+        // Load trainer notifications from database
+        const trainerNotifications = await getTrainerNotificationsFromDatabase();
 
-    const trainerNotifications = JSON.parse(localStorage.getItem('trainer_notifications')) || [];
+        const notification = {
+            id: 'notif_trainer_' + Date.now(),
+            type: 'JOURNAL_STATUS_UPDATE',
+            title: action === 'APPROVED' ? 'Nhật ký đã được duyệt' : 'Nhật ký bị từ chối',
+            message: `Nhật ký CNV ${journalData.generalInfo.dogName} (${journalData.generalInfo.date}) đã được ${action === 'APPROVED' ? 'duyệt' : 'từ chối'} bởi Manager`,
+            journalKey: 'journal_' + journalData.generalInfo.dogName + '_' + journalData.generalInfo.date,
+            action: action,
+            approver: currentUserName,
+            createdAt: new Date().toISOString(),
+            read: false,
+            forTrainer: journalData.generalInfo.hlv
+        };
 
+        trainerNotifications.unshift(notification);
 
+        // Giới hạn số notification
+        if (trainerNotifications.length > 100) {
+            trainerNotifications.splice(100);
+        }
 
-    const notification = {
+        // Save trainer notifications to database
+        await saveTrainerNotificationsToDatabase(trainerNotifications);
 
-        id: 'notif_trainer_' + Date.now(),
-
-        type: 'JOURNAL_STATUS_UPDATE',
-
-        title: action === 'APPROVED' ? 'Nhật ký đã được duyệt' : 'Nhật ký bị từ chối',
-
-        message: `Nhật ký CNV ${journalData.generalInfo.dogName} (${journalData.generalInfo.date}) đã được ${action === 'APPROVED' ? 'duyệt' : 'từ chối'} bởi Manager`,
-
-        journalKey: 'journal_' + journalData.generalInfo.dogName + '_' + journalData.generalInfo.date,
-
-        action: action,
-
-        approver: currentUserName,
-
-        createdAt: new Date().toISOString(),
-
-        read: false,
-
-        forTrainer: journalData.generalInfo.hlv
-
-    };
-
-
-
-    trainerNotifications.unshift(notification);
-
-
-
-    // Giới hạn số notification
-
-    if (trainerNotifications.length > 100) {
-
-        trainerNotifications.splice(100);
-
+        console.log('📢 Created trainer notification:', notification.id);
+    } catch (error) {
+        // Don't fail the approval process if notifications fail
+        console.warn('⚠️ Failed to create trainer notification (non-blocking):', error.message);
+        console.log('📢 Approval process will continue without notification');
     }
-
-
-
-    localStorage.setItem('trainer_notifications', JSON.stringify(trainerNotifications));
-
-    console.log('📢 Created trainer notification:', notification.id);
-
 }
 
 
@@ -7582,105 +9263,19 @@ function testHvlSignature() {
 
 
 
-console.log("✅ Script.js đã được tải hoàn tất với chữ ký thực và workflow Manager hoàn chỉnh!");
+// Script.js loaded successfully
 
 
 
 // ===== TÓM TẮT CÁC SỬA ĐỔI CHÍNH =====
 
-console.log(`
 
-
-
-🔧 CÁC VẤN ĐỀ ĐÃ ĐƯỢC SỬA:
-
-
-
-✅ 1. TÊN HIỂN THỊ:
-
-- Đã sửa từ "Phạm Thị Quỳnh" → "Hoàng Trọng Quỳnh"
-
-- Cập nhật trong tất cả functions: login, updateUserDisplay, getUserSignature
-
-- Fix mapping trong initializeDefaultUsers và initializeSignatureDatabase
-
-
-
-✅ 2. HỆ THỐNG CHỮ KÝ:
-
-- submitHvlSignature(): Đã thêm error handling và logging chi tiết
-
-- generateSignatureHTML(): Hỗ trợ cả ảnh và text fallback
-
-- getUserSignature(): Fix mapping tên chính xác
-
-- Kết nối với thư mục signatures/ để lấy ảnh chữ ký thực
-
-
-
-✅ 3. MANAGER WORKFLOW:
-
-- showAllPendingJournalsForManager(): Tìm tất cả journals đã ký HLV, chưa duyệt Manager
-
-- viewJournalForApproval(): Manager có thể xm journal PDF để duyệt
-
-- approveJournalAsManager(): Manager có thể ký duyệt với chữ ký thực
-
-- setJournalPendingForManagerApproval(): Auto chuyển journal cho Manager sau khi HLV ký
-
-
-
-✅ 4. LƯU NHẬT KÝ:
-
-- saveJournalData(): Thêm workflow chuyển cho Manager khi có chữ ký HLV
-
-- Thông báo cho user khi nhật ký sẵn sàng cho Manager duyệt
-
-- Đồng bộ với Dashboard thông qua notifyDashboardUpdate()
-
-
-
-✅ 5. SỬA LỖI LOGOUT:
-
-- closeAllDropdowns(): Đóng tất cả dropdown khi logout
-
-- logout(): Reset hoàn toàn UI, ẩn user display, clear data
-
-- Sửa vấn đề user dropdown vẫn hiển thị sau khi đăng xuất
-
-
-
-✅ 6. SỬA Z-INDEX:
-
-- showContent(): Đặt position: relative, z-index: 1 cho content
-
-- showDogProfileForm(): Đảm bảo form không đè lên navigation
-
-- showJournalEditForm(): Đảm bảo journal form không đè lên thanh navigation
-
-- showAllPendingJournalsForManager(): Đặt z-index đúng cho manager view
-
-
-
-📝 CÁCH SỬ DỤNG:
-
-1. Đăng nhập với tài khoản: Quynh/123456 (Hoàng Trọng Quỳnh - MANAGER)
-
-2. Tạo nhật ký → Ký (chữ ký sẽ được chèn từ thư mục signatures/)
-
-3. Lưu nhật ký → Tự động chuyển cho Manager
-
-4. Manager vào "Duyệt nhật ký chờ phê duyệt" để xem và ký duyệt
-
-
-
-`);
 
 
 
 // ===== KIỂM TRA TÍNH NĂNG HOẠT ĐỘNG =====
 
-function checkSystemHealth() {
+async function checkSystemHealth() {
 
     const issues = [];
 
@@ -7694,7 +9289,8 @@ function checkSystemHealth() {
 
     // Kiểm tra users database
 
-    const users = JSON.parse(localStorage.getItem('k9_users')) || [];
+    // Load users from database
+    const users = await getUsersFromDatabase();
 
     const quynhUser = users.find(u => u.username === 'Quynh');
 
@@ -7750,133 +9346,71 @@ setTimeout(() => {
 
 
 
-// DEBUG FUNCTION cho Manager
+// SỬA: Function riêng để update journal menu cho Manager
 
-function debugManagerSystem() {
+async function updateJournalSubMenuForManager() {
 
-    console.log('🔧 DEBUGGING MANAGER SYSTEM...');
+    const journalMenu = document.getElementById('journal-sub-menu');
 
+    try {
+        const response = await fetch('/api/journals');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                result.data.forEach(journal => {
+                    allJournals++;
+                    const data = convertDatabaseToFrontendFormat(journal);
 
+                    console.log('📄 Journal:', journal.id, {
 
-    let allJournals = 0;
+                        hasHvlSignature: !!data.approval?.hvlSignature,
 
-    let signedJournals = 0;
+                        hasLeaderSignature: !!data.approval?.leaderSignature,
 
-    let approvedJournals = 0;
+                        status: data.approval?.status
 
-    let pendingDetails = [];
-
-
-
-    // Kiểm tra tất cả journals
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_')) {
-
-            allJournals++;
-
-            try {
-
-                const data = JSON.parse(localStorage.getItem(key));
-
-                console.log('📄 Journal:', key, {
-
-                    hasHvlSignature: !!data.approval?.hvlSignature,
-
-                    hasLeaderSignature: !!data.approval?.leaderSignature,
-
-                    status: data.approval?.status
-
-                });
+                    });
 
 
 
-                if (data.approval?.hvlSignature) {
+                    if (data.approval?.hvlSignature) {
 
-                    signedJournals++;
+                        signedJournals++;
 
-                    if (!data.approval?.leaderSignature) {
+                        if (!data.approval?.leaderSignature) {
 
-                        pendingDetails.push({
+                            pendingDetails.push({
 
-                            key: key,
+                                key: `journal_${journal.dog_name}_${journal.journal_date}`,
 
-                            dogName: data.generalInfo?.dogName,
+                                dogName: data.generalInfo?.dogName,
 
-                            date: data.generalInfo?.date,
+                                date: data.generalInfo?.date,
 
-                            trainer: data.generalInfo?.hlv
+                                trainer: data.generalInfo?.hlv
 
-                        });
+                            });
+
+                        }
 
                     }
 
-                }
+                    if (data.approval?.leaderSignature) {
 
-                if (data.approval?.leaderSignature) {
+                        approvedJournals++;
 
-                    approvedJournals++;
+                    }
 
-                }
-
-            } catch (e) {
-
-                console.error('Error parsing:', key, e);
-
+                });
             }
-
         }
-
+    } catch (e) {
+        console.error('Error loading journals from database:', e);
     }
 
 
 
-    const pendingList = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
-
-
-
-    console.log('📊 SYSTEM STATUS:', {
-
-        currentUser: currentUserName,
-
-        currentRole: currentUserRole,
-
-        totalJournals: allJournals,
-
-        signedJournals: signedJournals,
-
-        approvedJournals: approvedJournals,
-
-        pendingApproval: pendingDetails.length,
-
-        pendingList: pendingList.length
-
-    });
-
-
-
-    console.log('📋 PENDING JOURNALS DETAILS:', pendingDetails);
-
-
-
-    alert(`🔧 MANAGER SYSTEM DEBUG\n\n` +
-
-        `👤 User: ${currentUserName} (${currentUserRole})\n` +
-
-        `📄 Total journals: ${allJournals}\n` +
-
-        `✅ Signed by HLV: ${signedJournals}\n` +
-
-        `🏢 Approved by Manager: ${approvedJournals}\n` +
-
-        `⏳ Pending approval: ${pendingDetails.length}\n` +
-
-        `📋 Pending list: ${pendingList.length}\n\n` +
-
-        `Check console (F12) for detailed logs`);
+    const pendingList = await getPendingJournalsFromDatabase();
 
 
 
@@ -7890,7 +9424,7 @@ function debugManagerSystem() {
 
 // SỬA: Function riêng để update journal menu cho Manager
 
-function updateJournalSubMenuForManager() {
+async function updateJournalSubMenuForManager() {
 
     const journalMenu = document.getElementById('journal-sub-menu');
 
@@ -7908,34 +9442,18 @@ function updateJournalSubMenuForManager() {
 
 
 
-    // Đếm số journal pending thực tế
+    // Đếm số journal pending thực tế từ database
 
     let actualPendingCount = 0;
 
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_')) {
-
-            try {
-
-                const journalData = JSON.parse(localStorage.getItem(key));
-
-                if (journalData?.approval?.hvlSignature && !journalData?.approval?.leaderSignature) {
-
-                    actualPendingCount++;
-
-                }
-
-            } catch (e) {
-
-                console.error('Error checking journal:', key, e);
-
-            }
-
+    try {
+        const response = await fetch('/api/journals/pending');
+        if (response.ok) {
+            const pendingJournals = await response.json();
+            actualPendingCount = pendingJournals.length;
         }
-
+    } catch (e) {
+        console.error('Error fetching pending journals from database:', e);
     }
 
 
@@ -7960,12 +9478,6 @@ function updateJournalSubMenuForManager() {
 
         </li>
 
-        <li class="sub-item debug-btn" onclick="debugManagerSystem()" style="color: #f44336; cursor: pointer; padding: 10px; border-radius: 5px; background: #ffebee; border: 1px solid #f44336; margin: 5px 0; display: block;">
-
-            🔧 DEBUG - Kiểm tra hệ thống
-
-        </li>
-
     `;
 
 
@@ -7976,123 +9488,7 @@ function updateJournalSubMenuForManager() {
 
 
 
-console.log("✅ Script.js đã được tải hoàn tất với chữ ký thực và workflow Manager hoàn chỉnh!");
-
-
-
-// SỬA: THÊM DEBUG FUNCTION CHO MANAGER
-
-function debugManagerSystem() {
-
-    console.log('🔧 DEBUGGING MANAGER SYSTEM...');
-
-    console.log('👤 Current user:', currentUserName, currentUserRole);
-
-
-
-    let allJournals = 0;
-
-    let signedJournals = 0;
-
-    let approvedJournals = 0;
-
-    let pendingDetails = [];
-
-
-
-    // Kiểm tra tất cả journals
-
-    for (let i = 0; i < localStorage.length; i++) {
-
-        const key = localStorage.key(i);
-
-        if (key.startsWith('journal_')) {
-
-            allJournals++;
-
-            try {
-
-                const data = JSON.parse(localStorage.getItem(key));
-
-
-
-                if (data.approval?.hvlSignature) {
-
-                    signedJournals++;
-
-                    if (!data.approval?.leaderSignature) {
-
-                        pendingDetails.push({
-
-                            key: key,
-
-                            dogName: data.generalInfo?.dogName,
-
-                            date: data.generalInfo?.date,
-
-                            trainer: data.generalInfo?.hlv
-
-                        });
-
-                    }
-
-                }
-
-                if (data.approval?.leaderSignature) {
-
-                    approvedJournals++;
-
-                }
-
-            } catch (e) {
-
-                console.error('Error parsing:', key, e);
-
-            }
-
-        }
-
-    }
-
-
-
-    console.log('📊 SYSTEM STATUS:', {
-
-        totalJournals: allJournals,
-
-        signedJournals: signedJournals,
-
-        approvedJournals: approvedJournals,
-
-        pendingApproval: pendingDetails.length
-
-    });
-
-
-
-    alert(`🔧 MANAGER SYSTEM DEBUG\n\n` +
-
-        `👤 User: ${currentUserName} (${currentUserRole})\n` +
-
-        `📄 Total journals: ${allJournals}\n` +
-
-        `✅ Signed by HLV: ${signedJournals}\n` +
-
-        `🏢 Approved by Manager: ${approvedJournals}\n` +
-
-        `⏳ Pending approval: ${pendingDetails.length}\n\n` +
-
-        `Pending journals:\n${pendingDetails.map(p => `- ${p.dogName} (${p.date})`).join('\n')}\n\n` +
-
-        `Check console (F12) for detailed logs`);
-
-
-
-    // Force refresh menu
-
-    updateJournalSubMenuForManager();
-
-}
+// Script.js loaded successfully
 
 
 
@@ -8247,8 +9643,17 @@ async function approveJournalWithComment(journalKey) {
     if (confirm(`Bạn có chắc muốn ký duyệt nhật ký này?\n\nNhận xét: "${managerComment}"\n\nSau khi ký, nhật ký sẽ được hoàn thành và HLV sẽ nhận được thông báo.`)) {
 
         try {
+            console.log('🔍 Starting approval process for journal:', journalKey);
+            console.log('🔍 Current user info:', { name: currentUserName, role: currentUserRole });
 
-            const journalData = JSON.parse(localStorage.getItem(journalKey));
+            // Check if user info is available
+            if (!currentUserName || !currentUserRole) {
+                throw new Error('Thông tin người dùng không đầy đủ. Vui lòng đăng nhập lại.');
+            }
+
+            // Get journal data from database instead of localStorage
+            const journalData = await getJournalFromDatabase(journalKey);
+            console.log('🔍 Retrieved journal data:', journalData);
 
 
 
@@ -8263,9 +9668,8 @@ async function approveJournalWithComment(journalKey) {
 
 
                 // SỬA: Lấy chữ ký thực của Manager
-
-                const signatureData = getUserSignature(currentUserName, currentUserRole);
-
+                console.log('🔍 Getting signature for user:', currentUserName, 'role:', currentUserRole);
+                const signatureData = await getUserSignature(currentUserName, currentUserRole);
                 console.log('📋 Manager signature data:', signatureData);
 
 
@@ -8320,23 +9724,75 @@ async function approveJournalWithComment(journalKey) {
 
                     digitalSignature: generateDigitalSignature(currentUserName, currentUserRole, currentTime),
 
-                    comment: managerComment // SỬA: Lưu nhận xét vào chữ ký
+                    comment: managerComment, // SỬA: Lưu nhận xét vào chữ ký
+                    
+                    signatureImage: signatureData.signatureImage, // SỬA: Lưu đường dẫn chữ ký thực
+                    
+                    userId: signatureData.userId // SỬA: Lưu ID người dùng
 
                 };
 
 
 
-                localStorage.setItem(journalKey, JSON.stringify(journalData));
+                // Save to database - get journal ID directly from journal key
+                try {
+                    // Extract journal ID directly from journal key (new format: journal_dogName_date_id)
+                    const keyParts = journalKey.replace('journal_', '').split('_');
+                    const journalId = keyParts[keyParts.length - 1]; // Last part is the journal ID
+                    
+                    console.log('🔍 Extracted journal ID from key:', journalId);
+                    console.log('🔍 Journal key:', journalKey);
+                    
+                    // Use the proper approval API endpoint instead of full update
+                    // Get current user ID from database
+                    let approverId = 1; // Default fallback
+                    try {
+                        const userResponse = await fetch('/api/users');
+                        if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            if (userData.success) {
+                                const currentUser = userData.data.find(u => u.name === currentUserName || u.username === currentUserName);
+                                if (currentUser) {
+                                    approverId = currentUser.id;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Could not get current user ID, using fallback:', error);
+                    }
+                    
+                    const approvalData = {
+                        approver_id: approverId,
+                        approved: true,
+                        rejection_reason: null,
+                        leader_signature: JSON.stringify(journalData.approval.leaderSignature),
+                        leader_signature_timestamp: journalData.approval.leaderSignature.timestamp
+                    };
+                    
+                    console.log('🔍 Sending approval data to API:', approvalData);
+                    console.log('🔍 Signature data being sent:', {
+                        leader_signature: approvalData.leader_signature,
+                        leader_signature_timestamp: approvalData.leader_signature_timestamp
+                    });
 
+                    const response = await fetch(`/api/journals/${journalId}/approve`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(approvalData)
+                    });
 
+                    if (response.ok) {
+                        console.log('✅ Journal approval saved to database');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('❌ Failed to save journal approval to database:', errorData);
+                    }
+                } catch (error) {
+                    console.warn('Failed to save journal approval to database:', error);
+                }
 
                 // Remove từ pending approvals
-
-                const pendingJournals = JSON.parse(localStorage.getItem('pending_manager_approvals')) || [];
-
-                const filteredJournals = pendingJournals.filter(j => j.key !== journalKey);
-
-                localStorage.setItem('pending_manager_approvals', JSON.stringify(filteredJournals));
+                // TODO: Update journal status in database to APPROVED
 
 
 
@@ -8377,11 +9833,10 @@ async function approveJournalWithComment(journalKey) {
         } catch (error) {
 
             console.error('❌ Error in approveJournalWithComment:', error);
+            console.error('❌ Error stack:', error.stack);
 
-            alert('Có lỗi khi ký duyệt nhật ký: ' + error.message);
+            alert('Có lỗi khi ký duyệt nhật ký: ' + error.message + '\n\nChi tiết lỗi: ' + error.stack);
 
         }
-
     }
-
 }

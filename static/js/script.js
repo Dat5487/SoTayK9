@@ -1,10 +1,49 @@
 // =============================================================================
+// DATE FORMATTING UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Format date to dd/mm/yyyy format
+ * @param {Date|string} date - Date object or ISO string
+ * @param {boolean} includeTime - Whether to include time in the format
+ * @returns {string} Formatted date string
+ */
+function formatDateToDDMMYYYY(date, includeTime = false) {
+    if (!date) return 'N/A';
+    
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    return `${day}/${month}/${year}`;
+}
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns {string} Current date formatted as dd/mm/yyyy
+ */
+function getCurrentDateDDMMYYYY() {
+    return formatDateToDDMMYYYY(new Date());
+}
+
+// =============================================================================
 // API INTEGRATION & AUTHENTICATION - THÊM VÀO ĐẦU SCRIPT.JS
 // =============================================================================
 
 // Global variables
-let authToken = localStorage.getItem('auth_token');
-let currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+let authToken = null; // Will be set from database session
+let currentUser = {}; // Will be loaded from database
 const API_BASE = 'http://localhost:5000';
 
 // =============================================================================
@@ -20,19 +59,18 @@ async function login(username, password) {
             },
             body: JSON.stringify({ username, password })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             // Save auth info
-            localStorage.setItem('auth_token', data.access_token);
-            localStorage.setItem('current_user', JSON.stringify(data.user));
+            // Store auth token and user in memory (no localStorage)
             authToken = data.access_token;
             currentUser = data.user;
-            
+
             // Show success message
             showNotification('Đăng nhập thành công!', 'success');
-            
+
             // Reload page or update UI
             location.reload();
             return true;
@@ -48,8 +86,7 @@ async function login(username, password) {
 }
 
 function logout() {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('current_user');
+    // Clear auth info from memory (no localStorage)
     authToken = null;
     currentUser = {};
     location.reload();
@@ -72,12 +109,12 @@ async function apiCall(endpoint, options = {}) {
         },
         ...options
     };
-    
+
     // Add auth token if available
     if (authToken) {
         config.headers['Authorization'] = `Bearer ${authToken}`;
     }
-    
+
     try {
         const response = await fetch(url, config);
         const data = await response.json();
@@ -97,7 +134,7 @@ async function submitDiaryForApproval(diaryId) {
         const result = await apiCall(`/api/diary/${diaryId}/submit`, {
             method: 'POST'
         });
-        
+
         if (result.success) {
             showNotification('Đã gửi nhật ký để duyệt', 'success');
             refreshDiaryList();
@@ -115,7 +152,7 @@ async function approveDiary(diaryId, reviewNotes = '') {
             method: 'POST',
             body: JSON.stringify({ review_notes: reviewNotes })
         });
-        
+
         if (result.success) {
             showNotification('Đã phê duyệt nhật ký', 'success');
             refreshDiaryList();
@@ -137,7 +174,7 @@ async function sendChatMessage(message) {
             method: 'POST',
             body: JSON.stringify({ message })
         });
-        
+
         if (result.success) {
             return result.response;
         } else {
@@ -175,9 +212,9 @@ function showNotification(message, type = 'info') {
         animation: slideIn 0.3s ease;
     `;
     notification.textContent = message;
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
         notification.remove();
@@ -208,11 +245,11 @@ function updateDashboardUI(stats) {
     // Update dashboard numbers
     const elements = {
         'total-dogs': stats.total_dogs,
-        'total-entries': stats.total_entries, 
+        'total-entries': stats.total_entries,
         'pending-approvals': stats.pending_approvals,
         'active-users': stats.active_users
     };
-    
+
     Object.entries(elements).forEach(([id, value]) => {
         const element = document.getElementById(id);
         if (element) {
@@ -225,10 +262,10 @@ function updateDashboardUI(stats) {
 // INITIALIZATION
 // =============================================================================
 
-document.addEventListener('DOMContentLoaded', function() {    
+document.addEventListener('DOMContentLoaded', function () {
     // Add login form if not exists
     addLoginFormIfNeeded();
-    
+
     // Add chatbot widget if not exists  
     addChatbotWidget();
 });
@@ -265,7 +302,7 @@ async function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    
+
     const success = await login(username, password);
     if (success) {
         document.getElementById('loginModal').remove();
@@ -296,17 +333,17 @@ async function sendChat() {
     const input = document.getElementById('chatInput');
     const messages = document.getElementById('chatMessages');
     const message = input.value.trim();
-    
+
     if (!message) return;
-    
+
     // Add user message
     messages.innerHTML += `<div style="margin:5px 0;text-align:right;"><b>Bạn:</b> ${message}</div>`;
     input.value = '';
-    
+
     // Get AI response
     const response = await sendChatMessage(message);
     messages.innerHTML += `<div style="margin:5px 0;"><b>AI:</b> ${response}</div>`;
-    
+
     // Scroll to bottom
     messages.scrollTop = messages.scrollHeight;
 }
@@ -316,36 +353,27 @@ async function sendChat() {
 // Global variable to track the currently selected dog for the journal
 let currentDogForJournal = '';
 
-// Dummy data for Trainer (HLV) and Dogs (can be loaded from localStorage or actual API)
+// Dummy data for Trainer (HLV) and Dogs (loaded from database)
 const HLV_INFO_KEY = 'hvl_current_user_info';
-let hlvInfo = JSON.parse(localStorage.getItem(HLV_INFO_KEY)) || {
+let hlvInfo = {
     name: 'Trần Đức Kiên',
     id: 'HLV001',
     image: 'images/hlv_tran_duc_kien.jpg' // Your HLV image path
 };
 
-// Save HLV info to localStorage if not already present
-if (!localStorage.getItem(HLV_INFO_KEY)) {
-    localStorage.setItem(HLV_INFO_KEY, JSON.stringify(hlvInfo));
-}
-
-// Dog profiles data (can be loaded from localStorage or actual API)
+// Dog profiles data (loaded from database)
 const DOG_PROFILES_KEY = 'dog_profiles_data';
-let dogProfiles = JSON.parse(localStorage.getItem(DOG_PROFILES_KEY)) || {
+let dogProfiles = {
     'CNV BI': { name: 'CNV BI', image: 'images/dog_bi.jpg' }, // Your dog image paths
     'CNV LU': { name: 'CNV LU', image: 'images/dog_lu.jpg' },
     'CNV RẾCH': { name: 'CNV RẾCH', image: 'images/dog_rech.jpg' },
     'CNV KY': { name: 'CNV KY', image: 'images/dog_ky.jpg' },
     'CNV REX': { name: 'CNV REX', image: 'images/dog_rex.jpg' },
 };
-// Save dog info to localStorage if not already present
-if (!localStorage.getItem(DOG_PROFILES_KEY)) {
-    localStorage.setItem(DOG_PROFILES_KEY, JSON.stringify(dogProfiles));
-}
 
 // Define drug types, food types, health manifestations, operation locations
 const DRUG_TYPES = ['Cần sa', 'Heroin', 'Cocain', 'MDMA', 'Methamfetamin', 'Khác'];
-const HEALTH_MANIFESTATIONS = ['Cào', 'Sủa', 'Nắm', 'Ngồi', 'Khác']; 
+const HEALTH_MANIFESTATIONS = ['Cào', 'Sủa', 'Nắm', 'Ngồi', 'Khác'];
 const FOOD_TYPES = ['Cơm', 'Thịt', 'Rau', 'Trứng', 'Sữa', 'Hạt', 'Khác'];
 const OPERATION_LOCATIONS = ['CỬA KHẨU BẮC LUÂN I', 'BÃI KIỂM TRA HÀNG HÓA BẮC LUÂN II', 'CẢNG ICD THÀNH ĐẠT KM 3+4'];
 
@@ -531,7 +559,6 @@ function showContent(type) {
 
     // Remove dynamic dog sub-items if any
     document.querySelectorAll('.sub-item-dynamic').forEach(el => el.remove());
-
     if (type === 'TỔNG QUAN') {
         title.innerText = 'TỔNG QUAN';
         content.innerHTML = `
@@ -608,6 +635,82 @@ function showContent(type) {
             <p>Nếu có động lực hoặc thời tiết bất thường không thể thực hiện các công việc theo đúng lịch trên thì huấn luyện viên báo cáo với lãnh đạo đơn vị điều chỉnh lịch cho phù hợp vào thời gian khác trong cùng ngày làm việc; nhưng vẫn phải đảm bảo đủ nội dung và thời lượng của từng công việc quy định.</p>
             <p>3. Đối với nhân viên chăm nuôi, nhân giống không thực hiện các nội dung liên quan đến công tác huấn luyện và sử dụng CNV.</p>
         `;
+    }
+    else if (type === 'QUY TRÌNH HUẤN LUYỆN') {
+        title.innerText = 'QUY TRÌNH HUẤN LUYỆN';
+        content.innerHTML = `
+            <h2>Quy Trình Huấn Luyện</h2>
+
+            <h3>2. Quy Trình Chăm Sóc và Huấn Luyện Hằng Ngày</h3>
+            <p>Việc chăm sóc và huấn luyện là công việc phải được thực hiện hàng ngày, liên tục và khoa học, là trách nhiệm của huấn luyện viên và nhân viên chăn nuôi.</p>
+
+            <h4>a. Chế độ Chăm sóc và Vệ sinh</h4>
+            <ul>
+                <li><strong>Vệ sinh chuồng trại:</strong> Dọn dẹp vệ sinh chuồng và khu vực xung quanh hàng ngày để đảm bảo sạch sẽ, khô thoáng.</li>
+                <li><strong>Kiểm tra sức khỏe:</strong> Mỗi ngày, huấn luyện viên phải kiểm tra sức khỏe tổng thể của chó, bao gồm khả năng vận động, da, lông, mắt, mũi, miệng và các giác quan như khứu giác, thính giác, thị giác. Kịp thời phát hiện các biểu hiện bất thường để xử lý.</li>
+                <li><strong>Chế độ ăn uống:</strong> Quan sát kỹ khả năng ăn uống và bổ sung nước đầy đủ sau khi cho ăn. Chế độ dinh dưỡng được quy định cụ thể cho từng giống chó, độ tuổi và trọng lượng khác nhau.</li>
+            </ul>
+
+            <h4>Lịch làm việc hàng ngày</h4>
+            <ul>
+                <li>07h20 - 07h45: Cho chó dạo, vệ sinh và kiểm tra sức khỏe.</li>
+                <li>07h45 - 09h00: Chuẩn bị và huấn luyện buổi sáng.</li>
+                <li>10h30 - 11h00: Cho chó ăn.</li>
+                <li>13h45 - 15h00: Chuẩn bị và huấn luyện buổi chiều.</li>
+                <li>16h30 - 17h00: Cho chó ăn.</li>
+            </ul>
+
+            <h4>b. Nội Dung Huấn Luyện</h4>
+            <p>Quá trình huấn luyện bao gồm 3 nội dung cốt lõi: huấn luyện thể lực, huấn luyện kỷ luật và huấn luyện nghiệp vụ nâng cao. Tổng thời gian huấn luyện mỗi ngày là 90 phút.</p>
+
+            <h5>1. Huấn luyện Thể lực và Kỷ luật</h5>
+            <ul>
+                <li><strong>Động tác cơ bản:</strong> Huấn luyện chó thực hiện các động tác như đi, đứng, nằm, ngồi bên cạnh huấn luyện viên; bò, trườn; sửa các thói quen xấu.</li>
+                <li><strong>Rèn luyện thể lực:</strong> Hàng ngày cho chó tập các bài tập như bơi, chui ống, chạy trên cầu độc mộc, vượt chướng ngại vật. Hàng tuần, huấn luyện viên phải cho chó chạy bộ ngoài dã ngoại 2 lần, mỗi lần từ 2-5km.</li>
+                <li><strong>Yêu cầu:</strong> Chó phải duy trì vững chắc các phản xạ có điều kiện, tuân thủ mệnh lệnh của huấn luyện viên một cách chính xác, bền bỉ và dẻo dai.</li>
+            </ul>
+
+            <h5>2. Huấn luyện Nghiệp vụ (Phát hiện ma túy)</h5>
+            <ul>
+                <li><strong>Huấn luyện cơ bản:</strong> Huấn luyện viên sử dụng các mẫu ma túy để chó làm quen và hình thành phản xạ tìm kiếm. Các mẫu này được giấu ở nhiều vị trí khác nhau:
+                <ul>
+                    <li>Trong hành lý, vali, băng chuyền, container.</li>
+                    <li>Trên các phương tiện vận tải như tàu thủy, máy bay.</li>
+                    <li>Trên tường vách với độ cao tối thiểu 01 mét.</li>
+                    <li>Giấu trên người: trong túi quần, túi áo, thắt lưng.</li>
+                </ul>
+                </li>
+
+                <li><strong>Huấn luyện nâng cao:</strong>
+                <ul>
+                    <li>Khi chó đã thành thục, huấn luyện viên sẽ không cần phải điều khiển mà chó có thể tự tìm kiếm trong khu vực được chỉ định.</li>
+                    <li>Huấn luyện chó tìm kiếm trên người để đánh giá khả năng phát hiện hơi người có ma túy.</li>
+                </ul>
+                </li>
+
+                <li><strong>Yêu cầu:</strong> Chó phải có khả năng tìm kiếm liên tục trong 20 phút, khi phát hiện phải có biểu hiện rõ ràng (cào, sủa, ngồi, nằm). Đặc biệt, chó làm việc tại sân bay phải có sức bền tốt, còn chó làm việc ở cảng biển phải nhanh nhẹn và chịu được thời tiết khắc nghiệt.</li>
+            </ul>
+
+            <hr>
+
+            <h3>3. Đánh Giá Kết Quả Huấn Luyện</h3>
+            <p>Việc đánh giá được thực hiện định kỳ để xác định năng lực của chó nghiệp vụ.</p>
+
+            <ul>
+                <li><strong>Phương pháp đánh giá:</strong> Dựa trên số lượng mẫu ma túy mà chó phát hiện được ngay tại khu vực huấn luyện và làm việc hàng ngày (ít nhất 3 mẫu). Đồng thời đánh giá tinh thần độc lập, sự tập trung, tính bền bỉ và sự hợp tác với huấn luyện viên.</li>
+
+                <li><strong>Tiêu chuẩn phân loại:</strong>
+                <ul>
+                    <li><strong>Loại Giỏi:</strong> Phản xạ tìm kiếm vững chắc, bền bỉ, tập trung, không bỏ sót khu vực, phát hiện được tất cả các mẫu thử và có biểu hiện rõ ràng.</li>
+                    <li><strong>Loại Khá:</strong> Tương tự loại Giỏi nhưng phát hiện được từ 02/03 mẫu thử trở lên.</li>
+                    <li><strong>Loại Trung bình:</strong> Có phản xạ tìm kiếm nhưng đôi khi mất tập trung, có thể bỏ sót mục tiêu. Phát hiện từ 02 mẫu trở lên nhưng biểu hiện có thể không rõ ràng.</li>
+                    <li><strong>Không đạt yêu cầu:</strong> Phản xạ tìm kiếm yếu, không tập trung, bỏ sót nhiều khu vực, phát hiện dưới 02/03 mẫu và biểu hiện không rõ ràng.</li>
+                </ul>
+                </li>
+
+                <li>Những con chó không đáp ứng được yêu cầu huấn luyện sẽ bị thải loại theo quy trình.</li>
+            </ul>
+            `;
     } else {
         title.innerText = type;
         content.innerHTML = `<p>Đây là nội dung của mục "${type}". Bạn có thể cập nhật nội dung sau.</p>`;
@@ -703,12 +806,13 @@ function saveDogProfile(dogName) {
         hlv_daotao: document.getElementById('hlv_daotao').value,
     };
 
-    localStorage.setItem(`profile_${dogName}`, JSON.stringify(data));
+    // Save profile data to database (no localStorage)
 }
 
 // Function to load dog profile
 function loadDogProfile(dogName) {
-    const data = localStorage.getItem(`profile_${dogName}`);
+    // Load profile data from database (no localStorage)
+    const data = null; // Will be loaded from database
     if (data) {
         const profile = JSON.parse(data);
 
@@ -747,7 +851,6 @@ function performSearch() {
     const searchDiv = document.getElementById("searchResults");
 
     if (keyword === "") {
-        console.log("Vui lòng nhập từ khóa!");
         return;
     }
 
@@ -756,7 +859,7 @@ function performSearch() {
     sidebarItems.forEach(item => {
         item.style.backgroundColor = '';
     });
-    
+
     sidebarItems.forEach(item => {
         const text = item.innerText.toLowerCase();
         if (text.includes(keyword)) {
@@ -820,7 +923,6 @@ function performSearch() {
     }
 
     if (!found) {
-        console.log(`Không tìm thấy từ khóa "${keyword}"!`);
     }
 }
 
@@ -876,10 +978,10 @@ function toggleSpeech() {
 function toggleSubMenu() {
     const submenu = document.getElementById('dog-sub-menu');
     const journalSubmenu = document.getElementById('journal-sub-menu');
-    
+
     // Đóng journal submenu nếu đang mở
     journalSubmenu.classList.remove('open');
-    
+
     // Toggle dog submenu
     submenu.classList.toggle('open');
 }
@@ -888,10 +990,10 @@ function toggleSubMenu() {
 function toggleJournalMenu() {
     const submenu = document.getElementById('journal-sub-menu');
     const dogSubmenu = document.getElementById('dog-sub-menu');
-    
+
     // Đóng dog submenu nếu đang mở
     dogSubmenu.classList.remove('open');
-    
+
     // Toggle journal submenu
     submenu.classList.toggle('open');
 }
@@ -941,7 +1043,7 @@ function updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId) {
             displayText += ', Khác';
         }
     }
-    
+
     displayBox.innerText = displayText || 'Chưa chọn';
 }
 
@@ -998,9 +1100,9 @@ function updateOperationLocationDisplay(blockId) {
     if (isKhacSelected) {
         displayTextParts.push(otherInput.value.trim() !== '' ? otherInput.value.trim() : 'Khác');
     }
-    
+
     displayBox.innerText = displayTextParts.join(', ') || 'Chưa chọn';
-    
+
     // Update the trigger text (optional, but good for consistency)
     const triggerTextElement = document.getElementById(`operationLocationTriggerText-${blockId}`);
     if (triggerTextElement) {
@@ -1010,8 +1112,7 @@ function updateOperationLocationDisplay(blockId) {
 
 // NEW FUNCTION: Update drug type display for detection attempts
 function updateDrugDisplay(blockId, attemptNumber) {
-    console.log(`Updating drug display for block ${blockId}, attempt ${attemptNumber}`);
-    
+
     const optionsList = document.getElementById(`drugTypeOptions-${blockId}-${attemptNumber}`);
     const displayBox = document.getElementById(`drugTypeDisplayBox-${blockId}-${attemptNumber}`);
     const otherInput = document.getElementById(`drugTypeOther-${blockId}-${attemptNumber}`);
@@ -1050,12 +1151,11 @@ function updateDrugDisplay(blockId, attemptNumber) {
     if (isKhacSelected) {
         displayTextParts.push(otherInput.value.trim() !== '' ? otherInput.value.trim() : 'Khác');
     }
-    
+
     const finalText = displayTextParts.join(', ') || 'Chưa chọn';
     displayBox.innerText = finalText;
-    
-    console.log(`Updated display text: ${finalText}`);
-    
+
+
     // Update the trigger text
     const triggerTextElement = document.getElementById(`drugTypeTriggerText-${blockId}-${attemptNumber}`);
     if (triggerTextElement) {
@@ -1076,7 +1176,7 @@ function addTrainingBlock(data = {}) {
     newBlock.setAttribute('data-block-id', blockCounter);
 
     // Tạo drug options HTML trước
-    const drugOptionsHtml = DRUG_TYPES.map(drug => 
+    const drugOptionsHtml = DRUG_TYPES.map(drug =>
         `<label><input type="checkbox" data-drug-value="${drug}"> ${drug}</label>`
     ).join('');
 
@@ -1127,37 +1227,37 @@ function addTrainingBlock(data = {}) {
                         </div>
                     </div>
                     <span class="location-selected-display-box" id="drugTypeDisplayBox-${blockCounter}-${i}">Chưa chọn</span>
-                    <input type="text" class="location-other-input hidden" id="drugTypeOther-${blockCounter}-${i}" placeholder="Loại ma túy khác" value="${data.drugDetection && data.drugDetection[i-1] ? (data.drugDetection[i-1].drugTypeOther || '') : ''}">
+                    <input type="text" class="location-other-input hidden" id="drugTypeOther-${blockCounter}-${i}" placeholder="Loại ma túy khác" value="${data.drugDetection && data.drugDetection[i - 1] ? (data.drugDetection[i - 1].drugTypeOther || '') : ''}">
                     
                     <label>Biểu hiện:</label>
                     <div class="detection-manifestation-checkboxes detection-manifestation-${i}">
                         ${HEALTH_MANIFESTATIONS.map(manifest => `
                             <label>
-                                <input type="checkbox" data-manifestation-type="${manifest.toLowerCase().replace(/\s/g, '-')}" value="${manifest}" ${data.drugDetection && data.drugDetection[i-1] && data.drugDetection[i-1].manifestation?.includes(manifest) ? 'checked' : ''}> ${manifest}
+                                <input type="checkbox" data-manifestation-type="${manifest.toLowerCase().replace(/\s/g, '-')}" value="${manifest}" ${data.drugDetection && data.drugDetection[i - 1] && data.drugDetection[i - 1].manifestation?.includes(manifest) ? 'checked' : ''}> ${manifest}
                             </label>
                         `).join('')}
                     </div>
-                    <input type="text" class="detection-manifestation-other-${i} hidden" id="manifestationOther-${blockCounter}-${i}" placeholder="Biểu hiện khác" value="${data.drugDetection && data.drugDetection[i-1] ? (data.drugDetection[i-1].manifestationOther || '') : ''}">
+                    <input type="text" class="detection-manifestation-other-${i} hidden" id="manifestationOther-${blockCounter}-${i}" placeholder="Biểu hiện khác" value="${data.drugDetection && data.drugDetection[i - 1] ? (data.drugDetection[i - 1].manifestationOther || '') : ''}">
                 </div>
             `).join('')}
         </div>
     `;
     container.appendChild(newBlock);
-    
+
     // Initialize drug displays for all attempts
     for (let i = 1; i <= 3; i++) {
-        if (data.drugDetection && data.drugDetection[i-1] && data.drugDetection[i-1].selectedDrugs) {
+        if (data.drugDetection && data.drugDetection[i - 1] && data.drugDetection[i - 1].selectedDrugs) {
             // Load saved drug selections
             const optionsList = document.getElementById(`drugTypeOptions-${blockCounter}-${i}`);
             if (optionsList) {
                 optionsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.checked = data.drugDetection[i-1].selectedDrugs.includes(checkbox.dataset.drugValue);
+                    checkbox.checked = data.drugDetection[i - 1].selectedDrugs.includes(checkbox.dataset.drugValue);
                 });
             }
         }
         updateDrugDisplay(blockCounter, i);
     }
-    
+
     initializeHiddenInputs(newBlock);
 }
 
@@ -1168,15 +1268,15 @@ function addOperationBlock(data = {}) {
         console.error("Error: 'operation-blocks-container' not found in DOM.");
         return;
     }
-    
+
     // Calculate the correct operation number based on existing blocks
     const existingBlocks = container.querySelectorAll('.operation-block').length;
     const operationNumber = existingBlocks + 1;
-    
+
     // Use a unique ID for this block but display the correct number
     blockCounter++;
     const currentBlockId = blockCounter;
-    
+
     const newBlock = document.createElement('div');
     newBlock.classList.add('operation-block');
     newBlock.setAttribute('data-block-id', currentBlockId);
@@ -1252,8 +1352,8 @@ function updateOperationBlockNumbers() {
     });
 }
 
-// Function to save journal data to localStorage with updated drug selection
-function saveJournalData() {
+// Function to save journal data to database with updated drug selection
+async function saveJournalData() {
     const journalDate = document.getElementById('journal_date').value;
     const dogName = document.getElementById('journal_dog_name').value;
     const hlvName = document.getElementById('journal_hlv').value;
@@ -1328,8 +1428,8 @@ function saveJournalData() {
         dinnerAmount: document.getElementById('dinnerAmount').value,
         // Get selected food values from checkboxes
         dinnerFood: Array.from(document.querySelectorAll('#dinnerFoodOptions input[type="checkbox"]:checked')).map(cb => cb.dataset.foodValue),
-        dinnerFoodOther: document.getElementById('dinnerFoodOther').value, 
-        
+        dinnerFoodOther: document.getElementById('dinnerFoodOther').value,
+
         careBath: document.getElementById('care_bath').checked,
         careBrush: document.getElementById('care_brush').checked,
         careWipe: document.getElementById('care_wipe').checked,
@@ -1344,10 +1444,10 @@ function saveJournalData() {
         const blockId = block.getAttribute('data-block-id');
         const fromTime = document.getElementById(`operationFromTime-${blockId}`).value;
         const toTime = document.getElementById(`operationToTime-${blockId}`).value;
-        
+
         // Get selected locations from checkboxes
         const selectedLocations = Array.from(document.querySelectorAll(`#operationLocationOptions-${blockId} input[type="checkbox"]:checked`))
-                                         .map(cb => cb.dataset.locationValue);
+            .map(cb => cb.dataset.locationValue);
 
         const locationKhoText = document.getElementById(`operationLocationKho-${blockId}`).value;
         const locationOtherText = document.getElementById(`operationLocationOther-${blockId}`).value;
@@ -1401,9 +1501,14 @@ function saveJournalData() {
         approval: approvalData
     };
 
-    localStorage.setItem(`journal_${dogName}_${journalDate}`, JSON.stringify(journalData));
-    alert(`Nhật ký cho CNV ${dogName} ngày ${journalDate} đã được lưu thành công!`);
-    console.log('Dữ liệu nhật ký đã lưu:', journalData);
+    // Save journal data to database
+    try {
+        await window.journalDBManager.saveJournalData();
+        alert(`Nhật ký cho CNV ${dogName} ngày ${journalDate} đã được lưu thành công!`);
+    } catch (error) {
+        console.error('Error saving journal to database:', error);
+        alert('Có lỗi xảy ra khi lưu nhật ký vào database');
+    }
 }
 
 // Function to reset form fields to default state
@@ -1440,7 +1545,7 @@ function resetJournalFormFields() {
     document.getElementById('care_brush').checked = false;
     document.getElementById('care_wipe').checked = false;
 
-    document.querySelector('input[name="health_status"][value="Bình thường"]').checked = true;
+    document.querySelector('input[name="health_status"][value="Tốt"]').checked = true;
     document.getElementById('health_other_text').value = '';
     document.getElementById('health_other_text').classList.add('hidden');
     document.getElementById('journal_other_issues').value = '';
@@ -1448,7 +1553,8 @@ function resetJournalFormFields() {
     document.querySelector('.other-issues-label').classList.remove('highlight-issue');
 
     document.getElementById('operation-blocks-container').innerHTML = '';
-    // Không thêm operation block mặc định nữa - chỉ thêm khi user bấm "Thêm Ca"
+    // Add default operation block "Ca 1"
+    addOperationBlock();
 
     document.getElementById('leader_comment').value = '';
     document.querySelector('.leader-approval .approval-status').innerText = '[Chưa duyệt]';
@@ -1494,7 +1600,6 @@ function showJournalEditForm(dogName, date = null) {
     content.innerHTML = `
         <div class="journal-header-actions">
             <button class="btn-create-new-journal">Nhật ký mới +</button>
-            <button class="btn-view-old-journals">Xem nhật ký cũ</button>
         </div>
 
         <div class="journal-section info-general">
@@ -1602,9 +1707,10 @@ function showJournalEditForm(dogName, date = null) {
                 <label><input type="checkbox" id="care_wipe"> Lau lông</label>
             </div>
             <div class="health-status">
-                <label><input type="radio" name="health_status" value="Bình thường" checked> Bình thường</label>
-                <label><input type="radio" name="health_status" value="Có dấu hiệu bất thường" data-health-type="abnormal"> Có dấu hiệu bất thường</label>
-                <label><input type="radio" name="health_status" value="Bị ốm/Chấn thương" data-health-type="sick"> Bị ốm/Chấn thương</label>
+                <label><input type="radio" name="health_status" value="Tốt" checked> Tốt</label>
+                <label><input type="radio" name="health_status" value="Khá" data-health-type="abnormal"> Khá</label>
+                <label><input type="radio" name="health_status" value="Trung bình" data-health-type="sick"> Trung bình</label>
+                <label><input type="radio" name="health_status" value="Kém" data-health-type="sick"> Kém</label>
                 <input type="text" id="health_other_text" class="health-other-input hidden" placeholder="Ghi rõ tình trạng">
             </div>
             <div class="textarea-block">
@@ -1664,18 +1770,18 @@ function showJournalEditForm(dogName, date = null) {
         </div>
     `;
     blockCounter = 0; // Reset block counter for new form
-    loadJournalData(dogName, date || defaultDate, true); // Load data or create empty form
+    loadJournalData(dogName, date || defaultDate, true).catch(console.error); // Load data or create empty form
     initializeHiddenInputs(); // Initialize visibility for "Other" inputs after form is built
 }
 
 // Function to load journal data (decides between edit form or A4 view) with updated drug loading
-function loadJournalData(dogName, journalDate, forceEditForm = false) {
+async function loadJournalData(dogName, journalDate, forceEditForm = false) {
     const journalKey = `journal_${dogName}_${journalDate}`;
-    const storedData = localStorage.getItem(journalKey);
+    // Load data from database instead of localStorage
+    const storedData = null; // Will be loaded from database
 
     if (storedData && !forceEditForm) {
         showA4JournalView(dogName, journalDate);
-        console.log(`Loaded journal for ${dogName} on ${journalDate} and displayed A4 view.`);
     } else {
         resetJournalFormFields(); // Reset form before loading new data
 
@@ -1748,11 +1854,8 @@ function loadJournalData(dogName, journalDate, forceEditForm = false) {
                 blockCounter = tempBlockCounter; // Restore blockCounter
                 updateOperationBlockNumbers();
             } else {
-                // Reset blockCounter trước khi thêm operation block mặc định
-                const tempBlockCounter = blockCounter;
-                blockCounter = 0;
+                // Add default operation block "Ca 1" when no operations exist
                 addOperationBlock();
-                blockCounter = tempBlockCounter; // Restore blockCounter
             }
 
             if (journal.approval) {
@@ -1781,17 +1884,14 @@ function loadJournalData(dogName, journalDate, forceEditForm = false) {
                     document.querySelector('.substitute-hvl-section .substitute-hvl-status').classList.remove('signed');
                 }
             }
-            console.log(`Loaded journal for ${dogName} on ${journalDate} and displayed edit form.`);
         } else {
             // If no stored data, thêm blocks mặc định
             // Reset blockCounter trước khi tạo
             blockCounter = 0;
             addTrainingBlock(); // Thêm training block mặc định
-            
-            // Reset lại blockCounter để operation bắt đầu từ 1
-            blockCounter = 0;
+
+            // Add default operation block "Ca 1"
             addOperationBlock(); // Thêm operation block mặc định
-            console.log(`No journal found for ${dogName} on ${journalDate}. Created empty form.`);
         }
     }
     const leaderStatus = document.querySelector('.leader-approval .approval-status')?.innerText;
@@ -1810,11 +1910,12 @@ function loadJournalData(dogName, journalDate, forceEditForm = false) {
 }
 
 // Function to handle approval actions
-function handleApproval(actionType) {
+async function handleApproval(actionType) {
     const journalDate = document.getElementById('journal_date').value;
     const dogName = document.getElementById('journal_dog_name').value;
     const journalKey = `journal_${dogName}_${journalDate}`;
-    let journalData = JSON.parse(localStorage.getItem(journalKey)) || {};
+    // Load journal data from database
+    let journalData = await getJournalFromDatabase(journalKey) || {};
 
     if (!journalData.approval) {
         journalData.approval = {};
@@ -1847,11 +1948,16 @@ function handleApproval(actionType) {
             document.querySelector('.substitute-hvl-section .substitute-hvl-status').innerText = 'Đã ký';
             document.querySelector('.substitute-hvl-section .substitute-hvl-status').classList.add('signed');
             disableJournalForm(true, 'substitute');
-            saveJournalData(); // Save changes after signing
+            saveJournalData().catch(console.error); // Save changes after signing
             alert('Nhật ký đã được HLV trực thay ký duyệt.');
         }
     }
-    localStorage.setItem(journalKey, JSON.stringify(journalData));
+    // Save journal data to database
+    try {
+        await window.journalDBManager.saveJournalData();
+    } catch (error) {
+        console.error('Error saving journal to database:', error);
+    }
 }
 
 // Function to disable/enable form fields based on approval status
@@ -1920,7 +2026,7 @@ function createNewJournal() {
 }
 
 // Function to view old journals
-function viewOldJournals() {
+async function viewOldJournals() {
     const content = document.getElementById('content');
     const dogName = currentDogForJournal;
 
@@ -1929,17 +2035,23 @@ function viewOldJournals() {
         return;
     }
 
-    const journalKeys = [];
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key.startsWith(`journal_${dogName}_`)) {
-            journalKeys.push(key);
+    // Load journals from database
+    const journals = [];
+    try {
+        const response = await fetch(`/api/journals/by-dog/${encodeURIComponent(dogName)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+                journals.push(...data.data);
+            }
         }
+    } catch (error) {
+        console.error('Error loading journals from database:', error);
     }
 
-    journalKeys.sort((a, b) => {
-        const dateA = new Date(a.split('_')[2]);
-        const dateB = new Date(b.split('_')[2]);
+    journals.sort((a, b) => {
+        const dateA = new Date(a.journal_date);
+        const dateB = new Date(b.journal_date);
         return dateB - dateA;
     });
 
@@ -1949,15 +2061,14 @@ function viewOldJournals() {
             <button class="back-to-current-journal" data-dog="${dogName}" data-date="${document.getElementById('journal_date')?.value || new Date().toISOString().slice(0, 10)}">Quay lại nhật ký hiện tại</button>
             <ul class="journal-entries">
     `;
-    if (journalKeys.length > 0) {
-        journalKeys.forEach(key => {
-            const date = key.split('_')[2];
+    if (journals.length > 0) {
+        journals.forEach(journal => {
+            const date = journal.journal_date;
             let approvalStatus = '[Chưa duyệt]';
-            try {
-                const journalData = JSON.parse(localStorage.getItem(key));
-                approvalStatus = journalData?.approval?.leaderStatus || '[Chưa duyệt]';
-            } catch (e) {
-                console.error("Error parsing journal data for key:", key, e);
+            if (journal.approval_status === 'APPROVED') {
+                approvalStatus = '[Đã duyệt]';
+            } else if (journal.approval_status === 'REJECTED') {
+                approvalStatus = '[Bị từ chối]';
             }
 
             journalListHtml += `
@@ -2027,7 +2138,7 @@ function exportPdf() {
 }
 
 // Function to display A4 Journal View with updated drug display
-function showA4JournalView(dogName, journalDate) {
+async function showA4JournalView(dogName, journalDate) {
     hideAllContentSections();
     document.getElementById('toggleReadButton').style.display = 'none'; // Hide speech button for A4 view
 
@@ -2040,15 +2151,25 @@ function showA4JournalView(dogName, journalDate) {
 
     title.innerText = `SỔ NHẬT KÝ HUẤN LUYỆN - CNV ${dogName} (Ngày ${journalDate})`;
 
-    const journalKey = `journal_${dogName}_${journalDate}`;
-    const storedData = localStorage.getItem(journalKey);
+    // Load journal from database
+    let journal = null;
+    try {
+        const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${journalDate}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data) {
+                journal = data.data;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading journal from database:', error);
+    }
 
-    if (!storedData) {
+    if (!journal) {
         content.innerHTML = `<p>Không tìm thấy nhật ký cho CNV ${dogName} ngày ${journalDate}.</p>
                              <button class="btn-back-to-edit" data-dog="${dogName}" data-date="${journalDate}">Quay lại form chỉnh sửa</button>`;
         return;
     }
-    const journal = JSON.parse(storedData);
 
     let trainingBlocksHtml = '';
     if (journal.training && journal.training.blocks && journal.training.blocks.length > 0) {
@@ -2088,11 +2209,11 @@ function showA4JournalView(dogName, journalDate) {
                     <h4>Ca ${index + 1}: ${block.fromTime} - ${block.toTime}</h4>
                     <p>Địa điểm: <strong>${block.locationType === 'Khác' ? block.locationOther : block.locationType}</strong></p>
                     <p>Nội dung: <strong>${[
-                        block.advancedTraining ? 'HL nâng cao' : '',
-                        block.basicTraining ? 'HL động tác cơ bản' : '',
-                        block.physicalTraining ? 'HL thể lực' : '',
-                        block.otherTraining || ''
-                    ].filter(Boolean).join(', ') || 'N/A'}</strong></p>
+                    block.advancedTraining ? 'HL nâng cao' : '',
+                    block.basicTraining ? 'HL động tác cơ bản' : '',
+                    block.physicalTraining ? 'HL thể lực' : '',
+                    block.otherTraining || ''
+                ].filter(Boolean).join(', ') || 'N/A'}</strong></p>
                     <div class="a4-drug-detection">${drugDetectionHtml}</div>
                 </div>
             `;
@@ -2123,13 +2244,13 @@ function showA4JournalView(dogName, journalDate) {
                     <h4>Ca ${index + 1}: ${block.fromTime} - ${block.toTime}</h4>
                     <p>Địa điểm: <strong>${locationDisplay}</strong></p>
                     <p>Nội dung: <strong>${[
-                        block.checkGoods ? 'Kiểm tra hàng hóa XNK' : '',
-                        block.checkLuggage ? 'Kiểm tra hành lý, phương tiện XNC' : '',
-                        block.otherOperation1 || '',
-                        block.fieldTraining ? 'HL nâng cao tại hiện trường' : '',
-                        block.patrol ? 'Tuần tra kiểm soát' : '',
-                        block.otherOperation2 || ''
-                    ].filter(Boolean).join(', ') || 'N/A'}</strong></p>
+                    block.checkGoods ? 'Kiểm tra hàng hóa XNK' : '',
+                    block.checkLuggage ? 'Kiểm tra hành lý, phương tiện XNC' : '',
+                    block.otherOperation1 || '',
+                    block.fieldTraining ? 'HL nâng cao tại hiện trường' : '',
+                    block.patrol ? 'Tuần tra kiểm soát' : '',
+                    block.otherOperation2 || ''
+                ].filter(Boolean).join(', ') || 'N/A'}</strong></p>
                     <p>Vấn đề khác: <strong>${block.otherIssues || 'Không'}</strong></p>
                 </div>
             `;
@@ -2218,13 +2339,13 @@ document.addEventListener('DOMContentLoaded', () => {
     showLoginPage();
 
     // Add event listeners for "Enter" key press on username and password fields
-    document.getElementById('username').addEventListener('keypress', function(event) {
+    document.getElementById('username').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             login();
         }
     });
 
-    document.getElementById('password').addEventListener('keypress', function(event) {
+    document.getElementById('password').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             login();
         }
@@ -2234,13 +2355,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- EVENT DELEGATION ---
 // Attach a single listener to the document to handle all clicks and changes on dynamic elements
 
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (e.target.classList.contains('add-training-block')) {
         addTrainingBlock();
     } else if (e.target.classList.contains('remove-training-block')) {
         const trainingBlocksContainer = document.getElementById('training-blocks-container');
         const trainingBlocks = trainingBlocksContainer.querySelectorAll('.training-block');
-        
+
         if (trainingBlocks.length > 0) {
             if (confirm('Bạn có chắc chắn muốn xóa ca huấn luyện cuối cùng này?')) {
                 trainingBlocksContainer.removeChild(trainingBlocks[trainingBlocks.length - 1]);
@@ -2298,7 +2419,7 @@ document.addEventListener('click', function(e) {
         // Determine if it's a food, location, or drug trigger
         const isFoodTrigger = trigger.closest('.meal-item.food-selection-group');
         const isDrugTrigger = trigger.closest('.drug-detection-row');
-        
+
         let optionsList;
         if (isFoodTrigger) {
             optionsList = trigger.closest('.custom-food-select-wrapper')?.querySelector('.custom-dropdown-options');
@@ -2307,7 +2428,7 @@ document.addEventListener('click', function(e) {
         } else {
             optionsList = trigger.closest('.custom-location-select-wrapper')?.querySelector('.custom-dropdown-options');
         }
-        
+
         if (optionsList) {
             optionsList.classList.toggle('hidden');
             // Hide other open dropdowns
@@ -2320,7 +2441,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('change', function(e) {
+document.addEventListener('change', function (e) {
     if (e.target.matches('input[type="radio"]')) {
         const parentContainer = e.target.closest('.field-group') || e.target.closest('.health-status');
         if (parentContainer) {
@@ -2349,17 +2470,17 @@ document.addEventListener('change', function(e) {
     } else if (e.target.closest('.custom-location-select-wrapper') && e.target.type === 'checkbox') {
         // Handle location checkboxes or drug checkboxes
         const isDrugRow = e.target.closest('.drug-detection-row');
-        
+
         if (isDrugRow) {
             // This is a drug checkbox
             const blockElement = isDrugRow.closest('.training-block');
             const blockId = blockElement.dataset.blockId;
-            
+
             // Find which attempt this is (Lần 1, 2, 3)
             const wrapper = e.target.closest('.custom-location-select-wrapper');
             const attemptMatch = wrapper.className.match(/drug-select-wrapper-\d+-(\d+)/);
             const attemptNumber = attemptMatch ? attemptMatch[1] : '1';
-            
+
             updateDrugDisplay(blockId, attemptNumber);
         } else {
             // This is a location checkbox  
@@ -2390,7 +2511,7 @@ document.addEventListener('change', function(e) {
         // This handles food checkboxes
         const parentFoodSelectionGroup = e.target.closest('.meal-item.food-selection-group');
         if (parentFoodSelectionGroup) {
-            const displayBoxId = parentFoodSelectionGroup.querySelector('.food-selected-display-box').id; 
+            const displayBoxId = parentFoodSelectionGroup.querySelector('.food-selected-display-box').id;
             const optionsListId = parentFoodSelectionGroup.querySelector('.custom-dropdown-options').id;
             const otherFoodInputId = parentFoodSelectionGroup.querySelector('input[type="text"][id$="FoodOther"]').id;
             updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId);
@@ -2399,20 +2520,20 @@ document.addEventListener('change', function(e) {
 });
 
 // Add an input event listener for the location and drug text inputs
-document.addEventListener('input', function(e) {
+document.addEventListener('input', function (e) {
     if (e.target.classList.contains('location-kho-input') || e.target.classList.contains('location-other-input')) {
         const isDrugInput = e.target.closest('.drug-detection-row');
-        
+
         if (isDrugInput) {
             // This is a drug other input
             const blockElement = isDrugInput.closest('.training-block');
             const blockId = blockElement.dataset.blockId;
-            
+
             // Find attempt number from the input ID  
             const inputId = e.target.id;
             const attemptMatch = inputId.match(/drugTypeOther-\d+-(\d+)/);
             const attemptNumber = attemptMatch ? attemptMatch[1] : '1';
-            
+
             updateDrugDisplay(blockId, attemptNumber);
         } else {
             // This is a location input
@@ -2422,7 +2543,7 @@ document.addEventListener('input', function(e) {
     } else if (e.target.id === 'lunchFoodOther' || e.target.id === 'dinnerFoodOther') {
         const parentFoodSelectionGroup = e.target.closest('.meal-item.food-selection-group');
         if (parentFoodSelectionGroup) {
-            const displayBoxId = parentFoodSelectionGroup.querySelector('.food-selected-display-box').id; 
+            const displayBoxId = parentFoodSelectionGroup.querySelector('.food-selected-display-box').id;
             const optionsListId = parentFoodSelectionGroup.querySelector('.custom-dropdown-options').id;
             const otherFoodInputId = e.target.id;
             updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId);
@@ -2430,7 +2551,7 @@ document.addEventListener('input', function(e) {
     }
 });
 
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     document.querySelectorAll('.custom-dropdown-options').forEach(optionsList => {
         const foodSelectionGroup = optionsList.closest('.meal-item.food-selection-group');
         const locationSelectionGroup = optionsList.closest('.custom-location-select-wrapper');
@@ -2439,7 +2560,7 @@ document.addEventListener('click', function(e) {
         if (foodSelectionGroup) {
             const trigger = foodSelectionGroup.querySelector('.custom-dropdown-trigger');
             const displayBox = foodSelectionGroup.querySelector('.food-selected-display-box');
-            
+
             if (!trigger.contains(e.target) && !optionsList.contains(e.target) && !displayBox.contains(e.target)) {
                 optionsList.classList.add('hidden');
             }
@@ -2477,27 +2598,23 @@ function chatWithAI() {
 // Thêm vào cuối file script.js gốc của bạn
 // ===========================================
 
-// Lưu journal với backend khi có thay đổi quan trọng
+// Lưu journal với backend database
 function saveJournalToBackend() {
-    // Chỉ gọi khi cần thiết, không ảnh hưởng localStorage hiện tại
     const currentDog = currentDogForJournal || 'CNV BI';
     const journalDate = document.getElementById('journal_date')?.value || new Date().toISOString().slice(0, 10);
-    
-    // Vẫn lưu localStorage như cũ
+
+    // Save to database only
     saveJournalData();
-    
-    // Đồng thời sync với backend (optional)
-    console.log(`💾 Đã lưu nhật ký ${currentDog} ngày ${journalDate}`);
+
 }
 
-// Override hàm saveJournalData gốc để thêm backend sync
+// Override hàm saveJournalData gốc để sử dụng database
 const originalSaveJournalData = saveJournalData;
-saveJournalData = function() {
+saveJournalData = function () {
     // Gọi hàm gốc trước
     originalSaveJournalData();
-    
+
     // Thêm thông báo thành công
-    console.log('✅ Đã lưu nhật ký vào localStorage');
 };
 
 // Thêm hàm submit cho approval workflow
@@ -2506,16 +2623,16 @@ function submitCurrentJournalForApproval() {
         alert('⚠️ Vui lòng chọn chó nghiệp vụ trước.');
         return;
     }
-    
+
     const journalDate = document.getElementById('journal_date')?.value;
     if (!journalDate) {
         alert('⚠️ Vui lòng chọn ngày ghi nhật ký.');
         return;
     }
-    
+
     // Lưu trước khi submit
     saveJournalData();
-    
+
     // Hiển thị modal xác nhận
     if (document.getElementById('submitModal')) {
         document.getElementById('submitModal').style.display = 'block';
@@ -2526,16 +2643,16 @@ function submitCurrentJournalForApproval() {
 // Chỉ cần đảm bảo nó hoạt động với localStorage hiện tại
 
 // Thêm event listener cho việc auto-save
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Auto-save mỗi 30 giây nếu có thay đổi
     let hasChanges = false;
     let autoSaveInterval;
-    
+
     // Theo dõi thay đổi trong form
     function markAsChanged() {
         hasChanges = true;
     }
-    
+
     // Lắng nghe thay đổi trong các input quan trọng
     const watchedSelectors = [
         'input[type="text"]',
@@ -2546,32 +2663,31 @@ document.addEventListener('DOMContentLoaded', function() {
         'input[type="radio"]',
         'input[type="checkbox"]'
     ];
-    
+
     watchedSelectors.forEach(selector => {
-        document.addEventListener('change', function(e) {
+        document.addEventListener('change', function (e) {
             if (e.target.matches(selector)) {
                 markAsChanged();
             }
         });
-        
-        document.addEventListener('input', function(e) {
+
+        document.addEventListener('input', function (e) {
             if (e.target.matches(selector)) {
                 markAsChanged();
             }
         });
     });
-    
+
     // Auto-save timer
-    autoSaveInterval = setInterval(function() {
+    autoSaveInterval = setInterval(function () {
         if (hasChanges && currentDogForJournal) {
             saveJournalData();
             hasChanges = false;
-            console.log('💾 Auto-saved journal data');
         }
     }, 30000); // 30 seconds
-    
+
     // Cleanup on page unload
-    window.addEventListener('beforeunload', function() {
+    window.addEventListener('beforeunload', function () {
         if (autoSaveInterval) {
             clearInterval(autoSaveInterval);
         }
@@ -2584,8 +2700,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Hàm kiểm tra trạng thái approval của nhật ký
 function checkJournalApprovalStatus(dogName, date) {
     // Hiển thị trong UI nếu nhật ký đã được gửi duyệt
-    console.log(`📋 Checking approval status for ${dogName} on ${date}`);
-    
+
     // Bạn có thể mở rộng để gọi API kiểm tra trạng thái
     // fetch(`/api/journals/status?dog=${dogName}&date=${date}`)...
 }
@@ -2605,15 +2720,15 @@ function updateJournalStatusIndicator(status = 'draft') {
         z-index: 1000;
         transition: all 0.3s ease;
     `;
-    
+
     // Remove existing indicator
     const existing = document.getElementById('journal-status-indicator');
     if (existing) {
         existing.remove();
     }
-    
+
     // Set status-specific styling
-    switch(status) {
+    switch (status) {
         case 'draft':
             statusIndicator.innerHTML = '📝 Nháp';
             statusIndicator.style.backgroundColor = '#6c757d';
@@ -2635,9 +2750,9 @@ function updateJournalStatusIndicator(status = 'draft') {
             statusIndicator.style.color = 'white';
             break;
     }
-    
+
     document.body.appendChild(statusIndicator);
-    
+
     // Auto remove after 3 seconds
     setTimeout(() => {
         if (statusIndicator && statusIndicator.parentNode) {
@@ -2653,5 +2768,3 @@ updateJournalStatusIndicator('draft');
 window.submitCurrentJournalForApproval = submitCurrentJournalForApproval;
 window.checkJournalApprovalStatus = checkJournalApprovalStatus;
 window.updateJournalStatusIndicator = updateJournalStatusIndicator;
-
-console.log('🔗 Backend connection functions loaded successfully!');

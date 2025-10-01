@@ -118,6 +118,12 @@ class DatabaseManager:
                     approved_by INTEGER,
                     approved_at TIMESTAMP,
                     rejection_reason TEXT,
+                    hlv_signature TEXT, -- Trainer signature data
+                    leader_signature TEXT, -- Leader signature data
+                    substitute_signature TEXT, -- Substitute trainer signature data
+                    hlv_signature_timestamp TIMESTAMP, -- Trainer signature timestamp
+                    leader_signature_timestamp TIMESTAMP, -- Leader signature timestamp
+                    substitute_signature_timestamp TIMESTAMP, -- Substitute signature timestamp
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (dog_id) REFERENCES dogs (id),
@@ -207,6 +213,9 @@ class DatabaseManager:
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON user_sessions(user_id)')
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_sessions_expires ON user_sessions(expires_at)')
             
+            # Add signature fields to existing training_journals table if they don't exist
+            self.migrate_signature_fields(cursor)
+            
             conn.commit()
             print("✅ Database initialized successfully")
             
@@ -216,6 +225,35 @@ class DatabaseManager:
             raise
         finally:
             conn.close()
+    
+    def migrate_signature_fields(self, cursor):
+        """Add signature fields to existing training_journals table"""
+        try:
+            # Check if signature fields exist
+            cursor.execute("PRAGMA table_info(training_journals)")
+            columns = [column[1] for column in cursor.fetchall()]
+            
+            signature_fields = [
+                'hlv_signature',
+                'leader_signature', 
+                'substitute_signature',
+                'hlv_signature_timestamp',
+                'leader_signature_timestamp',
+                'substitute_signature_timestamp'
+            ]
+            
+            for field in signature_fields:
+                if field not in columns:
+                    if 'signature' in field and 'timestamp' not in field:
+                        cursor.execute(f"ALTER TABLE training_journals ADD COLUMN {field} TEXT")
+                        print(f"✅ Added {field} column to training_journals table")
+                    elif 'timestamp' in field:
+                        cursor.execute(f"ALTER TABLE training_journals ADD COLUMN {field} TIMESTAMP")
+                        print(f"✅ Added {field} column to training_journals table")
+                        
+        except Exception as e:
+            print(f"⚠️ Warning: Could not migrate signature fields: {e}")
+            # Continue execution - the fields will be created with new tables
     
     def hash_password(self, password: str) -> str:
         """Return password as-is (no encryption)"""
@@ -741,8 +779,11 @@ class DatabaseManager:
                 INSERT INTO training_journals (
                     dog_id, trainer_id, journal_date, training_activities, care_activities,
                     operation_activities, health_status, behavior_notes, weather_conditions,
-                    training_duration, success_rate, challenges, next_goals
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    training_duration, success_rate, challenges, next_goals, approval_status,
+                    approved_by, approved_at, rejection_reason, created_at, updated_at,
+                    hlv_signature, leader_signature, substitute_signature,
+                    hlv_signature_timestamp, leader_signature_timestamp, substitute_signature_timestamp
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 journal_data['dog_id'],
                 journal_data['trainer_id'],
@@ -756,13 +797,29 @@ class DatabaseManager:
                 journal_data.get('training_duration'),
                 journal_data.get('success_rate'),
                 journal_data.get('challenges'),
-                journal_data.get('next_goals')
+                journal_data.get('next_goals'),
+                journal_data.get('approval_status', 'PENDING'),  # Default to PENDING
+                journal_data.get('approved_by'),
+                journal_data.get('approved_at'),
+                journal_data.get('rejection_reason'),
+                datetime.now().isoformat(),  # created_at
+                datetime.now().isoformat(),  # updated_at
+                journal_data.get('hlv_signature'),
+                journal_data.get('leader_signature'),
+                journal_data.get('substitute_signature'),
+                journal_data.get('hlv_signature_timestamp'),
+                journal_data.get('leader_signature_timestamp'),
+                journal_data.get('substitute_signature_timestamp')
             ))
             
             journal_id = cursor.lastrowid
+            print(f"Created journal with ID: {journal_id}")
             conn.commit()
+            print(f"Transaction committed")
             
-            return self.get_training_journal_by_id(journal_id)
+            result = self.get_training_journal_by_id(journal_id)
+            print(f"Retrieved journal result: {result is not None}")
+            return result
             
         except Exception as e:
             conn.rollback()
@@ -776,9 +833,13 @@ class DatabaseManager:
         cursor = conn.cursor()
         
         try:
+            print(f"Looking for journal ID: {journal_id}")
+            
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id
@@ -787,8 +848,21 @@ class DatabaseManager:
             ''', (journal_id,))
             
             row = cursor.fetchone()
-            return dict(row) if row else None
+            print(f"Query result: {row}")
             
+            if row:
+                result = dict(row)
+                print(f"Found journal: {result['id']} - {result['dog_name']} by {result['trainer_name']}")
+                return result
+            else:
+                print(f"No journal found with ID: {journal_id}")
+                return None
+            
+        except Exception as e:
+            print(f"Error in get_training_journal_by_id: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
         finally:
             conn.close()
     
@@ -800,7 +874,9 @@ class DatabaseManager:
         try:
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id
@@ -824,7 +900,9 @@ class DatabaseManager:
         try:
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id
@@ -871,7 +949,9 @@ class DatabaseManager:
         finally:
             conn.close()
     
-    def approve_training_journal(self, journal_id: int, approver_id: int, approved: bool = True, rejection_reason: str = None) -> Dict[str, Any]:
+    def approve_training_journal(self, journal_id: int, approver_id: int, approved: bool = True, 
+                                rejection_reason: str = None, leader_signature: str = None, 
+                                leader_signature_timestamp: str = None) -> Dict[str, Any]:
         """Approve or reject training journal"""
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -879,12 +959,15 @@ class DatabaseManager:
         try:
             approval_status = 'APPROVED' if approved else 'REJECTED'
             
+            # Update approval fields and signature data
             cursor.execute('''
                 UPDATE training_journals 
                 SET approval_status = ?, approved_by = ?, approved_at = CURRENT_TIMESTAMP, 
-                    rejection_reason = ?, updated_at = CURRENT_TIMESTAMP
+                    rejection_reason = ?, leader_signature = ?, leader_signature_timestamp = ?,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            ''', (approval_status, approver_id, rejection_reason, journal_id))
+            ''', (approval_status, approver_id, rejection_reason, leader_signature, 
+                  leader_signature_timestamp, journal_id))
             
             conn.commit()
             return self.get_training_journal_by_id(journal_id)
@@ -919,7 +1002,9 @@ class DatabaseManager:
         try:
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id
@@ -942,7 +1027,9 @@ class DatabaseManager:
         try:
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id
@@ -965,7 +1052,9 @@ class DatabaseManager:
         try:
             cursor.execute('''
                 SELECT tj.*, d.name as dog_name, d.chip_id, 
-                       t.name as trainer_name, a.name as approver_name
+                       t.name as trainer_name, a.name as approver_name,
+                       tj.hlv_signature, tj.leader_signature, tj.substitute_signature,
+                       tj.hlv_signature_timestamp, tj.leader_signature_timestamp, tj.substitute_signature_timestamp
                 FROM training_journals tj
                 JOIN dogs d ON tj.dog_id = d.id
                 JOIN users t ON tj.trainer_id = t.id

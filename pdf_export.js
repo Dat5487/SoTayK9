@@ -1,4 +1,43 @@
 // =============================================================================
+// DATE FORMATTING UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Format date to dd/mm/yyyy format
+ * @param {Date|string} date - Date object or ISO string
+ * @param {boolean} includeTime - Whether to include time in the format
+ * @returns {string} Formatted date string
+ */
+function formatDateToDDMMYYYY(date, includeTime = false) {
+    if (!date) return 'N/A';
+    
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    return `${day}/${month}/${year}`;
+}
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns {string} Current date formatted as dd/mm/yyyy
+ */
+function getCurrentDateDDMMYYYY() {
+    return formatDateToDDMMYYYY(new Date());
+}
+
+// =============================================================================
 // PDF EXPORT SYSTEM - Professional A4 Format
 // =============================================================================
 
@@ -9,8 +48,13 @@ class PDFExportSystem {
     }
 
     init() {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        console.log('📄 PDF Export System initialized');
+        this.currentUser = {}; // Will be loaded from database
+        // console.log('📄 PDF Export System initialized');
+    }
+
+    getAuthToken() {
+        // Get auth token from global variable or session
+        return window.authToken || null;
     }
 
     // =============================================================================
@@ -94,7 +138,7 @@ class PDFExportSystem {
     async fetchJournalData(journalId) {
         try {
             const response = await fetch(`http://localhost:5000/api/journals/${journalId}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             if (response.ok) {
@@ -113,7 +157,7 @@ class PDFExportSystem {
     async fetchDogReportData(dogId, startDate, endDate) {
         try {
             const response = await fetch(`http://localhost:5000/api/dogs/${dogId}/report?start=${startDate}&end=${endDate}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             if (response.ok) {
@@ -285,7 +329,7 @@ class PDFExportSystem {
         // SUMMARY
         pdf.setFontSize(12);
         pdf.setFont(undefined, 'normal');
-        pdf.text(`Thoi gian: ${journals[0].journal_date} - ${journals[journals.length-1].journal_date}`, 20, yPosition);
+        pdf.text(`Thoi gian: ${formatDateToDDMMYYYY(journals[0].journal_date)} - ${formatDateToDDMMYYYY(journals[journals.length-1].journal_date)}`, 20, yPosition);
         yPosition += 8;
         pdf.text(`Tong so nhat ky: ${journals.length}`, 20, yPosition);
         yPosition += 15;
@@ -313,7 +357,7 @@ class PDFExportSystem {
             }
 
             pdf.rect(15, yPosition, 180, 8);
-            pdf.text(journal.journal_date, 20, yPosition + 6);
+            pdf.text(formatDateToDDMMYYYY(journal.journal_date), 20, yPosition + 6);
             pdf.text(journal.dog_name.substring(0, 15), 45, yPosition + 6);
             pdf.text(journal.trainer_name.substring(0, 15), 85, yPosition + 6);
             pdf.text((journal.performance_score || 'N/A').toString(), 125, yPosition + 6);
@@ -422,7 +466,7 @@ class PDFExportSystem {
             }
 
             pdf.rect(15, yPosition, 180, 8);
-            pdf.text(journal.date, 20, yPosition + 6);
+            pdf.text(formatDateToDDMMYYYY(journal.date), 20, yPosition + 6);
             
             const statusText = journal.status === 'APPROVED' ? 'Da duyet' : 
                               journal.status === 'SUBMITTED' ? 'Cho duyet' : 'Nhap';
@@ -456,7 +500,7 @@ class PDFExportSystem {
         pdf.line(120, y + 12, 190, y + 12);
         
         // Date
-        const today = new Date().toLocaleDateString('vi-VN');
+        const today = formatDateToDDMMYYYY(new Date());
         pdf.setFont(undefined, 'normal');
         pdf.text(`Mong Cai, ngay ${today}`, 130, y + 25);
     }
@@ -476,7 +520,7 @@ class PDFExportSystem {
         pdf.text(`Ten: ${journal.dog_name}`, 20, y + 18);
         pdf.text(`Chip ID: ${journal.dog_chip_id}`, 20, y + 26);
         pdf.text(`Giong: ${journal.dog_breed}`, 20, y + 34);
-        pdf.text(`Ngay: ${journal.journal_date}`, 20, y + 42);
+        pdf.text(`Ngay: ${formatDateToDDMMYYYY(journal.journal_date)}`, 20, y + 42);
         
         // Right column
         pdf.setFont(undefined, 'bold');
@@ -573,7 +617,7 @@ class PDFExportSystem {
             try {
                 pdf.addImage(journal.signature_data, 'PNG', 125, y + 30, 50, 20);
             } catch (e) {
-                console.log('Could not add signature image');
+                // console.log('Could not add signature image');
             }
         }
         
@@ -607,7 +651,7 @@ class PDFExportSystem {
         // Header for individual journal
         pdf.setFontSize(14);
         pdf.setFont(undefined, 'bold');
-        pdf.text(`NHAT KY ${pageNumber}: ${journal.dog_name} - ${journal.journal_date}`, 20, yPosition);
+        pdf.text(`NHAT KY ${pageNumber}: ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.journal_date)}`, 20, yPosition);
         yPosition += 20;
         
         // Add all content sections

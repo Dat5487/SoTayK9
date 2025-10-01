@@ -1,4 +1,43 @@
 // =============================================================================
+// DATE FORMATTING UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Format date to dd/mm/yyyy format
+ * @param {Date|string} date - Date object or ISO string
+ * @param {boolean} includeTime - Whether to include time in the format
+ * @returns {string} Formatted date string
+ */
+function formatDateToDDMMYYYY(date, includeTime = false) {
+    if (!date) return 'N/A';
+    
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    return `${day}/${month}/${year}`;
+}
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns {string} Current date formatted as dd/mm/yyyy
+ */
+function getCurrentDateDDMMYYYY() {
+    return formatDateToDDMMYYYY(new Date());
+}
+
+// =============================================================================
 // JOURNAL SYSTEM - Complete Implementation
 // =============================================================================
 
@@ -12,8 +51,13 @@ class JournalSystem {
     }
 
     init() {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-        console.log('📝 Journal System initialized for:', this.currentUser.role);
+        this.currentUser = {}; // Will be loaded from database
+        // console.log('📝 Journal System initialized for:', this.currentUser.role);
+    }
+
+    getAuthToken() {
+        // Get auth token from global variable or session
+        return window.authToken || null;
     }
 
     // =============================================================================
@@ -146,7 +190,7 @@ class JournalSystem {
     async loadExistingJournal(dogId, date) {
         try {
             const response = await fetch(`${this.apiBaseUrl}/journals?dog_id=${dogId}&date=${date}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             if (response.ok) {
@@ -165,7 +209,7 @@ class JournalSystem {
                 }
             }
         } catch (error) {
-            console.log('No existing journal found');
+            // console.log('No existing journal found');
         }
     }
 
@@ -206,7 +250,7 @@ class JournalSystem {
                 await fetch(`${this.apiBaseUrl}/journals/${result.journal_id}/submit`, {
                     method: 'POST',
                     headers: { 
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${this.getAuthToken()}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -238,7 +282,7 @@ class JournalSystem {
         const response = await fetch(`${this.apiBaseUrl}/journals`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Authorization': `Bearer ${this.getAuthToken()}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(journalData)
@@ -259,7 +303,7 @@ class JournalSystem {
     async openManagerApprovalModal() {
         try {
             const response = await fetch(`${this.apiBaseUrl}/journals?status=SUBMITTED`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             const data = await response.json();
@@ -275,7 +319,7 @@ class JournalSystem {
                 journalsHtml += `
                     <div class="journal-item" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #f8f9fa;">
                         <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
-                            <h4 style="margin: 0; color: #2d3748;">🐕 ${journal.dog_name} - ${journal.journal_date}</h4>
+                            <h4 style="margin: 0; color: #2d3748;">🐕 ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.journal_date)}</h4>
                             <span class="badge badge-warning">Chờ duyệt</span>
                         </div>
                         <p><strong>👤 Huấn luyện viên:</strong> ${journal.trainer_name}</p>
@@ -315,7 +359,7 @@ class JournalSystem {
     async viewFullJournal(journalId) {
         try {
             const response = await fetch(`${this.apiBaseUrl}/journals/${journalId}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             const data = await response.json();
@@ -329,7 +373,7 @@ class JournalSystem {
                         </div>
                         <div class="modal-body">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                                <p><strong>Ngày:</strong> ${journal.journal_date}</p>
+                                <p><strong>Ngày:</strong> ${formatDateToDDMMYYYY(journal.journal_date)}</p>
                                 <p><strong>Huấn luyện viên:</strong> ${journal.trainer_name}</p>
                                 <p><strong>Sức khỏe:</strong> ${journal.health_status}</p>
                                 <p><strong>Điểm hiệu suất:</strong> ${journal.performance_score}/10</p>
@@ -392,7 +436,7 @@ class JournalSystem {
                                         <div>Hạnh phúc</div>
                                     </div>
                                     <div style="position: absolute; bottom: 8px; font-size: 0.6rem;">
-                                        ${new Date().toLocaleDateString('vi-VN')}
+                                        ${formatDateToDDMMYYYY(new Date())}
                                     </div>
                                 </div>
                                 <p style="margin-top: 1rem; font-weight: bold; color: #c53030;">CON DẤU CƠ QUAN</p>
@@ -402,7 +446,7 @@ class JournalSystem {
                         <div style="background: #f0fff4; border: 1px solid #c6f6d5; border-radius: 6px; padding: 1rem; margin-top: 1rem;">
                             <p style="margin: 0; font-size: 0.9rem; color: #22543d;">
                                 <strong>📋 Xác nhận:</strong> Tôi đã xem xét và ký duyệt nhật ký này với chữ ký số và con dấu cơ quan.
-                                Thời gian duyệt: <strong>${new Date().toLocaleString('vi-VN')}</strong>
+                                Thời gian duyệt: <strong>${formatDateToDDMMYYYY(new Date(), true)}</strong>
                             </p>
                         </div>
                     </div>
@@ -519,7 +563,7 @@ class JournalSystem {
             const response = await fetch(`${this.apiBaseUrl}/journals/${journalId}/approve`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${this.getAuthToken()}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(approvalData)
@@ -589,7 +633,7 @@ class JournalSystem {
     async loadAdminJournals() {
         try {
             const response = await fetch(`${this.apiBaseUrl}/journals?all=true`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
             });
             
             const data = await response.json();
@@ -623,7 +667,7 @@ class JournalSystem {
             return `
                 <div class="journal-admin-item" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0;">🐕 ${journal.dog_name} - ${journal.journal_date}</h4>
+                        <h4 style="margin: 0;">🐕 ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.journal_date)}</h4>
                         ${statusBadge}
                     </div>
                     <p><strong>👤 HLV:</strong> ${journal.trainer_name} | <strong>📝:</strong> ${journal.content.substring(0, 100)}...</p>

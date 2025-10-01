@@ -51,19 +51,19 @@ const NETWORK_FIRST = [
 // =============================================================================
 
 self.addEventListener('install', event => {
-  console.log('🔧 Service Worker installing...');
+  // console.log('🔧 Service Worker installing...');
   
   event.waitUntil(
     Promise.all([
       // Cache static assets
       caches.open(STATIC_CACHE).then(cache => {
-        console.log('📦 Caching static assets...');
+        // console.log('📦 Caching static assets...');
         return cache.addAll(STATIC_ASSETS.filter(url => !url.startsWith('http')));
       }),
       
       // Cache external resources separately  
       caches.open(STATIC_CACHE).then(cache => {
-        console.log('🌐 Caching external resources...');
+        // console.log('🌐 Caching external resources...');
         const externalUrls = STATIC_ASSETS.filter(url => url.startsWith('http'));
         return Promise.allSettled(
           externalUrls.map(url => 
@@ -75,14 +75,14 @@ self.addEventListener('install', event => {
       // Create offline page
       createOfflinePage()
     ]).then(() => {
-      console.log('✅ Service Worker installed successfully');
+      // console.log('✅ Service Worker installed successfully');
       self.skipWaiting();
     })
   );
 });
 
 self.addEventListener('activate', event => {
-  console.log('🚀 Service Worker activating...');
+  // console.log('🚀 Service Worker activating...');
   
   event.waitUntil(
     Promise.all([
@@ -92,7 +92,7 @@ self.addEventListener('activate', event => {
       // Claim all clients
       self.clients.claim()
     ]).then(() => {
-      console.log('✅ Service Worker activated');
+      // console.log('✅ Service Worker activated');
       
       // Notify clients about update
       self.clients.matchAll().then(clients => {
@@ -129,7 +129,7 @@ self.addEventListener('fetch', event => {
 
 // Handle background sync
 self.addEventListener('sync', event => {
-  console.log('🔄 Background sync event:', event.tag);
+  // console.log('🔄 Background sync event:', event.tag);
   
   if (event.tag === 'journal-sync') {
     event.waitUntil(syncJournals());
@@ -140,7 +140,7 @@ self.addEventListener('sync', event => {
 
 // Handle push notifications
 self.addEventListener('push', event => {
-  console.log('📬 Push notification received');
+  // console.log('📬 Push notification received');
   
   if (event.data) {
     const data = event.data.json();
@@ -158,7 +158,7 @@ self.addEventListener('push', event => {
 });
 
 self.addEventListener('notificationclick', event => {
-  console.log('🔔 Notification clicked:', event.notification.tag);
+  // console.log('🔔 Notification clicked:', event.notification.tag);
   
   event.notification.close();
   
@@ -388,7 +388,7 @@ async function cleanOldCaches() {
     cacheNames
       .filter(cacheName => !currentCaches.includes(cacheName))
       .map(cacheName => {
-        console.log('🗑️ Deleting old cache:', cacheName);
+        // console.log('🗑️ Deleting old cache:', cacheName);
         return caches.delete(cacheName);
       })
   );
@@ -557,7 +557,7 @@ async function storeOfflineAction(request) {
 }
 
 async function syncOfflineData() {
-  console.log('🔄 Syncing offline data...');
+  // console.log('🔄 Syncing offline data...');
   
   try {
     const db = await openOfflineDB();
@@ -579,7 +579,7 @@ async function syncOfflineData() {
           const deleteStore = deleteTransaction.objectStore('offline_actions');
           await deleteStore.delete(action.id);
           
-          console.log('✅ Synced offline action:', action.url);
+          // console.log('✅ Synced offline action:', action.url);
         }
       } catch (error) {
         console.error('❌ Failed to sync action:', action.url, error);
@@ -601,7 +601,7 @@ async function syncOfflineData() {
 }
 
 async function syncJournals() {
-  console.log('📝 Syncing journal data...');
+  // console.log('📝 Syncing journal data...');
   // Implementation for journal-specific sync
   return syncOfflineData();
 }
@@ -639,7 +639,7 @@ function openOfflineDB() {
 // =============================================================================
 
 self.addEventListener('periodicsync', event => {
-  console.log('⏰ Periodic sync event:', event.tag);
+  // console.log('⏰ Periodic sync event:', event.tag);
   
   if (event.tag === 'hourly-data-sync') {
     event.waitUntil(performPeriodicSync());
@@ -647,7 +647,7 @@ self.addEventListener('periodicsync', event => {
 });
 
 async function performPeriodicSync() {
-  console.log('🔄 Performing periodic sync...');
+  // console.log('🔄 Performing periodic sync...');
   
   try {
     // Sync critical data
@@ -657,7 +657,7 @@ async function performPeriodicSync() {
       updateDogData()
     ]);
     
-    console.log('✅ Periodic sync completed');
+    // console.log('✅ Periodic sync completed');
   } catch (error) {
     console.error('❌ Periodic sync failed:', error);
   }
@@ -697,7 +697,7 @@ async function updateDogData() {
 // =============================================================================
 
 self.addEventListener('message', event => {
-  console.log('📨 SW Message received:', event.data);
+  // console.log('📨 SW Message received:', event.data);
   
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -725,16 +725,16 @@ async function clearAllCaches() {
 // INITIALIZATION
 // =============================================================================
 
-console.log('🤖 Service Worker loaded - K9 Management v5.1.0');
-console.log('📦 Cache Name:', CACHE_NAME);
-console.log('🔧 Features: Offline support, Background sync, Push notifications');
+// console.log('🤖 Service Worker loaded - K9 Management v5.1.0');
+// console.log('📦 Cache Name:', CACHE_NAME);
+// console.log('🔧 Features: Offline support, Background sync, Push notifications');
 
 // Self-diagnostic
 self.addEventListener('activate', () => {
-  console.log('🔍 Service Worker diagnostic:');
-  console.log('  - Caches API:', 'caches' in self);
-  console.log('  - IndexedDB:', 'indexedDB' in self);
-  console.log('  - Background Sync:', 'sync' in ServiceWorkerRegistration.prototype);
-  console.log('  - Push API:', 'PushManager' in self);
-  console.log('  - Periodic Sync:', 'periodicsync' in ServiceWorkerRegistration.prototype);
+  // console.log('🔍 Service Worker diagnostic:');
+  // console.log('  - Caches API:', 'caches' in self);
+  // console.log('  - IndexedDB:', 'indexedDB' in self);
+  // console.log('  - Background Sync:', 'sync' in ServiceWorkerRegistration.prototype);
+  // console.log('  - Push API:', 'PushManager' in self);
+  // console.log('  - Periodic Sync:', 'periodicsync' in ServiceWorkerRegistration.prototype);
 });

@@ -651,6 +651,7 @@
                 <div class="form-group">
                     <label for="userPassword">Mật khẩu:</label>
                     <input type="password" id="userPassword" required>
+                    <small id="passwordHelpText" style="color: #666; font-size: 12px;">Bắt buộc cho tài khoản mới</small>
                 </div>
                 <div class="form-group">
                     <label for="userRole">Vai trò:</label>
@@ -673,9 +674,11 @@
                     <input type="file" id="userSignature" accept="image/*" onchange="previewSignature(this)">
                     <small>Chọn file ảnh chữ ký (PNG, JPG, JPEG)</small>
                     <div id="signaturePreview" style="margin-top: 10px; display: none;">
-                        <img id="signaturePreviewImg" style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">
+                        <img id="signaturePreviewImg"
+                            style="max-width: 200px; max-height: 100px; border: 1px solid #ddd; border-radius: 4px;">
                         <div style="margin-top: 5px;">
-                            <button type="button" class="btn btn-danger" onclick="clearSignature()" style="font-size: 12px; padding: 4px 8px;">Xóa chữ ký</button>
+                            <button type="button" class="btn btn-danger" onclick="clearSignature()"
+                                style="font-size: 12px; padding: 4px 8px;">Xóa chữ ký</button>
                         </div>
                     </div>
                 </div>
@@ -839,6 +842,45 @@
     </div>
 
     <script>
+        // =============================================================================
+        // DATE FORMATTING UTILITY FUNCTIONS
+        // =============================================================================
+
+        /**
+         * Format date to dd/mm/yyyy format
+         * @param {Date|string} date - Date object or ISO string
+         * @param {boolean} includeTime - Whether to include time in the format
+         * @returns {string} Formatted date string
+         */
+        function formatDateToDDMMYYYY(date, includeTime = false) {
+            if (!date) return 'N/A';
+            
+            const dateObj = typeof date === 'string' ? new Date(date) : date;
+            
+            if (isNaN(dateObj.getTime())) return 'N/A';
+            
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const year = dateObj.getFullYear();
+            
+            if (includeTime) {
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+                return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+            }
+            
+            return `${day}/${month}/${year}`;
+        }
+
+        /**
+         * Get current date in dd/mm/yyyy format
+         * @returns {string} Current date formatted as dd/mm/yyyy
+         */
+        function getCurrentDateDDMMYYYY() {
+            return formatDateToDDMMYYYY(new Date());
+        }
+
         // Global variables
         let currentDashboardUser = null;
         let currentDashboardRole = 'GUEST';
@@ -861,59 +903,59 @@
                     input.value = '';
                     return;
                 }
-                
+
                 // Validate file size (max 2MB)
                 if (file.size > 2 * 1024 * 1024) {
                     alert('File ảnh quá lớn. Vui lòng chọn file nhỏ hơn 2MB');
                     input.value = '';
                     return;
                 }
-                
+
                 selectedSignatureFile = file;
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const previewImg = document.getElementById('signaturePreviewImg');
                     const previewDiv = document.getElementById('signaturePreview');
-                    
+
                     previewImg.src = e.target.result;
                     previewDiv.style.display = 'block';
                 };
                 reader.readAsDataURL(file);
             }
         }
-        
+
         function clearSignature() {
             const input = document.getElementById('userSignature');
             const previewDiv = document.getElementById('signaturePreview');
-            
+
             input.value = '';
             previewDiv.style.display = 'none';
             selectedSignatureFile = null;
         }
-        
+
         function loadExistingSignature(signaturePath) {
             if (signaturePath) {
                 const previewImg = document.getElementById('signaturePreviewImg');
                 const previewDiv = document.getElementById('signaturePreview');
-                
+
                 previewImg.src = `signatures/${signaturePath}`;
                 previewDiv.style.display = 'block';
             }
         }
-        
+
         async function uploadSignatureFile(file) {
             try {
                 const formData = new FormData();
                 formData.append('signature', file);
-                
+
                 const response = await fetch(`${API_BASE_URL}/api/upload-signature`, {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     return result.filename;
                 } else {
@@ -934,16 +976,14 @@
         // Enhanced Session Management Functions
         function saveSession(sessionToken, userData, rememberMe = false) {
             try {
-            if (rememberMe && sessionToken) {
-                    // Save to localStorage for persistent sessions
-                localStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-                    console.log('✅ Session saved to localStorage (persistent)');
+                if (rememberMe && sessionToken) {
+                    // TODO: Save to database for persistent sessions
+                    // console.log('✅ Session saved to database (persistent)');
                 } else if (sessionToken) {
                     // Save to sessionStorage for temporary sessions
-                sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
-                sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-                    console.log('✅ Session saved to sessionStorage (temporary)');
+                    sessionStorage.setItem(SESSION_STORAGE_KEY, sessionToken);
+                    sessionStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+                    // console.log('✅ Session saved to sessionStorage (temporary)');
                 }
             } catch (error) {
                 console.error('Error saving session:', error);
@@ -951,15 +991,15 @@
         }
 
         function getSessionToken() {
-            // Check localStorage first (persistent sessions), then sessionStorage
-            return localStorage.getItem(SESSION_STORAGE_KEY) || sessionStorage.getItem(SESSION_STORAGE_KEY);
+            // TODO: Check database first (persistent sessions), then sessionStorage
+            return sessionStorage.getItem(SESSION_STORAGE_KEY);
         }
 
         function getCurrentUser() {
             try {
-                // Check localStorage first (persistent sessions), then sessionStorage
-            const userData = localStorage.getItem(USER_STORAGE_KEY) || sessionStorage.getItem(USER_STORAGE_KEY);
-            return userData ? JSON.parse(userData) : null;
+                // TODO: Check database first (persistent sessions), then sessionStorage
+                const userData = sessionStorage.getItem(USER_STORAGE_KEY);
+                return userData ? JSON.parse(userData) : null;
             } catch (error) {
                 console.error('Error parsing user data:', error);
                 return null;
@@ -968,11 +1008,10 @@
 
         function clearSession() {
             try {
-            localStorage.removeItem(SESSION_STORAGE_KEY);
-            localStorage.removeItem(USER_STORAGE_KEY);
-            sessionStorage.removeItem(SESSION_STORAGE_KEY);
-            sessionStorage.removeItem(USER_STORAGE_KEY);
-                console.log('✅ Session cleared');
+                // TODO: Clear from database
+                sessionStorage.removeItem(SESSION_STORAGE_KEY);
+                sessionStorage.removeItem(USER_STORAGE_KEY);
+                // console.log('✅ Session cleared');
             } catch (error) {
                 console.error('Error clearing session:', error);
             }
@@ -981,12 +1020,12 @@
         async function validateSession() {
             const sessionToken = getSessionToken();
             if (!sessionToken) {
-                console.log('❌ No session token found');
+                // console.log('❌ No session token found');
                 return null;
             }
 
             try {
-                console.log('🔍 Validating session token...');
+                // console.log('🔍 Validating session token...');
                 const response = await fetch(`${API_BASE_URL}/api/auth/validate-session`, {
                     method: 'POST',
                     headers: {
@@ -998,15 +1037,16 @@
                 });
 
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    console.log('✅ Session validation successful');
+                    // console.log('✅ Session validation successful');
                     // Update stored user data with fresh data from server
-                    const isPersistent = localStorage.getItem(SESSION_STORAGE_KEY) !== null;
+                    // TODO: Check database for persistent session
+                    const isPersistent = false;
                     saveSession(sessionToken, result.data, isPersistent);
                     return result.data;
                 } else {
-                    console.log('❌ Session validation failed:', result.error);
+                    // console.log('❌ Session validation failed:', result.error);
                     clearSession();
                     return null;
                 }
@@ -1213,9 +1253,9 @@
             }
         }
 
-        // Initialize data from API or fallback to localStorage
+        // Initialize data from API (no localStorage fallback)
         async function initializeData() {
-            console.log('🔄 Initializing data from API...');
+            // console.log('🔄 Initializing data from API...');
 
             try {
                 // Try to fetch from API first
@@ -1223,34 +1263,34 @@
                 const apiDogs = await fetchDogsFromAPI();
 
                 if (apiUsers.length > 0 || apiDogs.length > 0) {
-                    console.log('✅ Data loaded from database API');
+                    // console.log('✅ Data loaded from database API');
                     users = apiUsers;
                     dogs = apiDogs;
                     return;
                 }
             } catch (error) {
-                console.log('⚠️ API not available, falling back to localStorage');
+                console.error('❌ API not available:', error);
             }
 
-            // Fallback to localStorage
-            console.log('🔄 Falling back to localStorage...');
-            users = JSON.parse(localStorage.getItem('k9_users')) || [];
-            dogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
+            // No fallback - use empty arrays
+            // console.log('⚠️ Using empty data arrays');
+            users = [];
+            dogs = [];
         }
 
 
         // Enhanced initialization with better session handling
         document.addEventListener('DOMContentLoaded', async function () {
-            console.log('🚀 Initializing dashboard...');
-            
+            // console.log('🚀 Initializing dashboard...');
+
             await initializeData();
 
             // Check for existing session
-            console.log('🔍 Checking for existing session...');
+            // console.log('🔍 Checking for existing session...');
             const sessionUser = await validateSession();
-            
+
             if (sessionUser) {
-                console.log('✅ Valid session found, auto-login');
+                // console.log('✅ Valid session found, auto-login');
                 currentDashboardUser = sessionUser;
                 currentDashboardRole = sessionUser.role;
 
@@ -1264,11 +1304,11 @@
                 await loadUserList();
                 await loadDogList();
                 loadJournalList();
-                
+
                 // Show welcome back message
                 showNotification(`Chào mừng trở lại, ${sessionUser.name}!`, 'success');
             } else {
-                console.log('❌ No valid session found, showing login form');
+                // console.log('❌ No valid session found, showing login form');
             }
 
             // Set up event listeners
@@ -1286,8 +1326,8 @@
             if (dogForm) {
                 dogForm.addEventListener('submit', submitDogForm);
             }
-            
-            console.log('✅ Dashboard initialization completed');
+
+            // console.log('✅ Dashboard initialization completed');
         });
 
         // Enhanced Dashboard login with better session handling
@@ -1305,27 +1345,27 @@
             submitBtn.disabled = true;
 
             try {
-                console.log(`🔐 Attempting login for user: ${username} (remember: ${rememberMe})`);
-                
+                // console.log(`🔐 Attempting login for user: ${username} (remember: ${rememberMe})`);
+
                 // Try API authentication first
                 const apiResult = await authenticateUserViaAPI(username, password, rememberMe);
                 let user = null;
 
                 if (apiResult.success) {
                     user = apiResult.data;
-                    console.log('✅ API authentication successful');
+                    // console.log('✅ API authentication successful');
                 } else {
                     // Fallback to local authentication
-                    console.log('⚠️ API authentication failed, trying local authentication');
+                    // console.log('⚠️ API authentication failed, trying local authentication');
                     user = users.find(u => u.username === username && u.password === password);
 
                     // Special case: Fix admin password issue
                     if (!user && username === 'admin' && password === 'admin') {
-                        console.log('🔧 Fixing admin password issue...');
+                        // console.log('🔧 Fixing admin password issue...');
                         user = users.find(u => u.username === 'admin');
                         if (user) {
                             user.password = 'admin'; // Fix the password
-                            console.log('✅ Admin password fixed in memory');
+                            // console.log('✅ Admin password fixed in memory');
                         }
                     }
 
@@ -1354,11 +1394,11 @@
 
                     // Show success message
                     showNotification(`Chào mừng ${user.name}! Đăng nhập thành công.`, 'success');
-                    
-                    console.log(`✅ Login successful for ${user.name} (${user.role})`);
+
+                    // console.log(`✅ Login successful for ${user.name} (${user.role})`);
                 } else {
                     alert('Tên đăng nhập hoặc mật khẩu không đúng!');
-                    console.log('❌ Login failed - invalid credentials');
+                    // console.log('❌ Login failed - invalid credentials');
                 }
             } catch (error) {
                 console.error('❌ Login error:', error);
@@ -1416,42 +1456,31 @@
                 // Load dogs from database API
                 const response = await fetch(`${API_BASE_URL}/api/dogs`);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     dogSelect.innerHTML = '';
-                    
+
                     // Populate dropdown with dogs from database
                     result.data.forEach(dog => {
-                const option = document.createElement('option');
-                option.value = dog.name;
-                option.textContent = dog.name;
-                dogSelect.appendChild(option);
-            });
+                        const option = document.createElement('option');
+                        option.value = dog.name;
+                        option.textContent = dog.name;
+                        dogSelect.appendChild(option);
+                    });
 
-                    console.log('✅ Loaded ' + result.data.length + ' dogs from database for user assignment');
+                    // console.log('✅ Loaded ' + result.data.length + ' dogs from database for user assignment');
                 } else {
                     throw new Error(result.error || 'Failed to load dogs');
                 }
             } catch (error) {
                 console.error('❌ Error loading dogs for user assignment:', error);
                 dogSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                
-                // Fallback to localStorage if API fails
-                try {
-                    const fallbackDogs = JSON.parse(localStorage.getItem('k9_dogs')) || [];
-                    dogSelect.innerHTML = '';
-                    fallbackDogs.forEach(dog => {
-                        const option = document.createElement('option');
-                        option.value = dog.name;
-                        option.textContent = dog.name;
-                        dogSelect.appendChild(option);
-                    });
-                    console.log('⚠️ Using localStorage fallback for dogs');
-                } catch (fallbackError) {
-                    console.error('❌ Fallback also failed:', fallbackError);
-                }
+
+                // No fallback - show error
+                console.error('❌ Failed to load dogs from database');
             }
         }
+
 
         // User Management Functions
         function openCreateUserModal() {
@@ -1460,9 +1489,12 @@
             document.getElementById('userName').value = '';
             document.getElementById('userUsername').value = '';
             document.getElementById('userPassword').value = '';
+            document.getElementById('userPassword').placeholder = 'Nhập mật khẩu';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('passwordHelpText').textContent = 'Bắt buộc cho tài khoản mới';
             document.getElementById('userRole').value = '';
             document.getElementById('userSignature').value = '';
-            
+
             // Clear signature preview
             clearSignature();
 
@@ -1478,10 +1510,14 @@
                 document.getElementById('userModalTitle').textContent = 'Chỉnh Sửa Người Dùng';
                 document.getElementById('userName').value = user.name;
                 document.getElementById('userUsername').value = user.username;
-                document.getElementById('userPassword').value = user.password;
+                // SỬA: Don't populate password field when editing - leave it blank so user can choose to change or not
+                document.getElementById('userPassword').value = '';
+                document.getElementById('userPassword').placeholder = 'Để trống nếu không muốn thay đổi mật khẩu';
+                document.getElementById('userPassword').required = false;
+                document.getElementById('passwordHelpText').textContent = 'Để trống nếu không muốn thay đổi mật khẩu';
                 document.getElementById('userRole').value = user.role;
                 document.getElementById('userSignature').value = '';
-                
+
                 // Load existing signature if available
                 loadExistingSignature(user.signature);
 
@@ -1490,9 +1526,9 @@
                 setTimeout(() => {
                     const dogSelect = document.getElementById('userDogs');
                     if (dogSelect && user.assignedDogs) {
-                    for (let option of dogSelect.options) {
-                        option.selected = user.assignedDogs.includes(option.value);
-                    }
+                        for (let option of dogSelect.options) {
+                            option.selected = user.assignedDogs.includes(option.value);
+                        }
                     }
                 }, 500); // Increased timeout to ensure async loading completes
 
@@ -1507,7 +1543,7 @@
 
             try {
                 let signaturePath = null;
-                
+
                 // Upload signature file if selected
                 if (selectedSignatureFile) {
                     signaturePath = await uploadSignatureFile(selectedSignatureFile);
@@ -1516,17 +1552,26 @@
                         return;
                     }
                 }
-                
+
                 const userData = {
                     name: document.getElementById('userName').value,
                     username: document.getElementById('userUsername').value,
-                    password: document.getElementById('userPassword').value,
                     role: document.getElementById('userRole').value,
                     assignedDogs: Array.from(document.getElementById('userDogs').selectedOptions).map(option =>
                         option.value),
-                    signature: signaturePath,
                     status: 'ACTIVE'
                 };
+
+                // SỬA: Only update password if it's not empty (user wants to change it)
+                const passwordValue = document.getElementById('userPassword').value;
+                if (passwordValue && passwordValue.trim() !== '') {
+                    userData.password = passwordValue;
+                }
+
+                // SỬA: Only update signature if a new one was uploaded
+                if (signaturePath) {
+                    userData.signature = signaturePath;
+                }
 
                 let result;
                 if (editingUserId) {
@@ -1567,8 +1612,7 @@
                         const dog2Result = await createDogViaAPI(newDog2);
 
                         if (dog1Result.success && dog2Result.success) {
-                            console.log(
-                                `✅ Auto-created dogs ${dogName1} and ${dogName2} for trainer ${userData.name}`);
+                            // console.log(`✅ Auto-created dogs ${dogName1} and ${dogName2} for trainer ${userData.name}`);
                         }
                     }
                 }
@@ -1630,7 +1674,7 @@
                     users = apiUsers;
                 }
             } catch (error) {
-                console.log('Failed to refresh users from API, using cached data');
+                // console.log('Failed to refresh users from API, using cached data');
             }
 
             if (users.length === 0) {
@@ -1703,8 +1747,8 @@
 
             select.innerHTML = '<option value="">Chưa phân công</option>';
 
-            // SỬA: FORCE RELOAD users từ localStorage mỗi lần gọi
-            users = JSON.parse(localStorage.getItem('k9_users')) || [];
+            // TODO: Get users from database
+            users = [];
 
             // Lấy DISTINCT trainers (không duplicate)
             const trainers = users.filter(u => u.role === 'TRAINER');
@@ -1720,7 +1764,7 @@
                 select.appendChild(option);
             });
 
-            console.log(`✅ FORCE REFRESHED trainer dropdown with ${uniqueTrainers.length} trainers`);
+            // console.log(`✅ FORCE REFRESHED trainer dropdown with ${uniqueTrainers.length} trainers`);
         }
 
         // SỬA: THÊM function để FORCE REFRESH TẤT CẢ trainer dropdown NGAY LẬP TỨC
@@ -1732,7 +1776,7 @@
             }
 
             // Trigger refresh cho tất cả page khác nếu cần
-            console.log('✅ All trainer dropdowns force refreshed immediately');
+            // console.log('✅ All trainer dropdowns force refreshed immediately');
         }
 
         // SỬA: THÊM function updateTrainerInfo
@@ -1792,7 +1836,7 @@
                 editingDogId = dogId;
                 document.getElementById('dogModalTitle').textContent = 'Chỉnh Sửa Chó Nghiệp Vụ';
 
-                // Load full data - handle both database and localStorage field names
+                // Load full data from database
                 document.getElementById('dogName').value = dog.name || '';
                 document.getElementById('dogChipId').value = dog.chip_id || dog.chipId || '';
                 document.getElementById('dogBirthDate').value = dog.birth_date || dog.birthDate || '';
@@ -1894,7 +1938,7 @@
                         hlv_daotao: dogData.hlv_daotao
                     };
 
-                    localStorage.setItem(`profile_${dogData.name}`, JSON.stringify(profileData));
+                    // TODO: Save to database
 
                     closeModal('dogModal');
                     await loadDogList();
@@ -1942,7 +1986,7 @@
                     dogs = apiDogs;
                 }
             } catch (error) {
-                console.log('Failed to refresh dogs from API, using cached data');
+                // console.log('Failed to refresh dogs from API, using cached data');
             }
 
             if (dogs.length === 0) {
@@ -2007,14 +2051,14 @@
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
-                return;
-            }
+                    container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
+                    return;
+                }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
-            let html = `
+                let html = `
 <table class="data-table">
 <thead>
 <tr>
@@ -2032,14 +2076,14 @@
                 journals.forEach(journal => {
                     const hasHvlSignature = journal.hvl_signature ? '✅' : '❌';
                     const hasLeaderSignature = journal.leader_signature ? '✅' : '❌';
-                    const statusClass = journal.approval_status === 'APPROVED' ? 'status-active' : 
-                                      journal.approval_status === 'REJECTED' ? 'status-inactive' : 'status-pending';
+                    const statusClass = journal.approval_status === 'APPROVED' ? 'status-active' :
+                        journal.approval_status === 'REJECTED' ? 'status-inactive' : 'status-pending';
                     const statusText = journal.approval_status === 'APPROVED' ? 'Đã duyệt' :
-                                     journal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt';
+                        journal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt';
 
-                html += `
+                    html += `
 <tr>
-<td>${journal.journal_date}</td>
+<td>${formatDateToDDMMYYYY(journal.journal_date)}</td>
 <td><strong>${journal.dog_name}</strong></td>
 <td>${journal.trainer_name}</td>
 <td><span class="status-indicator ${statusClass}">${statusText}</span></td>
@@ -2051,12 +2095,12 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
 </td>
 </tr>
 `;
-            });
+                });
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
+                html += '</tbody></table>';
+                container.innerHTML = html;
 
-                console.log(`✅ Loaded ${journals.length} journals from database`);
+                // console.log(`✅ Loaded ${journals.length} journals from database`);
 
             } catch (error) {
                 console.error('Error loading journals from database:', error);
@@ -2079,15 +2123,15 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
-                return;
-            }
+                    container.innerHTML = '<p>Không có nhật ký nào chờ duyệt.</p>';
+                    return;
+                }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
                 let html = `<h4>📋 Nhật ký chờ duyệt (${journals.length})</h4>`;
-            html += `
+                html += `
                     <table class="data-table">
                     <thead>
                     <tr>
@@ -2103,7 +2147,7 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 journals.forEach(journal => {
                     html += `
                         <tr>
-<td>${journal.journal_date}</td>
+<td>${formatDateToDDMMYYYY(journal.journal_date)}</td>
 <td><strong>${journal.dog_name}</strong></td>
 <td>${journal.trainer_name}</td>
 <td>
@@ -2112,12 +2156,12 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                         </td>
                         </tr>
                         `;
-                    });
+                });
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
+                html += '</tbody></table>';
+                container.innerHTML = html;
 
-                console.log(`✅ Loaded ${journals.length} pending journals from database`);
+                // console.log(`✅ Loaded ${journals.length} pending journals from database`);
 
             } catch (error) {
                 console.error('Error loading pending journals from database:', error);
@@ -2140,15 +2184,15 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 const journals = result.data || [];
 
                 if (journals.length === 0) {
-                container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
-                return;
-            }
+                    container.innerHTML = '<p>Chưa có nhật ký nào được duyệt.</p>';
+                    return;
+                }
 
                 // Sort by date (newest first)
                 journals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
 
                 let html = `<h4>✅ Nhật ký đã duyệt (${journals.length})</h4>`;
-            html += `
+                html += `
                 <table class="data-table">
                 <thead>
                 <tr>
@@ -2163,23 +2207,23 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
             `;
 
                 journals.forEach(journal => {
-                html += `
+                    html += `
                     <tr>
-<td>${journal.journal_date}</td>
+<td>${formatDateToDDMMYYYY(journal.journal_date)}</td>
 <td><strong>${journal.dog_name}</strong></td>
 <td>${journal.trainer_name}</td>
-<td>${journal.approved_at ? new Date(journal.approved_at).toLocaleDateString('vi-VN') : 'N/A'}</td>
+<td>${journal.approved_at ? formatDateToDDMMYYYY(journal.approved_at) : 'N/A'}</td>
 <td>
 <button class="btn btn-info" onclick="viewJournalFromDashboard(${journal.id})" style="font-size: 11px; padding: 3px 8px; margin: 1px;">Xem</button>
                     </td>
                     </tr>
                 `;
-            });
+                });
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
+                html += '</tbody></table>';
+                container.innerHTML = html;
 
-                console.log(`✅ Loaded ${journals.length} approved journals from database`);
+                // console.log(`✅ Loaded ${journals.length} approved journals from database`);
 
             } catch (error) {
                 console.error('Error loading approved journals from database:', error);
@@ -2199,19 +2243,15 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 }
 
                 const journal = result.data;
-                
-                // Convert database format to localStorage format for compatibility
-                const localStorageFormat = convertDatabaseJournalToLocalStorage(journal);
-                
-                // Save to localStorage temporarily for the web app to read
-                const journalKey = `journal_${journal.dog_name}_${journal.journal_date}`;
-                localStorage.setItem(journalKey, JSON.stringify(localStorageFormat));
-                
+
+                // TODO: Convert database format for web app compatibility
+                const frontendFormat = convertDatabaseJournalToFrontend(journal);
+
                 // Open web app with journal parameter
                 const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal&journalId=${journalId}`;
-            window.open(url, '_blank', 'width=1200,height=800');
-                
-                console.log(`✅ Opening journal ${journalId} (${journal.dog_name}) in new tab`);
+                window.open(url, '_blank', 'width=1200,height=800');
+
+                // console.log(`✅ Opening journal ${journalId} (${journal.dog_name}) in new tab`);
 
             } catch (error) {
                 console.error('Error viewing journal from database:', error);
@@ -2224,7 +2264,7 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
             if (confirm('Bạn có chắc muốn duyệt nhật ký này?')) {
                 try {
                     const approverId = currentDashboardUser ? currentDashboardUser.id : 1; // Default to admin if no user
-                    
+
                     const response = await fetch(`${API_BASE_URL}/api/journals/${journalId}/approve`, {
                         method: 'POST',
                         headers: {
@@ -2242,7 +2282,7 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                     if (result.success) {
                         alert('Nhật ký đã được duyệt thành công!');
                         loadJournalList(); // Refresh list
-                        console.log('✅ Journal approved successfully');
+                        // console.log('✅ Journal approved successfully');
                     } else {
                         throw new Error(result.error || 'Failed to approve journal');
                     }
@@ -2266,8 +2306,8 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
 
                     if (result.success) {
                         alert('Nhật ký đã được xóa thành công!');
-                    loadJournalList(); // Refresh list
-                        console.log('✅ Journal deleted successfully');
+                        loadJournalList(); // Refresh list
+                        // console.log('✅ Journal deleted successfully');
                     } else {
                         throw new Error(result.error || 'Failed to delete journal');
                     }
@@ -2279,17 +2319,17 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
             }
         }
 
-        // Helper function to convert database journal to localStorage format
-        function convertDatabaseJournalToLocalStorage(dbJournal) {
+        // Helper function to convert database journal to frontend format
+        function convertDatabaseJournalToFrontend(dbJournal) {
             return {
                 generalInfo: {
                     dogName: dbJournal.dog_name,
                     date: dbJournal.journal_date,
                     hlv: dbJournal.trainer_name
                 },
-                trainingBlocks: dbJournal.training_activities ? 
+                trainingBlocks: dbJournal.training_activities ?
                     dbJournal.training_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
-                operationBlocks: dbJournal.operation_activities ? 
+                operationBlocks: dbJournal.operation_activities ?
                     dbJournal.operation_activities.split(';').map(activity => ({ content: activity.trim() })) : [],
                 care: convertCareActivitiesToLocalStorage(dbJournal.care_activities),
                 health: {
@@ -2300,8 +2340,8 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 otherIssues: dbJournal.challenges || '',
                 approval: {
                     status: dbJournal.approval_status,
-                    leaderStatus: dbJournal.approval_status === 'APPROVED' ? 'Đã duyệt' : 
-                                 dbJournal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt',
+                    leaderStatus: dbJournal.approval_status === 'APPROVED' ? 'Đã duyệt' :
+                        dbJournal.approval_status === 'REJECTED' ? 'Từ chối' : 'Chờ duyệt',
                     leaderComment: dbJournal.rejection_reason || '',
                     approvedBy: dbJournal.approver_name || '',
                     approvedAt: dbJournal.approved_at || ''
@@ -2313,10 +2353,10 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
         // Helper function to convert care activities
         function convertCareActivitiesToLocalStorage(careActivities) {
             const care = { morning: '', afternoon: '', evening: '' };
-            
+
             if (careActivities) {
                 const activities = careActivities.split(';').filter(a => a.trim());
-                
+
                 activities.forEach(activity => {
                     if (activity.includes('Sáng:')) {
                         care.morning = activity.replace('Sáng:', '').trim();
@@ -2327,41 +2367,18 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                     }
                 });
             }
-            
+
             return care;
         }
 
-        // Fallback function for localStorage (kept for compatibility)
-        function loadJournalListFromLocalStorage() {
+        // TODO: Function to load journals from database
+        function loadJournalListFromDatabase() {
             const container = document.getElementById('journalListContainer');
 
             const allJournals = [];
 
-            // Duyệt tất cả keys trong localStorage để tìm journals
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('journal_')) {
-                    try {
-                        const journalData = JSON.parse(localStorage.getItem(key));
-                        const journalInfo = {
-                            id: key,
-                            key: key,
-                            dogName: (journalData.generalInfo && journalData.generalInfo.dogName) || 'Unknown',
-                            date: (journalData.generalInfo && journalData.generalInfo.date) || 'Unknown',
-                            trainer: (journalData.generalInfo && journalData.generalInfo.hlv) || 'Unknown',
-                            status: (journalData.approval && journalData.approval.hvlSignature) ?
-                                'PENDING_APPROVAL' : 'DRAFT',
-                            approvalStatus: (journalData.approval && journalData.approval.leaderStatus) ||
-                                'Chờ duyệt',
-                            data: journalData
-                        };
-
-                        allJournals.push(journalInfo);
-                    } catch (error) {
-                        console.error('Error parsing journal:', key, error);
-                    }
-                }
-            }
+            // TODO: Get journals from database
+            // console.log('TODO: Load journals from database');
 
             if (allJournals.length === 0) {
                 container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
@@ -2397,7 +2414,7 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
 
                 html += `
 <tr>
-<td>${journal.date}</td>
+<td>${formatDateToDDMMYYYY(journal.date)}</td>
 <td><strong>${journal.dogName}</strong></td>
 <td>${journal.trainer}</td>
 <td><span class="status-indicator ${statusClass}">${journal.approvalStatus}</span></td>
@@ -2413,7 +2430,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             html += '</tbody></table>';
             container.innerHTML = html;
 
-            console.log(`✅ Loaded ${allJournals.length} journals from localStorage fallback`);
+            // console.log(`✅ Loaded ${allJournals.length} journals from database`);
         }
 
         // Web Control Functions
@@ -2542,19 +2559,12 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
         function triggerWebAppRefreshImmediately() {
             // FORCE IMMEDIATE refresh cho tất cả web app tabs đang mở
             try {
-                // Method 1: Sử dụng localStorage event với timestamp unique
-                localStorage.setItem('dashboard_refresh_trigger', Date.now().toString());
+                // TODO: Use database events for refresh signals
+                // console.log('TODO: Implement database refresh signals');
 
-                // Method 2: Broadcast multiple signals
-                localStorage.setItem('dashboard_refresh_users', Date.now().toString());
-                localStorage.setItem('dashboard_refresh_dogs', Date.now().toString());
-
-                // Method 3: Force reload all data signals
-                localStorage.setItem('force_menu_refresh', Date.now().toString());
-
-                console.log('✅ FORCE TRIGGERED immediate web app refresh with multiple signals');
+                // console.log('✅ FORCE TRIGGERED immediate web app refresh with multiple signals');
             } catch (e) {
-                console.log('Error triggering web app refresh:', e);
+                // console.log('Error triggering web app refresh:', e);
             }
         }
 
@@ -2577,7 +2587,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
         // Listen for postMessage from web app
         window.addEventListener('message', function (event) {
             if (event.data && event.data.type === 'JOURNAL_UPDATE') {
-                console.log('✅ Received journal update from web app:', event.data.journalKey);
+                // console.log('✅ Received journal update from web app:', event.data.journalKey);
                 // Refresh journal list immediately
                 if (document.getElementById('journalListContainer').innerHTML !== '') {
                     loadJournalList();
@@ -2587,10 +2597,10 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             }
         });
 
-        // Listen for localStorage changes
+        // TODO: Listen for database changes
         window.addEventListener('storage', function (e) {
             if (e.key === 'dashboard_journal_refresh') {
-                console.log('✅ Journal refresh triggered via localStorage');
+                // console.log('✅ Journal refresh triggered via database');
                 loadJournalList();
             }
         });
@@ -2605,7 +2615,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             const dogModal = document.getElementById('dogModal');
             if (dogModal && dogModal.style.display !== 'none') {
                 loadTrainerOptions();
-                console.log('✅ Force refreshed trainer dropdown on dashboard focus');
+                // console.log('✅ Force refreshed trainer dropdown on dashboard focus');
             }
         });
 

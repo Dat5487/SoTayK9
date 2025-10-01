@@ -1,0 +1,36 @@
+# Log files
+*.log
+debug.log
+
+# Debug statements (commented out in code)
+# console.log statements have been cleaned up
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database files (if they contain sensitive data)
+*.db-wal
+*.db-shm
+
+# Environment files
+.env
+.venv
+env/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp

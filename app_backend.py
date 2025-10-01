@@ -431,21 +431,86 @@ def get_training_journals():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/api/test', methods=['GET'])
+def test_endpoint():
+    """Test endpoint to verify logging works"""
+    print("TEST ENDPOINT CALLED!")
+    return jsonify({"success": True, "message": "Test endpoint working"})
+
 @app.route('/api/journals', methods=['POST'])
 def create_training_journal():
     """Create training journal entry"""
+    # Log to file for debugging with UTF-8 encoding
+    with open('debug.log', 'a', encoding='utf-8') as f:
+        f.write("=" * 50 + "\n")
+        f.write("JOURNAL CREATION REQUEST RECEIVED!\n")
+        f.write("=" * 50 + "\n")
+        f.flush()
+    
+    print("=" * 50)
+    print("JOURNAL CREATION REQUEST RECEIVED!")
+    print("=" * 50)
+    import sys
+    sys.stdout.flush()
+    
     try:
         data = request.get_json()
+        
+        # Log to file
+        with open('debug.log', 'a', encoding='utf-8') as f:
+            f.write(f"Received journal data: {data}\n")
+            f.flush()
+        
+        print(f"Received journal data: {data}")
         
         required_fields = ['dog_id', 'trainer_id', 'journal_date']
         for field in required_fields:
             if field not in data:
+                error_msg = f"Missing required field: {field}"
+                with open('debug.log', 'a', encoding='utf-8') as f:
+                    f.write(error_msg + "\n")
+                    f.flush()
+                print(error_msg)
                 return jsonify({"success": False, "error": f"Missing field: {field}"}), 400
         
+        success_msg = "All required fields present"
+        with open('debug.log', 'a', encoding='utf-8') as f:
+            f.write(success_msg + "\n")
+            f.flush()
+        print(success_msg)
+        
         journal = db.create_training_journal(data)
-        return jsonify({"success": True, "data": journal})
+        
+        db_result_msg = f"Database returned: {journal}"
+        with open('debug.log', 'a', encoding='utf-8') as f:
+            f.write(db_result_msg + "\n")
+            f.flush()
+        print(db_result_msg)
+        
+        if journal is None:
+            error_msg = "Database function returned None!"
+            with open('debug.log', 'a', encoding='utf-8') as f:
+                f.write(error_msg + "\n")
+                f.flush()
+            print(error_msg)
+            return jsonify({"success": False, "error": "Database operation failed - no data returned"}), 500
+        
+        response = {"success": True, "data": journal}
+        response_msg = f"Sending response: {response}"
+        with open('debug.log', 'a', encoding='utf-8') as f:
+            f.write(response_msg + "\n")
+            f.flush()
+        print(response_msg)
+        return jsonify(response)
         
     except Exception as e:
+        error_msg = f"Exception in create_training_journal: {e}"
+        with open('debug.log', 'a', encoding='utf-8') as f:
+            f.write(error_msg + "\n")
+            f.flush()
+        print(error_msg)
+        import traceback
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/journals/<int:journal_id>', methods=['GET'])
@@ -479,10 +544,18 @@ def approve_training_journal(journal_id):
         approved = data.get('approved', True)
         rejection_reason = data.get('rejection_reason')
         
+        # Get signature data
+        leader_signature = data.get('leader_signature')
+        leader_signature_timestamp = data.get('leader_signature_timestamp')
+        
+        print(f"🔍 Received approval data: approver_id={approver_id}, approved={approved}")
+        print(f"🔍 Signature data: leader_signature={leader_signature[:100] if leader_signature else None}..., timestamp={leader_signature_timestamp}")
+        
         if not approver_id:
             return jsonify({"success": False, "error": "Approver ID is required"}), 400
         
-        journal = db.approve_training_journal(journal_id, approver_id, approved, rejection_reason)
+        journal = db.approve_training_journal(journal_id, approver_id, approved, rejection_reason, 
+                                            leader_signature, leader_signature_timestamp)
         return jsonify({"success": True, "data": journal})
         
     except Exception as e:
@@ -509,6 +582,83 @@ def get_journals_by_dog(dog_id):
             "success": True,
             "data": journals,
             "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/by-dog/<dog_name>', methods=['GET'])
+def get_journals_by_dog_name(dog_name):
+    """Get all journals for a specific dog by name"""
+    try:
+        # First get the dog by name
+        dogs = db.get_all_dogs()
+        dog = next((d for d in dogs if d['name'] == dog_name), None)
+        
+        if not dog:
+            return jsonify({"success": False, "error": "Dog not found"}), 404
+        
+        journals = db.get_training_journals_by_dog(dog['id'])
+        return jsonify({
+            "success": True,
+            "data": journals,
+            "total": len(journals)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/journals/by-dog-date/<dog_name>/<journal_date>', methods=['GET'])
+def get_journal_by_dog_date(dog_name, journal_date):
+    """Get a specific journal by dog name and date"""
+    try:
+        # First get the dog by name
+        dogs = db.get_all_dogs()
+        dog = next((d for d in dogs if d['name'] == dog_name), None)
+        
+        if not dog:
+            return jsonify({"success": False, "error": "Dog not found"}), 404
+        
+        # Get all journals for this dog and find the one with matching date
+        # Return the journal with the most complete data (most content)
+        journals = db.get_training_journals_by_dog(dog['id'])
+        matching_journals = [j for j in journals if j['journal_date'] == journal_date]
+        
+        if not matching_journals:
+            return jsonify({"success": False, "error": "Journal not found"}), 404
+        
+        # Find the journal with the most complete data
+        # Priority: has training data > has care data > has operation data > most recent
+        def journal_completeness_score(j):
+            score = 0
+            if j.get('training_activities') and len(j['training_activities']) > 10:
+                score += 100
+            if j.get('care_activities') and len(j['care_activities']) > 10:
+                score += 50
+            if j.get('operation_activities') and len(j['operation_activities']) > 10:
+                score += 25
+            # Add timestamp-based score for tie-breaking
+            if j.get('updated_at'):
+                score += 1
+            return score
+        
+        journal = max(matching_journals, key=journal_completeness_score)
+        
+        # Merge signature data from other journals for the same dog and date
+        for other_journal in matching_journals:
+            if other_journal['id'] != journal['id']:
+                # Merge signature data if it exists in other journal but not in main journal
+                if other_journal.get('hlv_signature') and not journal.get('hlv_signature'):
+                    journal['hlv_signature'] = other_journal['hlv_signature']
+                    journal['hlv_signature_timestamp'] = other_journal.get('hlv_signature_timestamp')
+                if other_journal.get('leader_signature') and not journal.get('leader_signature'):
+                    journal['leader_signature'] = other_journal['leader_signature']
+                    journal['leader_signature_timestamp'] = other_journal.get('leader_signature_timestamp')
+                if other_journal.get('substitute_signature') and not journal.get('substitute_signature'):
+                    journal['substitute_signature'] = other_journal['substitute_signature']
+                    journal['substitute_signature_timestamp'] = other_journal.get('substitute_signature_timestamp')
+        
+        return jsonify({
+            "success": True,
+            "data": journal
         })
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -701,6 +851,43 @@ def unassign_dog_from_user(user_id, dog_id):
         else:
             return jsonify({"success": False, "error": "Assignment not found"}), 404
             
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# =============================================================================
+# MIGRATION STATUS API ROUTES
+# =============================================================================
+
+@app.route('/api/migration/status', methods=['GET'])
+def get_migration_status():
+    """Get migration status"""
+    try:
+        # For now, return default status
+        # In a full implementation, this would be stored in database
+        status = {
+            "users": False,
+            "dogs": False,
+            "journals": False,
+            "sessions": False,
+            "notifications": False
+        }
+        return jsonify({"success": True, "data": status})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/migration/status', methods=['POST'])
+def update_migration_status():
+    """Update migration status"""
+    try:
+        data = request.get_json()
+        component = data.get('component')
+        status = data.get('status')
+        
+        # For now, just log the status update
+        # In a full implementation, this would be stored in database
+        print(f"Migration status updated: {component} = {status}")
+        
+        return jsonify({"success": True, "message": "Status updated"})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

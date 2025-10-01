@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="journal_db_manager.js"></script>
+  <script src="pdf_export.js"></script>
 
   <!-- THÊM CSS cho Dashboard connection và role-based -->
   <style>
@@ -853,11 +854,11 @@
             <h2 class="login-card-title">CỤC HẢI QUAN</h2>
             <p class="login-card-subtitle">BẢO VỆ LỢI ÍCH CHỦ QUYỀN QUỐC GIA</p>
             <div class="input-group">
-              <label for="username"><img src="images/user_icon.png" alt="User Icon"></label>
-              <input type="text" id="username" placeholder="Tên người dùng">
+              <label for="username"><img src="images/user_icon.png" alt="User Icon">Tên đăng nhập</label>
+              <input type="text" id="username" placeholder="Tên đăng nhập">
             </div>
             <div class="input-group">
-              <label for="password"><img src="images/lock_icon.png" alt="Lock Icon"></label>
+              <label for="password"><img src="images/lock_icon.png" alt="Lock Icon">Mật khẩu</label>
               <input type="password" id="password" placeholder="Mật khẩu">
               <span class="password-toggle" onclick="togglePasswordVisibility()">👁️</span>
             </div>
@@ -1008,35 +1009,12 @@
   </div>
 
   <script src="script.js" defer></script>
+  <!-- localStorage_migration.js removed - using database only -->
 
   <script>
-    // Migration function to move localStorage journals to database
-    async function migrateJournalsToDatabase() {
-      try {
-        console.log('🔄 Starting journal migration from localStorage to database...');
+    // Database-only mode - no localStorage migration needed
+    // console.log('✅ Database-only mode initialized');
 
-        const result = await window.journalDBManager.migrateLocalStorageJournals();
-
-        if (result.success) {
-          console.log(`✅ Migration completed: ${result.migrated_count}/${result.total_journals} journals migrated`);
-
-          if (result.errors && result.errors.length > 0) {
-            console.warn('⚠️ Some journals failed to migrate:', result.errors);
-          }
-
-          // Show migration result to user
-          if (result.migrated_count > 0) {
-            alert(`Đã chuyển đổi ${result.migrated_count} nhật ký từ localStorage sang cơ sở dữ liệu thành công!`);
-          }
-        } else {
-          throw new Error(result.error || 'Migration failed');
-        }
-
-      } catch (error) {
-        console.error('❌ Migration failed:', error);
-        alert('Không thể chuyển đổi nhật ký từ localStorage sang cơ sở dữ liệu: ' + error.message);
-      }
-    }
 
   </script>
 </body>

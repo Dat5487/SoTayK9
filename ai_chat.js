@@ -1,4 +1,43 @@
 // =============================================================================
+// DATE FORMATTING UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Format date to dd/mm/yyyy format
+ * @param {Date|string} date - Date object or ISO string
+ * @param {boolean} includeTime - Whether to include time in the format
+ * @returns {string} Formatted date string
+ */
+function formatDateToDDMMYYYY(date, includeTime = false) {
+    if (!date) return 'N/A';
+    
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    if (isNaN(dateObj.getTime())) return 'N/A';
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    
+    if (includeTime) {
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    return `${day}/${month}/${year}`;
+}
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns {string} Current date formatted as dd/mm/yyyy
+ */
+function getCurrentDateDDMMYYYY() {
+    return formatDateToDDMMYYYY(new Date());
+}
+
+// =============================================================================
 // AI CHAT SYSTEM - Knowledge Base & Intelligent Assistant
 // =============================================================================
 
@@ -12,7 +51,7 @@ class AIChatSystem {
     }
 
     init() {
-        this.currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        this.currentUser = {}; // Will be loaded from database
         this.setupKnowledgeBase();
         this.createChatWidget();
     }
@@ -829,7 +868,7 @@ Bạn cần hướng dẫn cụ thể nào về nhật ký không?`;
     async getRecentActivity() {
         // Mock recent activity - in real implementation, fetch from API
         return {
-            lastLogin: new Date().toLocaleDateString('vi-VN'),
+            lastLogin: formatDateToDDMMYYYY(new Date()),
             journalsToday: 0,
             pendingApprovals: 2
         };
