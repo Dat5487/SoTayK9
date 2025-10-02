@@ -573,15 +573,14 @@ function showContent(type) {
         title.innerText = 'HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ';
         content.innerHTML = `
             <p>Vui lòng chọn từng chó nghiệp vụ ở menu bên trái.</p>
-            <p>Đây là HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ:</p>
-            <ul>
-                <li>Hồ sơ CNV BI</li>
-                <li>Hồ sơ CNV LU</li>
-                <li>Hồ sơ CNV RẾCH</li>
-                <li>Hồ sơ CNV KY</li>
-                <li>Hồ sơ CNV REX</li>
-            </ul>
+            <p>Đây là HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ từ cơ sở dữ liệu:</p>
+            <div id="dogProfilesList">
+                <div class="loading">Đang tải danh sách chó nghiệp vụ...</div>
+            </div>
         `;
+        
+        // Load dogs from database only
+        loadDogProfilesFromDatabase();
     } else if (type === 'QUY TRÌNH CHĂM SÓC') {
         title.innerText = 'QUY TRÌNH CHĂM SÓC';
         content.innerHTML = `
@@ -718,6 +717,72 @@ function showContent(type) {
     document.getElementById("searchResults").style.display = "none";
 }
 
+// Function to load dog profiles from database only
+async function loadDogProfilesFromDatabase() {
+    const container = document.getElementById('dogProfilesList');
+    
+    if (!container) {
+        console.error('Dog profiles container not found');
+        return;
+    }
+    
+    try {
+        // Fetch dogs from database API
+        const response = await fetch('/api/dogs', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const dogs = data.data || [];
+            
+            if (dogs.length === 0) {
+                container.innerHTML = '<div class="no-data">Chưa có chó nghiệp vụ nào trong cơ sở dữ liệu.</div>';
+                return;
+            }
+            
+            // Display dogs from database only
+            let html = '<div class="dog-profiles-grid">';
+            dogs.forEach(dog => {
+                const trainerName = dog.trainer_name || 'Chưa phân công';
+                const statusClass = dog.status ? dog.status.toLowerCase().replace(' ', '-') : 'unknown';
+                
+                html += `
+                    <div class="dog-profile-card">
+                        <div class="dog-profile-header">
+                            <h4>${dog.name}</h4>
+                            <span class="status-badge status-${statusClass}">${dog.status || 'UNKNOWN'}</span>
+                        </div>
+                        <div class="dog-profile-details">
+                            <p><strong>Số Chip:</strong> ${dog.chip_id || 'N/A'}</p>
+                            <p><strong>Giống:</strong> ${dog.breed || 'N/A'}</p>
+                            <p><strong>Huấn luyện viên:</strong> ${trainerName}</p>
+                            <p><strong>Ngày sinh:</strong> ${dog.birth_date || 'N/A'}</p>
+                            <p><strong>Nơi sinh:</strong> ${dog.birth_place || 'N/A'}</p>
+                        </div>
+                        <div class="dog-profile-actions">
+                            <button class="btn btn-primary" onclick="showDogProfileForm('${dog.name}')">
+                                Xem Chi Tiết
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<div class="error">Lỗi khi tải dữ liệu từ cơ sở dữ liệu.</div>';
+        }
+    } catch (error) {
+        console.error('Error loading dog profiles:', error);
+        container.innerHTML = '<div class="error">Không thể kết nối đến cơ sở dữ liệu.</div>';
+    }
+}
+
 // Function to display dog profile form
 function showDogProfileForm(dogName) {
     hideAllContentSections();
@@ -735,7 +800,7 @@ function showDogProfileForm(dogName) {
 
     content.innerHTML = `
         <div class="dog-profile-header">
-            <img id="dog_profile_image" src="${dogProfiles[dogName]?.image || 'images/default_dog.jpg'}" alt="Ảnh CNV" class="profile-dog-image">
+            <img id="dog_profile_image" src="images/default_dog.jpg" alt="Ảnh CNV" class="profile-dog-image">
             <h3>SƠ YẾU LÝ LỊCH</h3>
         </div>
 
@@ -809,37 +874,58 @@ function saveDogProfile(dogName) {
     // Save profile data to database (no localStorage)
 }
 
-// Function to load dog profile
-function loadDogProfile(dogName) {
-    // Load profile data from database (no localStorage)
-    const data = null; // Will be loaded from database
-    if (data) {
-        const profile = JSON.parse(data);
-
-        document.getElementById('syll_name').value = profile.name || '';
-        document.getElementById('syll_sohieu').value = profile.sohieu || '';
-        document.getElementById('syll_ngaysinh').value = profile.ngaysinh || '';
-        document.getElementById('syll_noisinh').value = profile.noisinh || '';
-        document.getElementById('syll_giong').value = profile.giong || '';
-        document.getElementById('syll_tinhbiet').value = profile.tinhbiet || '';
-        document.getElementById('syll_dacdiem').value = profile.dacdiem || '';
-        document.getElementById('syll_maulong').value = profile.maulong || '';
-        document.getElementById('syll_giatri').value = profile.giatri || '';
-
-        document.getElementById('dongho_ba').value = profile.dongho_ba || '';
-        document.getElementById('dongho_ngaysinh').value = profile.dongho_ngaysinh || '';
-        document.getElementById('dongho_noisinh').value = profile.noisinh || '';
-        document.getElementById('dongho_giong').value = profile.dongho_giong || '';
-        document.getElementById('dongho_dacdiem').value = profile.dongho_dacdiem || '';
-
-        document.getElementById('hlv_ten').value = profile.hlv_ten || hlvInfo.name;
-        document.getElementById('hlv_ngaysinh').value = profile.hlv_ngaysinh || '';
-        document.getElementById('hlv_capbac').value = profile.hlv_capbac || '';
-        document.getElementById('hlv_chucvu').value = profile.hlv_chucvu || '';
-        document.getElementById('hlv_donvi').value = profile.hlv_donvi || '';
-        document.getElementById('hlv_daotao').value = profile.hlv_daotao || '';
-    } else {
-        document.getElementById('hlv_ten').value = hlvInfo.name;
+// Function to load dog profile from database
+async function loadDogProfile(dogName) {
+    try {
+        // Fetch dog data from database API
+        const response = await fetch('/api/dogs', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const dogs = data.data || [];
+            const dog = dogs.find(d => d.name === dogName);
+            
+            if (dog) {
+                // Populate form fields with database data
+                document.getElementById('syll_name').value = dog.name || '';
+                document.getElementById('syll_sohieu').value = dog.chip_id || '';
+                document.getElementById('syll_ngaysinh').value = dog.birth_date || '';
+                document.getElementById('syll_noisinh').value = dog.birth_place || '';
+                document.getElementById('syll_giong').value = dog.breed || '';
+                document.getElementById('syll_tinhbiet').value = dog.gender || '';
+                document.getElementById('syll_dacdiem').value = dog.features || '';
+                document.getElementById('syll_maulong').value = dog.fur_color || '';
+                document.getElementById('syll_giatri').value = dog.value || '';
+                
+                // Father information
+                document.getElementById('dongho_ba').value = dog.father_name || '';
+                document.getElementById('dongho_ngaysinh').value = dog.father_birth || '';
+                document.getElementById('dongho_noisinh').value = dog.father_place || '';
+                document.getElementById('dongho_giong').value = dog.father_breed || '';
+                document.getElementById('dongho_dacdiem').value = dog.father_features || '';
+                
+                // Trainer information
+                document.getElementById('hlv_ten').value = dog.hlv_ten || '';
+                document.getElementById('hlv_ngaysinh').value = dog.hlv_ngaysinh || '';
+                document.getElementById('hlv_capbac').value = dog.hlv_capbac || '';
+                document.getElementById('hlv_chucvu').value = dog.hlv_chucvu || '';
+                document.getElementById('hlv_donvi').value = dog.hlv_donvi || '';
+                document.getElementById('hlv_daotao').value = dog.hlv_daotao || '';
+                
+                console.log('Dog profile loaded successfully:', dog);
+            } else {
+                console.warn(`Dog ${dogName} not found in database`);
+            }
+        } else {
+            console.error('Failed to fetch dog data from database');
+        }
+    } catch (error) {
+        console.error('Error loading dog profile:', error);
     }
 }
 

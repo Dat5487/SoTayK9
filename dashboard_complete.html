@@ -663,6 +663,25 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="userEmail">Email:</label>
+                    <input type="email" id="userEmail" placeholder="Nhập địa chỉ email">
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Số điện thoại:</label>
+                    <input type="tel" id="userPhone" placeholder="Nhập số điện thoại">
+                </div>
+                <div class="form-group">
+                    <label for="userDepartment">Phòng ban:</label>
+                    <input type="text" id="userDepartment" placeholder="Nhập phòng ban">
+                </div>
+                <div class="form-group">
+                    <label for="userStatus">Trạng thái:</label>
+                    <select id="userStatus">
+                        <option value="ACTIVE">Hoạt động</option>
+                        <option value="INACTIVE">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="userDogs">Chó được phân công:</label>
                     <select id="userDogs" multiple style="height: 100px;">
                         <!-- Sẽ được load động từ dogs data -->
@@ -1493,6 +1512,10 @@
             document.getElementById('userPassword').required = true;
             document.getElementById('passwordHelpText').textContent = 'Bắt buộc cho tài khoản mới';
             document.getElementById('userRole').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userPhone').value = '';
+            document.getElementById('userDepartment').value = '';
+            document.getElementById('userStatus').value = 'ACTIVE';
             document.getElementById('userSignature').value = '';
 
             // Clear signature preview
@@ -1516,6 +1539,10 @@
                 document.getElementById('userPassword').required = false;
                 document.getElementById('passwordHelpText').textContent = 'Để trống nếu không muốn thay đổi mật khẩu';
                 document.getElementById('userRole').value = user.role;
+                document.getElementById('userEmail').value = user.email || '';
+                document.getElementById('userPhone').value = user.phone || '';
+                document.getElementById('userDepartment').value = user.department || '';
+                document.getElementById('userStatus').value = user.status || 'ACTIVE';
                 document.getElementById('userSignature').value = '';
 
                 // Load existing signature if available
@@ -1557,9 +1584,12 @@
                     name: document.getElementById('userName').value,
                     username: document.getElementById('userUsername').value,
                     role: document.getElementById('userRole').value,
+                    email: document.getElementById('userEmail').value,
+                    phone: document.getElementById('userPhone').value,
+                    department: document.getElementById('userDepartment').value,
+                    status: document.getElementById('userStatus').value,
                     assignedDogs: Array.from(document.getElementById('userDogs').selectedOptions).map(option =>
-                        option.value),
-                    status: 'ACTIVE'
+                        option.value)
                 };
 
                 // SỬA: Only update password if it's not empty (user wants to change it)
@@ -1621,7 +1651,7 @@
                     // Refresh data from API
                     await loadUserList();
                     await loadDogList();
-                    forceRefreshAllTrainerDropdowns();
+                    await forceRefreshAllTrainerDropdowns();
 
                     // SỬA QUAN TRỌNG: FORCE CLOSE MODAL NGAY LẬP TỨC
                     setTimeout(() => {
@@ -1651,7 +1681,7 @@
 
                     if (result.success) {
                         await loadUserList();
-                        forceRefreshAllTrainerDropdowns();
+                        await forceRefreshAllTrainerDropdowns();
                         triggerWebAppRefreshImmediately();
                         alert('Người dùng đã được xóa!');
                     } else {
@@ -1688,6 +1718,9 @@
 <tr>
 <th>Tên</th>
 <th>Username</th>
+<th>Email</th>
+<th>Số điện thoại</th>
+<th>Phòng ban</th>
 <th>Vai trò</th>
 <th>Chó phân công</th>
 <th>Chữ ký</th>
@@ -1707,6 +1740,9 @@
 <tr>
 <td>${user.name}</td>
 <td>${user.username}</td>
+<td>${user.email || '<em>Chưa có</em>'}</td>
+<td>${user.phone || '<em>Chưa có</em>'}</td>
+<td>${user.department || '<em>Chưa có</em>'}</td>
 <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
 <td>${assignedDogsText}</td>
 <td>${user.signature ? `<img src="signatures/${user.signature}" alt="Chữ ký" style="width: 60px; height: 30px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"><span style="display:none; color: #999; font-size: 11px;">File không tồn tại</span>` : '<em>Chưa có</em>'}</td>
@@ -1741,42 +1777,52 @@
         }
 
         // SỬA: function loadTrainerOptions để FORCE REFRESH REAL-TIME từ users data MỚI NHẤT
-        function loadTrainerOptions() {
+        async function loadTrainerOptions() {
             const select = document.getElementById('dogTrainer');
             if (!select) return; // Exit if not found
 
-            select.innerHTML = '<option value="">Chưa phân công</option>';
+            select.innerHTML = '<option value="">Đang tải...</option>';
 
-            // TODO: Get users from database
-            users = [];
+            try {
+                // Refresh users from API to get latest trainer data
+                const apiUsers = await fetchUsersFromAPI();
+                if (apiUsers.length > 0) {
+                    users = apiUsers;
+                }
 
-            // Lấy DISTINCT trainers (không duplicate)
-            const trainers = users.filter(u => u.role === 'TRAINER');
-            const uniqueTrainers = trainers.filter((trainer, index, arr) =>
-                arr.findIndex(t => t.id === trainer.id) === index
-            );
+                select.innerHTML = '<option value="">Chưa phân công</option>';
 
-            uniqueTrainers.forEach(trainer => {
-                const option = document.createElement('option');
-                option.value = trainer.id;
-                option.textContent = `${trainer.name} (${trainer.username})`;
-                option.dataset.trainerName = trainer.name;
-                select.appendChild(option);
-            });
+                // Lấy DISTINCT trainers (không duplicate)
+                const trainers = users.filter(u => u.role === 'TRAINER');
+                const uniqueTrainers = trainers.filter((trainer, index, arr) =>
+                    arr.findIndex(t => t.id === trainer.id) === index
+                );
 
-            // console.log(`✅ FORCE REFRESHED trainer dropdown with ${uniqueTrainers.length} trainers`);
+                uniqueTrainers.forEach(trainer => {
+                    const option = document.createElement('option');
+                    option.value = trainer.id;
+                    option.textContent = `${trainer.name} (${trainer.username})`;
+                    option.dataset.trainerName = trainer.name;
+                    select.appendChild(option);
+                });
+
+                console.log(`✅ FORCE REFRESHED trainer dropdown with ${uniqueTrainers.length} trainers`);
+            } catch (error) {
+                console.error('Error loading trainer options:', error);
+                select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+            }
         }
 
         // SỬA: THÊM function để FORCE REFRESH TẤT CẢ trainer dropdown NGAY LẬP TỨC
-        function forceRefreshAllTrainerDropdowns() {
+        async function forceRefreshAllTrainerDropdowns() {
             // Refresh trainer dropdown trong dog modal nếu đang mở
             const dogModal = document.getElementById('dogModal');
             if (dogModal && dogModal.style.display !== 'none') {
-                loadTrainerOptions();
+                await loadTrainerOptions();
             }
 
             // Trigger refresh cho tất cả page khác nếu cần
-            // console.log('✅ All trainer dropdowns force refreshed immediately');
+            console.log('✅ All trainer dropdowns force refreshed immediately');
         }
 
         // SỬA: THÊM function updateTrainerInfo
@@ -1793,7 +1839,7 @@
         }
 
         // SỬA: openCreateDogModal với clear full form + FORCE REFRESH TRAINER DROPDOWN
-        function openCreateDogModal() {
+        async function openCreateDogModal() {
             editingDogId = null;
             document.getElementById('dogModalTitle').textContent = 'Thêm Chó Nghiệp Vụ Mới';
 
@@ -1824,13 +1870,13 @@
             document.getElementById('hlvDaotao').value = '';
 
             // SỬA: FORCE Load trainers mới nhất mỗi lần mở modal
-            loadTrainerOptions();
+            await loadTrainerOptions();
 
             document.getElementById('dogModal').style.display = 'block';
         }
 
         // SỬA: editDog với full form data
-        function editDog(dogId) {
+        async function editDog(dogId) {
             const dog = dogs.find(d => d.id === dogId);
             if (dog) {
                 editingDogId = dogId;
@@ -1862,11 +1908,9 @@
                 document.getElementById('hlvDaotao').value = dog.hlv_daotao || dog.hlvDaotao || '';
 
                 // SỬA: FORCE REFRESH trainer options trước khi set value
-                loadTrainerOptions();
-                setTimeout(() => {
-                    const trainerId = dog.trainer_id || dog.trainerId;
-                    document.getElementById('dogTrainer').value = trainerId || '';
-                }, 100);
+                await loadTrainerOptions();
+                const trainerId = dog.trainer_id || dog.trainerId;
+                document.getElementById('dogTrainer').value = trainerId || '';
 
                 document.getElementById('dogModal').style.display = 'block';
             }
@@ -1979,14 +2023,21 @@
         async function loadDogList() {
             const container = document.getElementById('dogListContainer');
 
-            // Refresh dogs from API
+            // Refresh both dogs and users from API to get latest trainer assignments
             try {
-                const apiDogs = await fetchDogsFromAPI();
+                const [apiDogs, apiUsers] = await Promise.all([
+                    fetchDogsFromAPI(),
+                    fetchUsersFromAPI()
+                ]);
+                
                 if (apiDogs.length > 0) {
                     dogs = apiDogs;
                 }
+                if (apiUsers.length > 0) {
+                    users = apiUsers;
+                }
             } catch (error) {
-                // console.log('Failed to refresh dogs from API, using cached data');
+                console.error('Failed to refresh data from API:', error);
             }
 
             if (dogs.length === 0) {
@@ -2037,21 +2088,33 @@
 
         // Journal Management Functions - DATABASE API ONLY
         async function loadJournalList() {
+            console.log('🔍 loadJournalList() called');
             const container = document.getElementById('journalListContainer');
+            console.log('📦 Container element:', container);
+            
+            if (!container) {
+                console.error('❌ journalListContainer element not found!');
+                return;
+            }
 
             try {
+                console.log('🌐 Fetching from:', `${API_BASE_URL}/api/journals`);
                 // Fetch journals from database API
                 const response = await fetch(`${API_BASE_URL}/api/journals`);
+                console.log('📡 Response status:', response.status);
                 const result = await response.json();
+                console.log('📊 API result:', result);
 
                 if (!result.success) {
                     throw new Error(result.error || 'Failed to fetch journals');
                 }
 
                 const journals = result.data || [];
+                console.log('📋 Journals count:', journals.length);
 
                 if (journals.length === 0) {
                     container.innerHTML = '<p>Chưa có nhật ký nào.</p>';
+                    console.log('❌ No journals found');
                     return;
                 }
 
@@ -2074,8 +2137,8 @@
 `;
 
                 journals.forEach(journal => {
-                    const hasHvlSignature = journal.hvl_signature ? '✅' : '❌';
-                    const hasLeaderSignature = journal.leader_signature ? '✅' : '❌';
+                    const hasHvlSignature = parseSignatureStatus(journal.hlv_signature);
+                    const hasLeaderSignature = parseSignatureStatus(journal.leader_signature);
                     const statusClass = journal.approval_status === 'APPROVED' ? 'status-active' :
                         journal.approval_status === 'REJECTED' ? 'status-inactive' : 'status-pending';
                     const statusText = journal.approval_status === 'APPROVED' ? 'Đã duyệt' :
@@ -2099,11 +2162,10 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
 
                 html += '</tbody></table>';
                 container.innerHTML = html;
-
-                // console.log(`✅ Loaded ${journals.length} journals from database`);
+                console.log('✅ Successfully loaded and displayed', journals.length, 'journals');
 
             } catch (error) {
-                console.error('Error loading journals from database:', error);
+                console.error('❌ Error loading journals from database:', error);
                 container.innerHTML = '<p style="color: red;">❌ Không thể tải nhật ký từ cơ sở dữ liệu. Vui lòng kiểm tra kết nối server.</p>';
             }
         }
@@ -2234,6 +2296,8 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
         // SỬA: Function viewJournalFromDashboard - NOW USES DATABASE
         async function viewJournalFromDashboard(journalId) {
             try {
+                console.log('🔍 viewJournalFromDashboard called with journalId:', journalId);
+                
                 // Fetch journal details from database
                 const response = await fetch(`${API_BASE_URL}/api/journals/${journalId}`);
                 const result = await response.json();
@@ -2243,15 +2307,17 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 }
 
                 const journal = result.data;
+                console.log('📋 Journal data:', journal);
 
-                // TODO: Convert database format for web app compatibility
-                const frontendFormat = convertDatabaseJournalToFrontend(journal);
-
-                // Open web app with journal parameter
-                const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal&journalId=${journalId}`;
+                // Open web app with journal parameter - use the same approach as showPureA4JournalView
+                const dogName = journal.dog_name || 'Unknown';
+                const journalDate = journal.journal_date || new Date().toISOString().split('T')[0];
+                
+                // Open web app with proper parameters for showPureA4JournalView
+                const url = `index.html?dogName=${encodeURIComponent(dogName)}&date=${encodeURIComponent(journalDate)}&journalId=${journalId}&view=journal`;
                 window.open(url, '_blank', 'width=1200,height=800');
 
-                // console.log(`✅ Opening journal ${journalId} (${journal.dog_name}) in new tab`);
+                console.log(`✅ Opening journal ${journalId} (${dogName}) in new tab`);
 
             } catch (error) {
                 console.error('Error viewing journal from database:', error);
@@ -2348,6 +2414,24 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
                 },
                 lastModified: dbJournal.updated_at || dbJournal.created_at
             };
+        }
+
+        // Helper function to parse signature data
+        function parseSignatureStatus(signatureData) {
+            if (!signatureData) return '❌';
+            
+            try {
+                const parsed = JSON.parse(signatureData);
+                if (parsed && parsed.name && parsed.name.trim() !== '') {
+                    return '✅';
+                }
+            } catch (e) {
+                // If parsing fails, check if it's a non-empty string
+                if (signatureData.trim() !== '') {
+                    return '✅';
+                }
+            }
+            return '❌';
         }
 
         // Helper function to convert care activities
@@ -2606,7 +2690,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
         });
 
         // SỬA: Force refresh on tab focus + REFRESH TRAINER DROPDOWN
-        window.addEventListener('focus', () => {
+        window.addEventListener('focus', async () => {
             loadJournalList();
             loadUserList();
             loadDogList();
@@ -2614,8 +2698,8 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             // SỬA: FORCE Refresh trainer dropdown khi focus dashboard
             const dogModal = document.getElementById('dogModal');
             if (dogModal && dogModal.style.display !== 'none') {
-                loadTrainerOptions();
-                // console.log('✅ Force refreshed trainer dropdown on dashboard focus');
+                await loadTrainerOptions();
+                console.log('✅ Force refreshed trainer dropdown on dashboard focus');
             }
         });
 

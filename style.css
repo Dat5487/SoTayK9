@@ -2283,3 +2283,467 @@ button[onclick*="chatWithAI"]:hover {
 .content-wrapper {
     padding-top: 0 !important;
 }
+
+/* ===== PDF UPLOAD STYLES FOR CARE PLANS ===== */
+
+.care-plan-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.care-plan-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.care-plan-header h3 {
+    color: #007bff;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.care-plan-header p {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.care-plan-upload-section {
+    margin-bottom: 40px;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed #dee2e6;
+}
+
+.care-plan-upload-section h4 {
+    color: #495057;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.care-plan-readonly-notice {
+    margin-bottom: 40px;
+    padding: 25px;
+    background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
+    border-radius: 10px;
+    border: 2px solid #bbdefb;
+    text-align: center;
+}
+
+.notice-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #1976d2;
+}
+
+.care-plan-readonly-notice h4 {
+    color: #1976d2;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.care-plan-readonly-notice p {
+    color: #424242;
+    font-size: 16px;
+    margin: 0;
+}
+
+.upload-area {
+    margin-bottom: 20px;
+}
+
+.upload-dropzone {
+    border: 2px dashed #007bff;
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9ff;
+}
+
+.upload-dropzone:hover {
+    border-color: #0056b3;
+    background: #e3f2fd;
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.upload-dropzone p {
+    font-size: 16px;
+    color: #495057;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.upload-dropzone small {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.upload-progress {
+    margin-top: 15px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 0 auto;
+}
+
+.upload-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.upload-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.care-plan-list-section h4 {
+    color: #495057;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.care-plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.care-plan-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.care-plan-item:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.file-icon {
+    font-size: 32px;
+    color: #dc3545;
+}
+
+.file-details {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: bold;
+    color: #495057;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.file-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.file-size {
+    font-weight: 500;
+}
+
+.file-date {
+    font-style: italic;
+}
+
+.file-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-view, .btn-download, .btn-delete {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-view {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-view:hover {
+    background: #138496;
+    transform: translateY(-1px);
+}
+
+.btn-download {
+    background: #28a745;
+    color: white;
+}
+
+.btn-download:hover {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.loading, .no-files, .error {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 16px;
+    color: #6c757d;
+}
+
+.loading {
+    color: #007bff;
+}
+
+.error {
+    color: #dc3545;
+}
+
+.no-files {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .care-plan-container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .care-plan-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .file-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .upload-dropzone {
+        padding: 30px 15px;
+    }
+    
+    .upload-icon {
+        font-size: 36px;
+    }
+}
+
+/* =========================
+   DOG PROFILES SECTION STYLES
+   ========================= */
+
+.dog-profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.dog-profile-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dog-profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dog-profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.dog-profile-header h4 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-training {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-retired {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.status-unknown {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.dog-profile-details {
+    margin-bottom: 15px;
+}
+
+.dog-profile-details p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.dog-profile-details strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.dog-profile-actions {
+    text-align: center;
+}
+
+.dog-profile-actions .btn {
+    padding: 8px 16px;
+    font-size: 0.9em;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    color: #dc3545;
+    background: #f8d7da;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive design for dog profiles */
+@media (max-width: 768px) {
+    .dog-profiles-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .dog-profile-card {
+        padding: 15px;
+    }
+    
+    .dog-profile-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

@@ -165,6 +165,214 @@ def serve_signatures(filename):
     except:
         return jsonify({'error': 'Signature file not found'}), 404
 
+@app.route('/care-plans/<path:filename>')
+def serve_care_plans(filename):
+    """Serve care plan PDF files"""
+    try:
+        return send_from_directory('care-plans', filename)
+    except:
+        return jsonify({'error': 'Care plan file not found'}), 404
+
+@app.route('/api/upload-care-plan', methods=['POST'])
+def upload_care_plan():
+    """Upload care plan PDF file - Manager only"""
+    try:
+        # Get user role from request headers or session
+        # For now, we'll check if the request includes a role header
+        user_role = request.headers.get('X-User-Role', 'GUEST')
+        
+        # Only allow Manager and Admin to upload
+        if user_role not in ['MANAGER', 'ADMIN']:
+            return jsonify({"success": False, "error": "Chỉ Manager và Admin mới có quyền upload tài liệu"}), 403
+        
+        if 'care_plan' not in request.files:
+            return jsonify({"success": False, "error": "No care plan file provided"}), 400
+        
+        file = request.files['care_plan']
+        
+        if file.filename == '':
+            return jsonify({"success": False, "error": "No file selected"}), 400
+        
+        # Validate file type - only PDF
+        if not file.filename.lower().endswith('.pdf'):
+            return jsonify({"success": False, "error": "Invalid file type. Only PDF files allowed"}), 400
+        
+        # Validate file size (max 10MB)
+        file.seek(0, 2)  # Seek to end
+        file_size = file.tell()
+        file.seek(0)  # Reset to beginning
+        
+        if file_size > 10 * 1024 * 1024:  # 10MB
+            return jsonify({"success": False, "error": "File too large. Maximum size is 10MB"}), 400
+        
+        # Create care-plans directory if it doesn't exist
+        import os
+        care_plans_dir = 'care-plans'
+        if not os.path.exists(care_plans_dir):
+            os.makedirs(care_plans_dir)
+        
+        # Use original filename, but handle duplicates
+        original_filename = file.filename
+        file_path = os.path.join(care_plans_dir, original_filename)
+        
+        # If file already exists, add a number suffix
+        counter = 1
+        base_name, extension = os.path.splitext(original_filename)
+        while os.path.exists(file_path):
+            new_filename = f"{base_name}_{counter}{extension}"
+            file_path = os.path.join(care_plans_dir, new_filename)
+            counter += 1
+        
+        # Get the final filename (in case it was modified due to duplicates)
+        final_filename = os.path.basename(file_path)
+        
+        # Save file to care-plans directory
+        file.save(file_path)
+        
+        # Store metadata about the file
+        metadata_file = os.path.join(care_plans_dir, 'metadata.json')
+        metadata = {}
+        
+        # Load existing metadata if it exists
+        if os.path.exists(metadata_file):
+            try:
+                import json
+                with open(metadata_file, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+            except:
+                metadata = {}
+        
+        # Add new file metadata
+        metadata[final_filename] = {
+            "original_name": file.filename,
+            "upload_date": datetime.now().isoformat(),
+            "size": file_size
+        }
+        
+        # Save updated metadata
+        try:
+            import json
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save metadata: {e}")
+        
+        return jsonify({
+            "success": True,
+            "filename": final_filename,
+            "original_name": file.filename,
+            "size": file_size,
+            "message": "Care plan uploaded successfully"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/care-plans', methods=['GET'])
+def get_care_plans():
+    """Get list of uploaded care plan files"""
+    try:
+        import os
+        care_plans_dir = 'care-plans'
+        
+        if not os.path.exists(care_plans_dir):
+            return jsonify({
+                "success": True,
+                "data": [],
+                "total": 0
+            })
+        
+        files = []
+        metadata_file = os.path.join(care_plans_dir, 'metadata.json')
+        metadata = {}
+        
+        # Load metadata if it exists
+        if os.path.exists(metadata_file):
+            try:
+                import json
+                with open(metadata_file, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+            except:
+                metadata = {}
+        
+        for filename in os.listdir(care_plans_dir):
+            if filename.lower().endswith('.pdf') and filename != 'metadata.json':
+                file_path = os.path.join(care_plans_dir, filename)
+                file_stat = os.stat(file_path)
+                
+                # Get original name from metadata, fallback to filename
+                original_name = metadata.get(filename, {}).get('original_name', filename)
+                
+                files.append({
+                    "filename": filename,
+                    "original_name": original_name,
+                    "size": file_stat.st_size,
+                    "upload_date": metadata.get(filename, {}).get('upload_date', datetime.fromtimestamp(file_stat.st_ctime).isoformat()),
+                    "modified_date": datetime.fromtimestamp(file_stat.st_mtime).isoformat()
+                })
+        
+        # Sort by upload date (newest first)
+        files.sort(key=lambda x: x['upload_date'], reverse=True)
+        
+        return jsonify({
+            "success": True,
+            "data": files,
+            "total": len(files)
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/care-plans/<filename>', methods=['DELETE'])
+def delete_care_plan(filename):
+    """Delete care plan file - Manager only"""
+    try:
+        # Get user role from request headers or session
+        user_role = request.headers.get('X-User-Role', 'GUEST')
+        
+        # Only allow Manager and Admin to delete
+        if user_role not in ['MANAGER', 'ADMIN']:
+            return jsonify({"success": False, "error": "Chỉ Manager và Admin mới có quyền xóa tài liệu"}), 403
+        
+        import os
+        care_plans_dir = 'care-plans'
+        file_path = os.path.join(care_plans_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({"success": False, "error": "File not found"}), 404
+        
+        # Validate filename to prevent directory traversal
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({"success": False, "error": "Invalid filename"}), 400
+        
+        os.remove(file_path)
+        
+        # Remove metadata for this file
+        metadata_file = os.path.join(care_plans_dir, 'metadata.json')
+        if os.path.exists(metadata_file):
+            try:
+                import json
+                with open(metadata_file, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+                
+                # Remove the file entry from metadata
+                if filename in metadata:
+                    del metadata[filename]
+                
+                # Save updated metadata
+                with open(metadata_file, 'w', encoding='utf-8') as f:
+                    json.dump(metadata, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                print(f"Warning: Could not update metadata: {e}")
+        
+        return jsonify({
+            "success": True,
+            "message": "Care plan deleted successfully"
+        })
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # =============================================================================
 # API ROUTES
 # =============================================================================

@@ -607,15 +607,7 @@ function refreshDashboardData() {
 
 // Áp dụng phân quyền theo role với đồng bộ dashboard
 
-function applyRoleBasedRestrictions() {
-    if (currentUserRole === 'TRAINER') {
-        filterDogMenuForTrainer();
-        restrictTrainerAccess();
-    } else if (currentUserRole === 'MANAGER') {
-        restrictManagerAccess();
-        setupManagerView();
-    }
-}
+// This function is replaced by the more comprehensive version below
 
 // Manager access restrictions
 
@@ -799,14 +791,52 @@ function applyRoleBasedRestrictions() {
         setupManagerView();
 
         restrictManagerAccess();
+        
+        // Show care plan menu for Manager
+        const carePlanMenu = document.getElementById('care-plan-menu');
+        if (carePlanMenu) {
+            carePlanMenu.style.display = 'block';
+        }
 
+    } else if (currentUserRole === 'ADMIN') {
+        
+        // Show care plan menu for Admin as well
+        const carePlanMenu = document.getElementById('care-plan-menu');
+        if (carePlanMenu) {
+            carePlanMenu.style.display = 'block';
+        }
+        
+    } else if (currentUserRole === 'TRAINER') {
+        
+        // Show care plan menu for Trainer (read-only access)
+        const carePlanMenu = document.getElementById('care-plan-menu');
+        if (carePlanMenu) {
+            carePlanMenu.style.display = 'block';
+        }
+        
+    } else {
+        
+        // Hide care plan menu for other roles (Guest, etc.)
+        const carePlanMenu = document.getElementById('care-plan-menu');
+        if (carePlanMenu) {
+            carePlanMenu.style.display = 'none';
+        }
     }
 
     refreshDynamicMenus();
 
 }
 
-
+// Fallback function to ensure care plan menu is shown for authorized roles
+function ensureCarePlanMenuVisibility() {
+    
+    if (currentUserRole === 'TRAINER' || currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN') {
+        const carePlanMenu = document.getElementById('care-plan-menu');
+        if (carePlanMenu) {
+            carePlanMenu.style.display = 'block';
+        }
+    }
+}
 
 // Hạn chế Manager - chỉ duyệt nhật ký
 
@@ -1327,6 +1357,9 @@ async function showMainApp() {
         refreshDynamicMenus();
 
         await updateUserDisplay();
+        
+        // Ensure care plan menu visibility as fallback
+        ensureCarePlanMenuVisibility();
 
 
 
@@ -1674,6 +1707,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // K9 Management System initialized
+    
+    // Ensure care plan menu visibility on page load
+    setTimeout(() => {
+        ensureCarePlanMenuVisibility();
+    }, 1000);
 
 });
 
@@ -1769,7 +1807,16 @@ function showContent(type) {
 
         title.innerText = 'HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ';
 
-        content.innerHTML = '<p>Vui lòng chọn từng chó nghiệp vụ ở menu bên trái.</p><p>Đây là HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ:</p><ul><li>Hồ sơ CNV BI</li><li>Hồ sơ CNV LU</li><li>Hồ sơ CNV RẾCH</li><li>Hồ sơ CNV KY</li><li>Hồ sơ CNV REX</li></ul>';
+        content.innerHTML = `
+            <p>Vui lòng chọn từng chó nghiệp vụ ở menu bên trái.</p>
+            <p>Đây là HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ từ cơ sở dữ liệu:</p>
+            <div id="dogProfilesList">
+                <div class="loading">Đang tải danh sách chó nghiệp vụ...</div>
+            </div>
+        `;
+        
+        // Load dogs from database only
+        loadDogProfilesFromDatabase();
 
     } else if (type === 'QUY TRÌNH CHĂM SÓC') {
 
@@ -1967,6 +2014,64 @@ function showContent(type) {
 `;
 
 
+    } else if (type === 'KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN') {
+
+        title.innerText = 'KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN';
+
+        // Check if user can upload (Manager or Admin only)
+        const canUpload = currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN';
+        
+        content.innerHTML = `
+            <div class="care-plan-container">
+                <div class="care-plan-header">
+                    <h3>📋 Quản lý Kế hoạch Chăm sóc và Huấn luyện</h3>
+                    <p>${canUpload ? 'Upload và quản lý các tài liệu PDF về kế hoạch chăm sóc, huấn luyện chó nghiệp vụ' : 'Xem và tải về các tài liệu PDF về kế hoạch chăm sóc, huấn luyện chó nghiệp vụ'}</p>
+                </div>
+                
+                ${canUpload ? `
+                <div class="care-plan-upload-section">
+                    <h4>📤 Upload tài liệu mới</h4>
+                    <div class="upload-area">
+                        <input type="file" id="carePlanFile" accept=".pdf" style="display: none;">
+                        <div class="upload-dropzone" onclick="document.getElementById('carePlanFile').click()">
+                            <div class="upload-icon">📄</div>
+                            <p>Nhấp để chọn file PDF hoặc kéo thả vào đây</p>
+                            <small>Chỉ chấp nhận file PDF, tối đa 10MB</small>
+                        </div>
+                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <span id="progressText">0%</span>
+                        </div>
+                    </div>
+                    <button id="uploadBtn" class="upload-btn" onclick="uploadCarePlan()" disabled>
+                        📤 Upload PDF
+                    </button>
+                </div>
+                ` : `
+                <div class="care-plan-readonly-notice">
+                    <div class="notice-icon">👁️</div>
+                    <h4>Chế độ xem</h4>
+                    <p>Bạn đang ở chế độ xem. Chỉ Manager và Admin mới có quyền upload tài liệu mới.</p>
+                </div>
+                `}
+                
+                <div class="care-plan-list-section">
+                    <h4>📚 Danh sách tài liệu</h4>
+                    <div id="carePlanList" class="care-plan-list">
+                        <div class="loading">Đang tải danh sách...</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Load existing care plans
+        loadCarePlans();
+
+        // Setup file input change handler
+        document.getElementById('carePlanFile').addEventListener('change', handleFileSelect);
+
     } else {
 
         title.innerText = type;
@@ -1981,7 +2086,71 @@ function showContent(type) {
 
 }
 
-
+// Function to load dog profiles from database only
+async function loadDogProfilesFromDatabase() {
+    const container = document.getElementById('dogProfilesList');
+    
+    if (!container) {
+        console.error('Dog profiles container not found');
+        return;
+    }
+    
+    try {
+        // Fetch dogs from database API
+        const response = await fetch('/api/dogs', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const dogs = data.data || [];
+            
+            if (dogs.length === 0) {
+                container.innerHTML = '<div class="no-data">Chưa có chó nghiệp vụ nào trong cơ sở dữ liệu.</div>';
+                return;
+            }
+            
+            // Display dogs from database only
+            let html = '<div class="dog-profiles-grid">';
+            dogs.forEach(dog => {
+                const trainerName = dog.trainer_name || 'Chưa phân công';
+                const statusClass = dog.status ? dog.status.toLowerCase().replace(' ', '-') : 'unknown';
+                
+                html += `
+                    <div class="dog-profile-card">
+                        <div class="dog-profile-header">
+                            <h4>${dog.name}</h4>
+                            <span class="status-badge status-${statusClass}">${dog.status || 'UNKNOWN'}</span>
+                        </div>
+                        <div class="dog-profile-details">
+                            <p><strong>Số Chip:</strong> ${dog.chip_id || 'N/A'}</p>
+                            <p><strong>Giống:</strong> ${dog.breed || 'N/A'}</p>
+                            <p><strong>Huấn luyện viên:</strong> ${trainerName}</p>
+                            <p><strong>Ngày sinh:</strong> ${dog.birth_date || 'N/A'}</p>
+                            <p><strong>Nơi sinh:</strong> ${dog.birth_place || 'N/A'}</p>
+                        </div>
+                        <div class="dog-profile-actions">
+                            <button class="btn btn-primary" onclick="showDogProfileForm('${dog.name}')">
+                                Xem Chi Tiết
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<div class="error">Lỗi khi tải dữ liệu từ cơ sở dữ liệu.</div>';
+        }
+    } catch (error) {
+        console.error('Error loading dog profiles:', error);
+        container.innerHTML = '<div class="error">Không thể kết nối đến cơ sở dữ liệu.</div>';
+    }
+}
 
 // Function hiển thị dog profile từ DASHBOARD DATA với tên đúng HLV
 
@@ -2072,7 +2241,7 @@ async function showDogProfileForm(dogName) {
 
             <div class="dog-profile-header">
 
-                <img id="dog_profile_image" src="${dogProfiles[dogName]?.image || 'images/default_dog.jpg'}" alt="Ảnh CNV" class="profile-dog-image">
+                <img id="dog_profile_image" src="images/default_dog.jpg" alt="Ảnh CNV" class="profile-dog-image">
 
                 <div>
 
@@ -2102,7 +2271,7 @@ async function showDogProfileForm(dogName) {
 
                     <label>2. Số hiệu:</label>
 
-                    <input type="text" id="syll_sohieu" value="${currentDog?.chipId || ''}" ${readOnlyAttr}>
+                    <input type="text" id="syll_sohieu" value="${currentDog?.chip_id || ''}" ${readOnlyAttr}>
 
                 </div>
 
@@ -2415,31 +2584,31 @@ async function loadDogProfile(dogName) {
 
                 document.getElementById('syll_name').value = dogData.name || '';
 
-                document.getElementById('syll_sohieu').value = dogData.sohieu || '';
+                document.getElementById('syll_sohieu').value = dogData.chip_id || '';
 
-                document.getElementById('syll_ngaysinh').value = dogData.ngaysinh || '';
+                document.getElementById('syll_ngaysinh').value = dogData.birth_date || '';
 
-                document.getElementById('syll_noisinh').value = dogData.noisinh || '';
+                document.getElementById('syll_noisinh').value = dogData.birth_place || '';
 
-                document.getElementById('syll_giong').value = dogData.giong || '';
+                document.getElementById('syll_giong').value = dogData.breed || '';
 
-                document.getElementById('syll_tinhbiet').value = dogData.tinhbiet || '';
+                document.getElementById('syll_tinhbiet').value = dogData.gender || '';
 
-                document.getElementById('syll_dacdiem').value = dogData.dacdiem || '';
+                document.getElementById('syll_dacdiem').value = dogData.features || '';
 
-                document.getElementById('syll_maulong').value = dogData.maulong || '';
+                document.getElementById('syll_maulong').value = dogData.fur_color || '';
 
-                document.getElementById('syll_giatri').value = dogData.giatri || '';
+                document.getElementById('syll_giatri').value = dogData.value || '';
 
-                document.getElementById('dongho_ba').value = dogData.dongho_ba || '';
+                document.getElementById('dongho_ba').value = dogData.father_name || '';
 
-                document.getElementById('dongho_ngaysinh').value = dogData.dongho_ngaysinh || '';
+                document.getElementById('dongho_ngaysinh').value = dogData.father_birth || '';
 
-                document.getElementById('dongho_noisinh').value = dogData.noisinh || '';
+                document.getElementById('dongho_noisinh').value = dogData.father_place || '';
 
-                document.getElementById('dongho_giong').value = dogData.dongho_giong || '';
+                document.getElementById('dongho_giong').value = dogData.father_breed || '';
 
-                document.getElementById('dongho_dacdiem').value = dogData.dongho_dacdiem || '';
+                document.getElementById('dongho_dacdiem').value = dogData.father_features || '';
 
                 document.getElementById('hlv_ten').value = dogData.hlv_ten || currentUserName || hlvInfo.name;
 
@@ -2452,6 +2621,15 @@ async function loadDogProfile(dogName) {
                 document.getElementById('hlv_donvi').value = dogData.hlv_donvi || '';
 
                 document.getElementById('hlv_daotao').value = dogData.hlv_daotao || '';
+                
+                // Update status indicator
+                const statusIndicator = document.querySelector('.status-indicator');
+                if (statusIndicator && dogData.status) {
+                    statusIndicator.textContent = dogData.status;
+                    statusIndicator.className = `status-indicator status-${dogData.status.toLowerCase()}`;
+                }
+                
+                console.log('Dog profile loaded successfully:', dogData);
 
             } else {
 
@@ -2906,7 +3084,7 @@ function performSearch() {
 
                 const contentName = item.innerText.replace(/🐶|➕|🔧|🧠/g, '').trim();
 
-                if (contentName === 'TỔNG QUAN' || contentName === 'QUY TRÌNH CHĂM SÓC' || contentName === 'QUY TRÌNH SỬ DỤNG' || contentName === 'QUY TRÌNH HUẤN LUYỆN' || contentName === 'VIDEO HƯỚNG DẪN') {
+                if (contentName === 'TỔNG QUAN' || contentName === 'QUY TRÌNH CHĂM SÓC' || contentName === 'QUY TRÌNH SỬ DỤNG' || contentName === 'QUY TRÌNH HUẤN LUYỆN' || contentName === 'KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN' || contentName === 'VIDEO HƯỚNG DẪN') {
 
                     showContent(contentName);
 
@@ -5898,8 +6076,11 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
         
         // Simple fallback HTML if data is missing
         if (!generalInfo.dogName) {
-            content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>⚠️ DỮ LIỆU NHẬT KÝ KHÔNG ĐẦY ĐỦ</h3><p>Không thể hiển thị nhật ký vì thiếu thông tin cơ bản.</p><button onclick="returnToJournalList()" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Quay lại</button></div>';
-            return;
+            console.log('⚠️ No general info found, using fallback data');
+            // Use provided parameters as fallback
+            generalInfo.dogName = dogName || 'N/A';
+            generalInfo.date = date || 'N/A';
+            generalInfo.hlv = 'N/A';
         }
 
         // Render signature images asynchronously
@@ -8717,48 +8898,301 @@ async function exportJournalToPDF(dogName, date) {
     try {
         console.log('📄 Starting PDF export for:', dogName, date);
 
-        // Check if we have PDFExportSystem available
-        if (typeof PDFExportSystem === 'undefined') {
-            console.warn('PDFExportSystem not available, using basic export');
-            exportBasicJournalToPDF(dogName, date);
-            return;
-        }
-
-        // Get current journal data from the form
+        // Get current journal data from the form (not from database)
         const journalData = collectJournalFormData();
         if (!journalData) {
             throw new Error('Không có dữ liệu nhật ký để xuất');
         }
 
-        // Create a temporary PDF export system instance
-        const pdfExporter = new PDFExportSystem();
-
-        // Format the journal data for PDF export
-        const formattedData = {
-            id: Date.now(), // temporary ID
-            dog_name: dogName,
-            journal_date: date,
-            trainer_name: document.getElementById('journal_hlv').value,
-            training_activities: JSON.stringify(journalData.trainingBlocks),
-            care_activities: JSON.stringify(journalData.meals) + '\n' + JSON.stringify(journalData.care),
-            operation_activities: JSON.stringify(journalData.operationBlocks),
-            health_status: journalData.health?.status || 'Tốt',
-            behavior_notes: journalData.hlvComment || '',
-            challenges: journalData.otherIssues || '',
-            trainer_comment: journalData.hlvComment || '',
-            content: `Hoạt động huấn luyện: ${journalData.trainingBlocks?.length || 0} ca\nHoạt động tác nghiệp: ${journalData.operationBlocks?.length || 0} ca`
-        };
-
-        // Export using the PDF system
-        await pdfExporter.generateSingleJournalPDF(formattedData).then(pdf => {
-            const fileName = `Nhat_ky_${dogName}_${date}.pdf`;
-            pdf.save(fileName);
-            alert('✅ Đã xuất PDF thành công!');
+        console.log('✅ Collected form data for PDF export:', journalData);
+        console.log('🔍 Journal data structure:', {
+            generalInfo: journalData.generalInfo,
+            trainingBlocks: journalData.trainingBlocks,
+            operationBlocks: journalData.operationBlocks,
+            meals: journalData.meals,
+            care: journalData.care,
+            health: journalData.health
         });
+
+        // Use the same display format as showPureA4JournalView
+        await generatePDFFromA4View(dogName, date, journalData);
 
     } catch (error) {
         console.error('❌ PDF Export Error:', error);
         alert('❌ Lỗi khi xuất PDF: ' + error.message + '\n\nSử dụng Ctrl+P để in thành PDF.');
+    }
+}
+
+// Generate PDF from A4 view (same format as viewSelectedManagerPastJournal)
+async function generatePDFFromA4View(dogName, date, journalData) {
+    try {
+        console.log('📄 Generating PDF from A4 view for:', dogName, date);
+
+        // Safe access to journal data with proper null checks
+        const generalInfo = journalData.generalInfo || {};
+        const approval = journalData.approval || {};
+        const hlvSignature = approval.hlvSignature || {};
+        const leaderSignature = approval.leaderSignature || {};
+        const substituteSignature = approval.substituteSignature || {};
+        const meals = journalData.meals || {};
+        const health = journalData.health || {};
+        const care = journalData.care || {};
+
+        // Simple fallback HTML if data is missing
+        if (!generalInfo.dogName) {
+            console.log('⚠️ No general info found, using fallback data');
+            // Use provided parameters as fallback
+            generalInfo.dogName = dogName || 'N/A';
+            generalInfo.date = date || 'N/A';
+            generalInfo.hlv = 'N/A';
+        }
+
+        // Render signature images asynchronously (only if signatures exist)
+        const hlvSignatureHTML = hlvSignature.name ? await renderSignatureImageForA4(hlvSignature, 'hlv') : '<div style="min-height: 60px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #666;">Chưa ký</div>';
+        const leaderSignatureHTML = leaderSignature.name ? await renderSignatureImageForA4(leaderSignature, 'leader') : '<div style="min-height: 60px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #666;">Chưa duyệt</div>';
+        const substituteSignatureHTML = substituteSignature.name ? await renderSignatureImageForA4(substituteSignature, 'substitute') : '';
+
+        // Build HTML template (same as showPureA4JournalView)
+        const htmlTemplate = `
+        <div class="a4-journal-view" style="background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: 'Times New Roman', serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm;">
+            <div class="a4-header" style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="font-size: 18px; font-weight: bold; margin: 0 0 10px 0;">TỔNG CỤC HẢI QUAN</h1>
+                <h2 style="font-size: 16px; font-weight: bold; margin: 0 0 20px 0;">SỔ NHẬT KÝ HUẤN LUYỆN CHÓ NGHIỆP VỤ</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                    <div><strong>CNV:</strong> ${generalInfo.dogName || 'N/A'}</div>
+                    <div><strong>Ngày:</strong> ${formatDateToDDMMYYYY(generalInfo.date || '')}</div>
+                </div>
+                <div style="margin-top: 10px;"><strong>Huấn luyện viên:</strong> ${generalInfo.hlv || 'N/A'}</div>
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">I. HOẠT ĐỘNG HUẤN LUYỆN</h3>
+                ${renderTrainingBlocks(journalData.trainingBlocks || [])}
+                <div style="margin-top: 20px;">
+                    <strong>Đánh giá chung của Huấn luyện viên:</strong><br>
+                    <div style="margin-top: 10px; padding: 10px; border: 1px solid #ccc; min-height: 60px;">
+                        ${journalData.hlvComment || 'Chưa có đánh giá'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">II. CHĂM SÓC & NUÔI DƯỠNG</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px; width: 15%;"><strong>Bữa trưa:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.time || ''} - ${meals.lunch?.amount || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn trưa:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.lunch?.food || 'Chưa ghi'}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Bữa chiều:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.time || ''} - ${meals.dinner?.amount || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Thức ăn chiều:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${meals.dinner?.food || 'Chưa ghi'}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Chăm sóc:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${renderCareActivities(care)}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;"><strong>Sức khỏe:</strong></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${health.status || 'Bình thường'}</td>
+                    </tr>
+                </table>
+                ${health.other ? `<p><strong>Ghi chú sức khỏe:</strong> ${health.other}</p>` : ''}
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">III. HOẠT ĐỘNG TÁC NGHIỆP</h3>
+                ${renderOperationBlocks(journalData.operationBlocks || [])}
+            </div>
+            
+            <div class="a4-section" style="margin-bottom: 30px; page-break-inside: avoid;">
+                <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">IV. DUYỆT & KÝ</h3>
+                <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+                    <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
+                        <strong>HUẤN LUYỆN VIÊN</strong><br><br>
+                        ${hlvSignatureHTML}
+                    </div>
+                    <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
+                        <strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>
+                        ${leaderSignatureHTML}
+                        ${leaderSignature.name && approval.leaderComment ? 
+                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                <strong>Nhận xét:</strong> ${approval.leaderComment}
+                            </div>` : ''
+                        }
+                    </div>
+                </div>
+                ${substituteSignature.name ? 
+                    `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
+                        <strong>HLV TRỰC THAY</strong><br><br>
+                        ${substituteSignatureHTML}
+                        ${substituteSignature.comment ? 
+                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                <strong>Ý kiến:</strong> ${substituteSignature.comment}
+                            </div>` : ''
+                        }
+                    </div>` : ''
+                }
+                
+                <!-- Add note for form data (no signatures yet) -->
+                ${!hlvSignature.name && !leaderSignature.name ? 
+                    `<div style="width: 100%; text-align: center; margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px dashed #ccc; color: #666;">
+                        <strong>📝 Ghi chú:</strong> Đây là bản nháp từ form. Chữ ký sẽ được thêm sau khi lưu và duyệt.
+                    </div>` : ''
+                }
+            </div>
+        </div>`;
+
+        // Create a temporary container for PDF generation
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.top = '0';
+        tempContainer.innerHTML = htmlTemplate;
+        document.body.appendChild(tempContainer);
+
+        console.log('🔍 HTML Template generated:', htmlTemplate.substring(0, 500) + '...');
+        console.log('🔍 Temp container content length:', tempContainer.innerHTML.length);
+
+        // Add print styles
+        const printStyles = `
+            <style>
+                @media print { 
+                    .no-print { display: none !important; } 
+                    body { margin: 0; padding: 0; } 
+                    .a4-journal-view { 
+                        max-width: none !important; 
+                        margin: 0 !important; 
+                        padding: 15mm !important; 
+                        box-shadow: none !important; 
+                        font-size: 12px !important; 
+                    } 
+                } 
+                @media screen { 
+                    .a4-journal-view { 
+                        background: white; 
+                        max-width: 210mm; 
+                        margin: 20px auto; 
+                        padding: 20mm; 
+                        font-family: "Times New Roman", serif; 
+                        font-size: 14px; 
+                        line-height: 1.4; 
+                        box-shadow: 0 0 20px rgba(0,0,0,0.1); 
+                        min-height: 297mm; 
+                    } 
+                }
+            </style>
+        `;
+        tempContainer.innerHTML += printStyles;
+
+        // Wait a bit for images to load
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Show preview option first
+        const showPreview = confirm('📄 PDF đã sẵn sàng!\n\nBạn muốn:\n• OK: Xem trước PDF trong tab mới\n• Cancel: Tải PDF trực tiếp');
+        
+        if (showPreview) {
+            // Show preview in new tab
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Xem trước PDF - ${dogName} - ${date}</title>
+                        ${printStyles}
+                        <style>
+                            body { margin: 0; padding: 20px; background: #f5f5f5; }
+                            .preview-header { background: #2196F3; color: white; padding: 15px; margin: -20px -20px 20px -20px; text-align: center; }
+                            .preview-actions { text-align: center; margin: 20px 0; }
+                            .preview-actions button { margin: 0 10px; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+                            .btn-download { background: #4CAF50; color: white; }
+                            .btn-print { background: #FF9800; color: white; }
+                            .btn-close { background: #f44336; color: white; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="preview-header">
+                            <h2>📄 Xem trước PDF - Nhật ký ${dogName} - ${date}</h2>
+                        </div>
+                        <div class="preview-actions">
+                            <button class="btn-download" onclick="downloadPDF()">📥 Tải PDF</button>
+                            <button class="btn-print" onclick="window.print()">🖨️ In PDF</button>
+                            <button class="btn-close" onclick="window.close()">❌ Đóng</button>
+                        </div>
+                        ${htmlTemplate}
+                        <script>
+                            function downloadPDF() {
+                                // Trigger download
+                                window.print();
+                            }
+                        </script>
+                    </body>
+                </html>
+            `);
+            previewWindow.document.close();
+            console.log('🔍 PDF preview opened in new tab');
+            return; // Don't proceed with automatic download
+        }
+
+        // Generate PDF using html2pdf
+        if (typeof html2pdf !== 'undefined') {
+            console.log('✅ html2pdf library is available');
+            const opt = {
+                margin: 10,
+                filename: `Nhat_ky_${dogName}_${date}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            console.log('🔍 Starting html2pdf generation...');
+            await html2pdf().set(opt).from(tempContainer).save();
+            console.log('✅ PDF generated successfully');
+            
+            // Show success message with more details
+            alert(`✅ Đã xuất PDF thành công!\n\n📄 Tên file: Nhat_ky_${dogName}_${date}.pdf\n📁 Vị trí: Thư mục Downloads\n\nNếu không thấy file, hãy kiểm tra thư mục Downloads hoặc thanh thông báo trình duyệt.`);
+            
+            // Also try to open the PDF in a new tab for immediate viewing
+            try {
+                const pdfBlob = await html2pdf().set(opt).from(tempContainer).outputPdf('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                window.open(pdfUrl, '_blank');
+                console.log('🔍 PDF opened in new tab for immediate viewing');
+            } catch (openError) {
+                console.log('⚠️ Could not open PDF in new tab:', openError);
+            }
+        } else {
+            console.log('⚠️ html2pdf library not available, using print fallback');
+            // Fallback: open print dialog
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Nhật ký ${dogName} - ${date}</title>
+                        ${printStyles}
+                    </head>
+                    <body>
+                        ${htmlTemplate}
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+        }
+
+        // Clean up
+        document.body.removeChild(tempContainer);
+
+    } catch (error) {
+        console.error('❌ Error generating PDF from A4 view:', error);
+        throw error;
     }
 }
 
@@ -8822,9 +9256,33 @@ function collectJournalFormData() {
         const date = document.getElementById('journal_date').value;
         const hlv = document.getElementById('journal_hlv').value;
 
+        console.log('🔍 Form elements found:', {
+            dogName: dogName,
+            date: date,
+            hlv: hlv,
+            dogNameElement: document.getElementById('journal_dog_name'),
+            dateElement: document.getElementById('journal_date'),
+            hlvElement: document.getElementById('journal_hlv')
+        });
+
         if (!dogName || !date) {
+            console.log('⚠️ Missing required fields:', { dogName, date });
             return null;
         }
+
+        const trainingBlocks = collectTrainingBlocksData();
+        const operationBlocks = collectOperationBlocksData();
+        const meals = collectMealsData();
+        const care = collectCareData();
+        const health = collectHealthData();
+
+        console.log('🔍 Collected data:', {
+            trainingBlocks,
+            operationBlocks,
+            meals,
+            care,
+            health
+        });
 
         return {
             generalInfo: {
@@ -8832,11 +9290,11 @@ function collectJournalFormData() {
                 date: date,
                 hlv: hlv
             },
-            trainingBlocks: collectTrainingBlocksData(),
-            operationBlocks: collectOperationBlocksData(),
-            meals: collectMealsData(),
-            care: collectCareData(),
-            health: collectHealthData(),
+            trainingBlocks: trainingBlocks,
+            operationBlocks: operationBlocks,
+            meals: meals,
+            care: care,
+            health: health,
             hlvComment: document.getElementById('journal_hlv_comment').value,
             otherIssues: document.getElementById('journal_other_issues').value
         };
@@ -9838,5 +10296,207 @@ async function approveJournalWithComment(journalKey) {
             alert('Có lỗi khi ký duyệt nhật ký: ' + error.message + '\n\nChi tiết lỗi: ' + error.stack);
 
         }
+    }
+}
+
+// ===== PDF UPLOAD FUNCTIONALITY FOR CARE PLANS =====
+
+let selectedCarePlanFile = null;
+
+// Handle file selection
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        // Validate file type
+        if (!file.type.includes('pdf')) {
+            alert('Vui lòng chọn file PDF hợp lệ');
+            event.target.value = '';
+            return;
+        }
+        
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB');
+            event.target.value = '';
+            return;
+        }
+        
+        selectedCarePlanFile = file;
+        document.getElementById('uploadBtn').disabled = false;
+        
+        // Update UI to show selected file
+        const dropzone = document.querySelector('.upload-dropzone');
+        dropzone.innerHTML = `
+            <div class="upload-icon">✅</div>
+            <p><strong>${file.name}</strong></p>
+            <small>Kích thước: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+        `;
+    }
+}
+
+// Upload care plan PDF
+async function uploadCarePlan() {
+    if (!selectedCarePlanFile) {
+        alert('Vui lòng chọn file PDF trước khi upload');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('care_plan', selectedCarePlanFile);
+    
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressDiv = document.getElementById('uploadProgress');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    try {
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = '⏳ Đang upload...';
+        progressDiv.style.display = 'block';
+        
+        const response = await fetch('/api/upload-care-plan', {
+            method: 'POST',
+            headers: {
+                'X-User-Role': currentUserRole
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Upload thành công!');
+            // Reset UI
+            resetUploadUI();
+            // Reload the list
+            loadCarePlans();
+        } else {
+            alert('❌ Upload thất bại: ' + result.error);
+        }
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('❌ Có lỗi khi upload: ' + error.message);
+    } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '📤 Upload PDF';
+        progressDiv.style.display = 'none';
+    }
+}
+
+// Reset upload UI
+function resetUploadUI() {
+    selectedCarePlanFile = null;
+    document.getElementById('carePlanFile').value = '';
+    document.getElementById('uploadBtn').disabled = true;
+    
+    const dropzone = document.querySelector('.upload-dropzone');
+    dropzone.innerHTML = `
+        <div class="upload-icon">📄</div>
+        <p>Nhấp để chọn file PDF hoặc kéo thả vào đây</p>
+        <small>Chỉ chấp nhận file PDF, tối đa 10MB</small>
+    `;
+}
+
+// Load care plans list
+async function loadCarePlans() {
+    const listDiv = document.getElementById('carePlanList');
+    
+    try {
+        listDiv.innerHTML = '<div class="loading">Đang tải danh sách...</div>';
+        
+        const response = await fetch('/api/care-plans');
+        const result = await response.json();
+        
+        if (result.success) {
+            if (result.data.length === 0) {
+                listDiv.innerHTML = '<div class="no-files">Chưa có tài liệu nào được upload</div>';
+            } else {
+                listDiv.innerHTML = result.data.map(file => `
+                    <div class="care-plan-item">
+                        <div class="file-info">
+                            <div class="file-icon">📄</div>
+                            <div class="file-details">
+                                <div class="file-name">${file.original_name || file.filename}</div>
+                                <div class="file-meta">
+                                    <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                    <span class="file-date">${new Date(file.upload_date).toLocaleDateString('vi-VN')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn-view" onclick="viewCarePlan('${file.filename}')" title="Xem PDF">
+                                👁️ Xem
+                            </button>
+                            <button class="btn-download" onclick="downloadCarePlan('${file.filename}', '${file.original_name || file.filename}')" title="Tải về">
+                                ⬇️ Tải về
+                            </button>
+                            ${currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN' ? `
+                                <button class="btn-delete" onclick="deleteCarePlan('${file.filename}')" title="Xóa">
+                                    🗑️ Xóa
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } else {
+            listDiv.innerHTML = '<div class="error">❌ Lỗi khi tải danh sách: ' + result.error + '</div>';
+        }
+        
+    } catch (error) {
+        console.error('Load care plans error:', error);
+        listDiv.innerHTML = '<div class="error">❌ Có lỗi khi tải danh sách</div>';
+    }
+}
+
+// View PDF in new tab
+function viewCarePlan(filename) {
+    const url = `/care-plans/${filename}`;
+    window.open(url, '_blank');
+}
+
+// Download PDF
+function downloadCarePlan(filename, originalName = null) {
+    const url = `/care-plans/${filename}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = originalName || filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Delete PDF (Manager and Admin only)
+async function deleteCarePlan(filename) {
+    if (currentUserRole !== 'MANAGER' && currentUserRole !== 'ADMIN') {
+        alert('Chỉ Manager và Admin mới có quyền xóa tài liệu');
+        return;
+    }
+    
+    if (!confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/care-plans/${filename}`, {
+            method: 'DELETE',
+            headers: {
+                'X-User-Role': currentUserRole
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('✅ Xóa thành công!');
+            loadCarePlans(); // Reload the list
+        } else {
+            alert('❌ Xóa thất bại: ' + result.error);
+        }
+        
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('❌ Có lỗi khi xóa: ' + error.message);
     }
 }

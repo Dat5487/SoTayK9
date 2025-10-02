@@ -528,15 +528,26 @@ class DatabaseManager:
             conn.close()
     
     def get_dog_by_id(self, dog_id: int) -> Optional[Dict[str, Any]]:
-        """Get dog by ID"""
+        """Get dog by ID with trainer information from user_dog_assignments table"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
             cursor.execute('''
-                SELECT d.*, u.name as trainer_name, u.username as trainer_username
+                SELECT d.*, 
+                       u.name as trainer_name, 
+                       u.username as trainer_username,
+                       u.id as trainer_id,
+                       uda.assignment_type,
+                       uda.assigned_at
                 FROM dogs d
-                LEFT JOIN users u ON d.trainer_id = u.id
+                LEFT JOIN (
+                    SELECT dog_id, user_id, assignment_type, assigned_at,
+                           ROW_NUMBER() OVER (PARTITION BY dog_id ORDER BY assigned_at DESC) as rn
+                    FROM user_dog_assignments 
+                    WHERE assignment_type = 'TRAINER' AND status = 'ACTIVE'
+                ) uda ON d.id = uda.dog_id AND uda.rn = 1
+                LEFT JOIN users u ON uda.user_id = u.id
                 WHERE d.id = ?
             ''', (dog_id,))
             
@@ -547,15 +558,26 @@ class DatabaseManager:
             conn.close()
     
     def get_all_dogs(self) -> List[Dict[str, Any]]:
-        """Get all dogs with trainer information"""
+        """Get all dogs with trainer information from user_dog_assignments table"""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
             cursor.execute('''
-                SELECT d.*, u.name as trainer_name, u.username as trainer_username
+                SELECT d.*, 
+                       u.name as trainer_name, 
+                       u.username as trainer_username,
+                       u.id as trainer_id,
+                       uda.assignment_type,
+                       uda.assigned_at
                 FROM dogs d
-                LEFT JOIN users u ON d.trainer_id = u.id
+                LEFT JOIN (
+                    SELECT dog_id, user_id, assignment_type, assigned_at,
+                           ROW_NUMBER() OVER (PARTITION BY dog_id ORDER BY assigned_at DESC) as rn
+                    FROM user_dog_assignments 
+                    WHERE assignment_type = 'TRAINER' AND status = 'ACTIVE'
+                ) uda ON d.id = uda.dog_id AND uda.rn = 1
+                LEFT JOIN users u ON uda.user_id = u.id
                 ORDER BY d.created_at DESC
             ''')
             
