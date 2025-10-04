@@ -1032,31 +1032,81 @@ function toggleSpeech() {
         isSpeaking = false;
         toggleButton.innerText = '🔊 Đọc nội dung';
     } else {
-        currentUtterance = new SpeechSynthesisUtterance(contentText);
-
-        const voices = speechSynthesis.getVoices();
-        const vietnameseVoice = voices.find(v => v.lang === 'vi-VN');
-
-        if (vietnameseVoice) {
-            currentUtterance.voice = vietnameseVoice;
-        } else {
-            console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
+        // Function to find and set Vietnamese voice
+        function findVietnameseVoice() {
+            const voices = speechSynthesis.getVoices();
+            
+            // Try to find Vietnamese voices with different language codes
+            let vietnameseVoice = voices.find(v => 
+                v.lang === 'vi-VN' || 
+                v.lang === 'vi' || 
+                v.lang.startsWith('vi-') ||
+                v.name.toLowerCase().includes('vietnamese') ||
+                v.name.toLowerCase().includes('vietnam')
+            );
+            
+            // If no Vietnamese voice found, try to find any Asian voice
+            if (!vietnameseVoice) {
+                vietnameseVoice = voices.find(v => 
+                    v.lang.startsWith('zh-') || 
+                    v.lang.startsWith('ja-') || 
+                    v.lang.startsWith('ko-') ||
+                    v.name.toLowerCase().includes('chinese') ||
+                    v.name.toLowerCase().includes('japanese') ||
+                    v.name.toLowerCase().includes('korean')
+                );
+            }
+            
+            return vietnameseVoice;
         }
 
-        currentUtterance.onend = () => {
-            isSpeaking = false;
-            toggleButton.innerText = '🔊 Đọc nội dung';
-        };
+        // Function to speak with voice selection
+        function speakWithVoice() {
+            currentUtterance = new SpeechSynthesisUtterance(contentText);
+            
+            // Set speech parameters for better Vietnamese pronunciation
+            currentUtterance.rate = 0.9; // Slightly slower for better clarity
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1.0;
+            
+            const vietnameseVoice = findVietnameseVoice();
+            
+            if (vietnameseVoice) {
+                currentUtterance.voice = vietnameseVoice;
+                console.log('Đang sử dụng giọng:', vietnameseVoice.name, 'Ngôn ngữ:', vietnameseVoice.lang);
+            } else {
+                console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
+                // Try to set language to Vietnamese even if voice is not Vietnamese
+                currentUtterance.lang = 'vi-VN';
+            }
 
-        currentUtterance.onerror = (event) => {
-            console.error('Lỗi khi đọc:', event.error);
-            isSpeaking = false;
-            toggleButton.innerText = '🔊 Đọc nội dung';
-        };
+            currentUtterance.onend = () => {
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+            };
 
-        speechSynthesis.speak(currentUtterance);
-        isSpeaking = true;
-        toggleButton.innerText = '⏹️ Dừng đọc';
+            currentUtterance.onerror = (event) => {
+                console.error('Lỗi khi đọc:', event.error);
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+            };
+
+            speechSynthesis.speak(currentUtterance);
+            isSpeaking = true;
+            toggleButton.innerText = '⏹️ Dừng đọc';
+        }
+
+        // Check if voices are already loaded
+        if (speechSynthesis.getVoices().length > 0) {
+            speakWithVoice();
+        } else {
+            // Wait for voices to be loaded
+            speechSynthesis.addEventListener('voiceschanged', function() {
+                speakWithVoice();
+                // Remove the event listener after first use
+                speechSynthesis.removeEventListener('voiceschanged', arguments.callee);
+            });
+        }
     }
 }
 

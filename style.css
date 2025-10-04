@@ -2287,7 +2287,7 @@ button[onclick*="chatWithAI"]:hover {
 /* ===== PDF UPLOAD STYLES FOR CARE PLANS ===== */
 
 .care-plan-container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     background: white;
@@ -2580,6 +2580,96 @@ button[onclick*="chatWithAI"]:hover {
     font-style: italic;
 }
 
+/* Care Plan Viewer Styles */
+.care-plan-viewer-section {
+    margin-bottom: 40px;
+}
+
+.care-plan-viewer-section h4 {
+    color: #495057;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.care-plan-info {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+.care-plan-info .file-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.care-plan-info .file-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.care-plan-info .file-meta {
+    display: flex;
+    gap: 20px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.care-plan-info .file-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pdf-viewer-container {
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.pdf-viewer {
+    width: 100%;
+    height: 80vh;
+    min-height: 600px;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    background: #f8f9fa;
+}
+
+.no-files {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+.no-files-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-files h4 {
+    color: #6c757d;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.no-files p {
+    color: #6c757d;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .care-plan-container {
@@ -2596,6 +2686,21 @@ button[onclick*="chatWithAI"]:hover {
     .file-actions {
         width: 100%;
         justify-content: space-between;
+    }
+    
+    .pdf-viewer {
+        height: 70vh;
+        min-height: 400px;
+    }
+    
+    .pdf-viewer-container {
+        padding: 5px;
+        margin: 10px 0;
+    }
+    
+    .care-plan-info .file-meta {
+        flex-direction: column;
+        gap: 5px;
     }
     
     .upload-dropzone {

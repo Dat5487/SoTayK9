@@ -305,6 +305,8 @@ let currentUserRole = 'GUEST'; // TRAINER, MANAGER, ADMIN
 
 let currentUserName = '';
 
+let currentUserId = null; // Store current user ID for API calls
+
 let currentUserAssignedDogs = [];
 
 let isDashboardConnected = false;
@@ -871,18 +873,43 @@ function restrictManagerAccess() {
 // Function refreshDynamicMenus để đồng bộ với dashboard
 
 async function refreshDynamicMenus() {
-    // Use current user's assigned dogs from authentication session
-    const userDogs = currentUserAssignedDogs || [];
-
-    // Convert to expected format for dog menu functions
-    const dashboardDogs = userDogs.map(dogName => ({ name: dogName }));
+    let userDogs = [];
+    
+    // Try to fetch assigned dogs from database if user ID is available
+    if (currentUserId) {
+        try {
+            const response = await fetch(`/api/users/${currentUserId}/dogs`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    // Convert database dogs to expected format
+                    userDogs = data.data.map(dog => ({ name: dog.name, id: dog.id }));
+                    console.log('✅ Fetched assigned dogs from database:', userDogs);
+                } else {
+                    console.warn('⚠️ Failed to fetch assigned dogs from database, using fallback');
+                    userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
+                }
+            } else {
+                console.warn('⚠️ API request failed, using fallback assigned dogs');
+                userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
+            }
+        } catch (error) {
+            console.error('❌ Error fetching assigned dogs:', error);
+            // Fallback to currentUserAssignedDogs
+            userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
+        }
+    } else {
+        // Fallback to currentUserAssignedDogs if no user ID
+        console.log('⚠️ No user ID available, using fallback assigned dogs');
+        userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
+    }
 
     // Refreshing dynamic menus
 
-    updateDogSubMenu(dashboardDogs);
+    updateDogSubMenu(userDogs);
 
     if (currentUserRole !== 'MANAGER') {
-        updateJournalSubMenu(dashboardDogs);
+        updateJournalSubMenu(userDogs);
     }
 
 }
@@ -919,21 +946,13 @@ function updateDogSubMenu(dashboardDogs) {
 
     dashboardDogs.forEach(dog => {
 
-        if (currentUserRole === 'TRAINER' && !currentUserAssignedDogs.includes(dog.name)) {
-
-            return;
-
-        }
-
-
-
+        // Since dashboardDogs now comes from database assignment, 
+        // we don't need to check currentUserAssignedDogs anymore
         const li = document.createElement('li');
 
         li.innerHTML = '🐶' + dog.name;
 
         li.onclick = () => showDogProfileForm(dog.name);
-
-
 
         if (addNewButton) {
 
@@ -1017,14 +1036,8 @@ async function updateJournalSubMenu(dashboardDogs) {
 
     dashboardDogs.forEach(dog => {
 
-        if (currentUserRole === 'TRAINER' && !currentUserAssignedDogs.includes(dog.name)) {
-
-            return; // Skip dogs not assigned to trainer
-
-        }
-
-
-
+        // Since dashboardDogs now comes from database assignment, 
+        // we don't need to check currentUserAssignedDogs anymore
         const li = document.createElement('li');
 
         li.className = 'sub-item';
@@ -1275,6 +1288,7 @@ async function login() {
 
                 currentUserRole = user.role;
                 currentUserName = user.name;
+                currentUserId = user.id; // Store user ID for API calls
                 currentUserAssignedDogs = user.assignedDogs || [];
 
                 // Set currentUserName
@@ -1417,6 +1431,8 @@ function logout() {
 
     currentUserName = '';
 
+    currentUserId = null;
+
     currentUserAssignedDogs = [];
 
     isDashboardConnected = false;
@@ -1487,9 +1503,10 @@ function logout() {
 
     // Logout completed
 
-
-
     showLoginPage();
+    
+    // Reload the page to ensure complete reset
+    location.reload();
 
 }
 
@@ -2018,15 +2035,11 @@ function showContent(type) {
 
         title.innerText = 'KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN';
 
-        // Check if user can upload (Manager or Admin only)
-        const canUpload = currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN';
+        // Check if user can upload (Admin only)
+        const canUpload = currentUserRole === 'ADMIN';
         
         content.innerHTML = `
             <div class="care-plan-container">
-                <div class="care-plan-header">
-                    <h3>📋 Quản lý Kế hoạch Chăm sóc và Huấn luyện</h3>
-                    <p>${canUpload ? 'Upload và quản lý các tài liệu PDF về kế hoạch chăm sóc, huấn luyện chó nghiệp vụ' : 'Xem và tải về các tài liệu PDF về kế hoạch chăm sóc, huấn luyện chó nghiệp vụ'}</p>
-                </div>
                 
                 ${canUpload ? `
                 <div class="care-plan-upload-section">
@@ -2049,28 +2062,24 @@ function showContent(type) {
                         📤 Upload PDF
                     </button>
                 </div>
-                ` : `
-                <div class="care-plan-readonly-notice">
-                    <div class="notice-icon">👁️</div>
-                    <h4>Chế độ xem</h4>
-                    <p>Bạn đang ở chế độ xem. Chỉ Manager và Admin mới có quyền upload tài liệu mới.</p>
-                </div>
-                `}
+                ` : ''}
                 
-                <div class="care-plan-list-section">
-                    <h4>📚 Danh sách tài liệu</h4>
-                    <div id="carePlanList" class="care-plan-list">
-                        <div class="loading">Đang tải danh sách...</div>
+                <div class="care-plan-viewer-section">
+                    <h4>📖 Tài liệu hiện tại</h4>
+                    <div id="carePlanViewer" class="care-plan-viewer">
+                        <div class="loading">Đang tải tài liệu...</div>
                     </div>
                 </div>
             </div>
         `;
 
-        // Load existing care plans
-        loadCarePlans();
+        // Load and display the current care plan PDF
+        loadCurrentCarePlan();
 
-        // Setup file input change handler
-        document.getElementById('carePlanFile').addEventListener('change', handleFileSelect);
+        // Setup file input change handler if user can upload
+        if (canUpload) {
+            document.getElementById('carePlanFile').addEventListener('change', handleFileSelect);
+        }
 
     } else {
 
@@ -3185,75 +3194,91 @@ let currentUtterance = null;
 
 
 // Function to toggle speech
-
 function toggleSpeech() {
-
     const contentText = document.getElementById('content').innerText;
-
     const toggleButton = document.getElementById('toggleReadButton');
 
-
-
     if (isSpeaking) {
-
         speechSynthesis.cancel();
-
         isSpeaking = false;
-
         toggleButton.innerText = '🔊 Đọc nội dung';
-
     } else {
-
-        currentUtterance = new SpeechSynthesisUtterance(contentText);
-
-        const voices = speechSynthesis.getVoices();
-
-        const vietnameseVoice = voices.find(v => v.lang === 'vi-VN');
-
-
-
-        if (vietnameseVoice) {
-
-            currentUtterance.voice = vietnameseVoice;
-
-        } else {
-
-            console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
-
+        // Function to find and set Vietnamese voice
+        function findVietnameseVoice() {
+            const voices = speechSynthesis.getVoices();
+            
+            // Try to find Vietnamese voices with different language codes
+            let vietnameseVoice = voices.find(v => 
+                v.lang === 'vi-VN' || 
+                v.lang === 'vi' || 
+                v.lang.startsWith('vi-') ||
+                v.name.toLowerCase().includes('vietnamese') ||
+                v.name.toLowerCase().includes('vietnam')
+            );
+            
+            // If no Vietnamese voice found, try to find any Asian voice
+            if (!vietnameseVoice) {
+                vietnameseVoice = voices.find(v => 
+                    v.lang.startsWith('zh-') || 
+                    v.lang.startsWith('ja-') || 
+                    v.lang.startsWith('ko-') ||
+                    v.name.toLowerCase().includes('chinese') ||
+                    v.name.toLowerCase().includes('japanese') ||
+                    v.name.toLowerCase().includes('korean')
+                );
+            }
+            
+            return vietnameseVoice;
         }
 
+        // Function to speak with voice selection
+        function speakWithVoice() {
+            currentUtterance = new SpeechSynthesisUtterance(contentText);
+            
+            // Set speech parameters for better Vietnamese pronunciation
+            currentUtterance.rate = 0.9; // Slightly slower for better clarity
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 1.0;
+            
+            const vietnameseVoice = findVietnameseVoice();
+            
+            if (vietnameseVoice) {
+                currentUtterance.voice = vietnameseVoice;
+                console.log('Đang sử dụng giọng:', vietnameseVoice.name, 'Ngôn ngữ:', vietnameseVoice.lang);
+            } else {
+                console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
+                // Try to set language to Vietnamese even if voice is not Vietnamese
+                currentUtterance.lang = 'vi-VN';
+            }
 
+            currentUtterance.onend = () => {
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+            };
 
-        currentUtterance.onend = () => {
+            currentUtterance.onerror = (event) => {
+                console.error('Lỗi khi đọc:', event.error);
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+            };
 
-            isSpeaking = false;
+            speechSynthesis.speak(currentUtterance);
+            isSpeaking = true;
+            toggleButton.innerText = '⏹️ Dừng đọc';
+        }
 
-            toggleButton.innerText = '🔊 Đọc nội dung';
-
-        };
-
-
-
-        currentUtterance.onerror = (event) => {
-
-            console.error('Lỗi khi đọc:', event.error);
-
-            isSpeaking = false;
-
-            toggleButton.innerText = '🔊 Đọc nội dung';
-
-        };
-
-
-
-        speechSynthesis.speak(currentUtterance);
-
-        isSpeaking = true;
-
-        toggleButton.innerText = '⏹️ Dừng đọc';
-
+        // Check if voices are already loaded
+        if (speechSynthesis.getVoices().length > 0) {
+            speakWithVoice();
+        } else {
+            // Wait for voices to be loaded
+            speechSynthesis.addEventListener('voiceschanged', function() {
+                speakWithVoice();
+                // Remove the event listener after first use
+                speechSynthesis.removeEventListener('voiceschanged', arguments.callee);
+            });
+        }
     }
-
 }
 
 
@@ -10368,8 +10393,8 @@ async function uploadCarePlan() {
             alert('✅ Upload thành công!');
             // Reset UI
             resetUploadUI();
-            // Reload the list
-            loadCarePlans();
+            // Reload the viewer
+            loadCurrentCarePlan();
         } else {
             alert('❌ Upload thất bại: ' + result.error);
         }
@@ -10398,55 +10423,62 @@ function resetUploadUI() {
     `;
 }
 
-// Load care plans list
-async function loadCarePlans() {
-    const listDiv = document.getElementById('carePlanList');
+// Load current care plan PDF and display it directly
+async function loadCurrentCarePlan() {
+    const viewerDiv = document.getElementById('carePlanViewer');
     
     try {
-        listDiv.innerHTML = '<div class="loading">Đang tải danh sách...</div>';
+        viewerDiv.innerHTML = '<div class="loading">Đang tải tài liệu...</div>';
         
         const response = await fetch('/api/care-plans');
         const result = await response.json();
         
-        if (result.success) {
-            if (result.data.length === 0) {
-                listDiv.innerHTML = '<div class="no-files">Chưa có tài liệu nào được upload</div>';
-            } else {
-                listDiv.innerHTML = result.data.map(file => `
-                    <div class="care-plan-item">
-                        <div class="file-info">
-                            <div class="file-icon">📄</div>
-                            <div class="file-details">
-                                <div class="file-name">${file.original_name || file.filename}</div>
-                                <div class="file-meta">
-                                    <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                                    <span class="file-date">${new Date(file.upload_date).toLocaleDateString('vi-VN')}</span>
-                                </div>
-                            </div>
+        if (result.success && result.data.length > 0) {
+            // Get the most recent care plan (first in the list)
+            const currentFile = result.data[0];
+            
+            viewerDiv.innerHTML = `
+                <div class="care-plan-info">
+                    <div class="file-details">
+                        <div class="file-name">📄 ${currentFile.original_name || currentFile.filename}</div>
+                        <div class="file-meta">
+                            <span class="file-size">${(currentFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                            <span class="file-date">Cập nhật: ${new Date(currentFile.upload_date).toLocaleDateString('vi-VN')}</span>
                         </div>
                         <div class="file-actions">
-                            <button class="btn-view" onclick="viewCarePlan('${file.filename}')" title="Xem PDF">
-                                👁️ Xem
-                            </button>
-                            <button class="btn-download" onclick="downloadCarePlan('${file.filename}', '${file.original_name || file.filename}')" title="Tải về">
+                            <button class="btn-download" onclick="downloadCarePlan('${currentFile.filename}', '${currentFile.original_name || currentFile.filename}')" title="Tải về">
                                 ⬇️ Tải về
                             </button>
-                            ${currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN' ? `
-                                <button class="btn-delete" onclick="deleteCarePlan('${file.filename}')" title="Xóa">
+                            ${currentUserRole === 'ADMIN' ? `
+                                <button class="btn-delete" onclick="deleteCarePlan('${currentFile.filename}')" title="Xóa">
                                     🗑️ Xóa
                                 </button>
                             ` : ''}
                         </div>
                     </div>
-                `).join('');
-            }
+                </div>
+                <div class="pdf-viewer-container">
+                    <iframe 
+                        src="/care-plans/${currentFile.filename}" 
+                        class="pdf-viewer"
+                        title="Kế hoạch Chăm sóc và Huấn luyện"
+                        style="width: 100%; height: 80vh; border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+                    </iframe>
+                </div>
+            `;
         } else {
-            listDiv.innerHTML = '<div class="error">❌ Lỗi khi tải danh sách: ' + result.error + '</div>';
+            viewerDiv.innerHTML = `
+                <div class="no-files">
+                    <div class="no-files-icon">📄</div>
+                    <h4>Chưa có tài liệu</h4>
+                    <p>Chưa có tài liệu PDF nào được upload. ${currentUserRole === 'ADMIN' ? 'Vui lòng upload tài liệu PDF về kế hoạch chăm sóc và huấn luyện.' : 'Liên hệ Admin để upload tài liệu.'}</p>
+                </div>
+            `;
         }
         
     } catch (error) {
-        console.error('Load care plans error:', error);
-        listDiv.innerHTML = '<div class="error">❌ Có lỗi khi tải danh sách</div>';
+        console.error('Load current care plan error:', error);
+        viewerDiv.innerHTML = '<div class="error">❌ Có lỗi khi tải tài liệu</div>';
     }
 }
 
@@ -10467,10 +10499,10 @@ function downloadCarePlan(filename, originalName = null) {
     document.body.removeChild(link);
 }
 
-// Delete PDF (Manager and Admin only)
+// Delete PDF (Admin only)
 async function deleteCarePlan(filename) {
-    if (currentUserRole !== 'MANAGER' && currentUserRole !== 'ADMIN') {
-        alert('Chỉ Manager và Admin mới có quyền xóa tài liệu');
+    if (currentUserRole !== 'ADMIN') {
+        alert('Chỉ Admin mới có quyền xóa tài liệu');
         return;
     }
     
@@ -10490,7 +10522,7 @@ async function deleteCarePlan(filename) {
         
         if (result.success) {
             alert('✅ Xóa thành công!');
-            loadCarePlans(); // Reload the list
+            loadCurrentCarePlan(); // Reload the viewer
         } else {
             alert('❌ Xóa thất bại: ' + result.error);
         }

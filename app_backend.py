@@ -175,15 +175,15 @@ def serve_care_plans(filename):
 
 @app.route('/api/upload-care-plan', methods=['POST'])
 def upload_care_plan():
-    """Upload care plan PDF file - Manager only"""
+    """Upload care plan PDF file - Admin only"""
     try:
         # Get user role from request headers or session
         # For now, we'll check if the request includes a role header
         user_role = request.headers.get('X-User-Role', 'GUEST')
         
-        # Only allow Manager and Admin to upload
-        if user_role not in ['MANAGER', 'ADMIN']:
-            return jsonify({"success": False, "error": "Chỉ Manager và Admin mới có quyền upload tài liệu"}), 403
+        # Only allow Admin to upload
+        if user_role not in ['ADMIN']:
+            return jsonify({"success": False, "error": "Chỉ Admin mới có quyền upload tài liệu"}), 403
         
         if 'care_plan' not in request.files:
             return jsonify({"success": False, "error": "No care plan file provided"}), 400
@@ -325,14 +325,14 @@ def get_care_plans():
 
 @app.route('/api/care-plans/<filename>', methods=['DELETE'])
 def delete_care_plan(filename):
-    """Delete care plan file - Manager only"""
+    """Delete care plan file - Admin only"""
     try:
         # Get user role from request headers or session
         user_role = request.headers.get('X-User-Role', 'GUEST')
         
-        # Only allow Manager and Admin to delete
-        if user_role not in ['MANAGER', 'ADMIN']:
-            return jsonify({"success": False, "error": "Chỉ Manager và Admin mới có quyền xóa tài liệu"}), 403
+        # Only allow Admin to delete
+        if user_role not in ['ADMIN']:
+            return jsonify({"success": False, "error": "Chỉ Admin mới có quyền xóa tài liệu"}), 403
         
         import os
         care_plans_dir = 'care-plans'
