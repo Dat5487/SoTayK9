@@ -528,13 +528,13 @@ function showDefaultImage() {
     const title = document.getElementById('title');
     const content = document.getElementById('content');
 
-    title.innerText = 'SỔ TAY CHÓ NGHIỆP VỤ'; // Set a default title for the image view
+    title.innerText = 'PHẦN MỀM QUẢN LÝ, THEO DÕI CHÓ NGHIỆP VỤ'; // Set a default title for the image view
     content.style.display = 'flex'; // Use flexbox to center the image
     content.style.justifyContent = 'center';
     content.style.alignItems = 'center';
     content.style.height = 'calc(100vh - 100px)'; // Adjust height as needed
     content.innerHTML = `
-        <img src="/static/images/my_welcome_image.jpg" alt="Chào mừng đến với Sổ tay Chó nghiệp vụ" style="max-width: 100%; max-height: 100%; object-fit: fill;">
+        <img src="/static/images/my_welcome_image.jpg" alt="Chào mừng đến với Phần mềm quản lý, theo dõi chó nghiệp vụ" style="max-width: 100%; max-height: 100%; object-fit: fill;">
     `;
     // IMPORTANT: Replace "images/default_welcome_image.jpg" with the actual path to your desired image.
     // Make sure the image file exists in your project.
@@ -563,10 +563,10 @@ function showContent(type) {
         title.innerText = 'TỔNG QUAN';
         content.innerHTML = `
             <p>Trong bối cảnh tình hình buôn lậu, vận chuyển trái phép hàng hóa, ma túy và các hành vi vi phạm pháp luật qua biên giới ngày càng diễn biến phức tạp, tinh vi và có tổ chức, công tác kiểm soát, phát hiện, đấu tranh phòng chống tội phạm đặt ra nhiều yêu cầu, thách thức mới đối với lực lượng Hải quan Việt Nam. Một trong những biện pháp nghiệp vụ quan trọng, có tính đặc thù và hiệu quả cao là sử dụng chó nghiệp vụ trong công tác kiểm tra, giám sát hải quan, đặc biệt trong phát hiện chất ma túy, hàng cấm, vũ khí, và vật phẩm nguy hiểm.</p>
-            <p>Chó nghiệp vụ không chỉ là một phương tiện kỹ thuật đặc biệt mà còn là một lực lượng hỗ trợ trực tiếp cho cán bộ công chức Hải quan tại các cửa khẩu, sân bay, bến cảng, nơi có nguy cơ cao về buôn lậu và vận chuyển trái phép. Việc huấn luyện, nuôi dưỡng, sử dụng hiệu quả chó nghiệp vụ đòi hỏi sự đầu tư bài bản, khoa học, và đội ngũ cán bộ huấn luyện viên chuyên trách có chuyên môn sâu và tâm huyết.</p>
-            <p>Nhằm hệ thống hóa các quy định, quy trình, nghiệp vụ liên quan đến công tác quản lý và sử dụng chó nghiệp vụ trong ngành Hải quan, Tổng cục Hải quan biên soạn cuốn Sổ tay quản lý và sử dụng chó nghiệp vụ Hải quan. Cuốn sổ tay gồm các nội dung: giới thiệu chức năng, nhiệm vụ của tổ chức quản lý chó nghiệp vụ; quy trình chăm sóc, nuôi dưỡng, huấn luyện chó; phương pháp khai thác sử dụng trong thực tế; hồ sơ quản lý từng cá thể chó; công tác kiểm tra, đánh giá chất lượng; và những lưu ý trong phối hợp với các đơn vị liên quan.</p>
-            <p>Tổng cục Hải quan ghi nhận và đánh giá cao những đóng góp tâm huyết của các đơn vị, cán bộ, huấn luyện viên chó nghiệp vụ đã và đang trực tiếp tham gia xây dựng lực lượng này ngày càng chính quy, hiện đại và hiệu quả. Đồng thời, chúng tôi mong muốn tiếp tục nhận được các ý kiến đóng góp từ các chuyên gia, cán bộ trong và ngoài ngành nhằm hoàn thiện hơn nữa hệ thống tài liệu phục vụ công tác này.</p>
-            <p>Sổ tay là tài liệu nghiệp vụ nội bộ, phục vụ cho công chức, huấn luyện viên và các đơn vị liên quan trong ngành Hải quan. Trong trường hợp các văn bản pháp lý có thay đổi, các nội dung trong sổ tay sẽ được cập nhật và điều chỉnh cho phù hợp.</p>
+            <p>Chó nghiệp vụ không chỉ là một phương tiện kỹ thuật đặc biệt mà còn là một lực lượng hỗ trợ trực tiếp cho cán bộ công chức Hải quan tại các cửa khẩu, sân bay, bến cảng, nơi có nguy cơ cao về buôn lậu và vận chuyển trái phép hàng hóa, ma túy. Việc huấn luyện, nuôi dưỡng, sử dụng hiệu quả chó nghiệp vụ đòi hỏi sự đầu tư bài bản, khoa học, và đội ngũ cán bộ huấn luyện viên chuyên trách có chuyên môn sâu và tâm huyết.</p>
+            <p>Nhằm hệ thống hóa các quy định, quy trình, nghiệp vụ liên quan đến công tác quản lý, theo dõi chó nghiệp vụ trong ngành Hải quan, Hải quan cửa khẩu quốc tế Móng cái xây dựng phần mềm quản lý, theo dõi chó nghiệp vụ. Phần mềm này gồm các nội dung: Tổng quan; Hồ sơ quản lý chó nghiệp vụ; Quy trình chăm sóc; Quy trình sử dụng; Quy trình huấn luyện; Sổ nhật ký huấn luyện; Kế hoạch chăm sóc, huấn luyện, sử dụng và các video hướng dẫn.</p>
+            <p>Phần mềm quản lý, theo dõi chó nghiệp vụ là tài liệu nghiệp vụ nội bộ, phục vụ cho cán bộ quản lýlý, huấn luyện viên và các đơn vị liên quan trong ngành Hải quan. Trong trường hợp các văn bản pháp lý có thay đổi, các nội dung trong sổ tay sẽ được cập nhật và điều chỉnh cho phù hợp.</p>
+            <p>Hải quan cửa khẩu quốc tế Móng Cái mong muốn tiếp tục nhận được các ý kiến đóng góp từ các chuyên gia, cán bộ trong và ngoài ngành nhằm hoàn thiện hơn nữa hệ thống tài liệu phục vụ công tác này.</p>
             <p><strong>Xin trân trọng cảm ơn!</strong></p>
         `;
     } else if (type === 'HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ') {
