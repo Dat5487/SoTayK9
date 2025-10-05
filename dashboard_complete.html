@@ -71,6 +71,17 @@
             min-width: 120px;
         }
 
+        /* Operation columns - half width */
+        .data-table .operation-days {
+            width: 3.5%;
+            max-width: 50px;
+        }
+
+        .data-table .operation-results {
+            width: 6%;
+            max-width: 80px;
+        }
+
         /* Control panels responsive */
         .control-panel {
             background: white;
@@ -2870,12 +2881,21 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 Object.keys(dogData).forEach(month => allMonths.add(month));
             });
             
+            // If no months have data, show current month
+            if (allMonths.size === 0) {
+                const currentDate = new Date();
+                const currentMonth = currentDate.getMonth() + 1;
+                const currentYear = currentDate.getFullYear();
+                const currentMonthKey = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
+                allMonths.add(currentMonthKey);
+            }
+            
             const sortedMonths = Array.from(allMonths).sort();
 
             // Generate HTML table
             let html = `
                 <div style="overflow-x: auto; margin-top: 15px;">
-                    <table class="data-table" style="min-width: 1200px;">
+                    <table class="data-table" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th rowspan="2" style="vertical-align: middle; background: #667eea; color: white; text-align: center;">Chó Nghiệp Vụ</th>
@@ -2885,82 +2905,59 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                                 <th rowspan="2" style="vertical-align: middle; background: #667eea; color: white; text-align: center;">Tháng</th>
                             </tr>
                             <tr>
-                                <th style="background: #4CAF50; color: white; text-align: center;">Số ngày huấn luyện</th>
-                                <th style="background: #4CAF50; color: white; text-align: center;">Số giờ huấn luyện</th>
+                                <th style="background: #4CAF50; color: white; text-align: center;">Số ngày HL</th>
+                                <th style="background: #4CAF50; color: white; text-align: center;">Số giờ HL</th>
                                 <th style="background: #FF9800; color: white; text-align: center;">Số ngày tác nghiệp</th>
                                 <th style="background: #FF9800; color: white; text-align: center;">Kết quả tác nghiệp</th>
                                 <th style="background: #2196F3; color: white; text-align: center;">Lịch thăm khám</th>
-                                <th style="background: #2196F3; color: white; text-align: center;">Sức khỏe chó nghiệp vụ</th>
+                                <th style="background: #2196F3; color: white; text-align: center;">Sức khỏe CNV</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
-            // Generate rows for each month, showing each dog's summary for that month
+            // Generate rows for each month, showing ALL dogs for that month
             sortedMonths.forEach(monthKey => {
                 const monthNumber = parseInt(monthKey.split('-')[1]);
                 const monthName = `Tháng ${monthNumber}`;
                 
-                // Get all dogs that have data for this month
-                const dogsInMonth = [];
-                dogs.forEach(dog => {
-                    if (dogMonthData[dog.name] && dogMonthData[dog.name][monthKey]) {
-                        dogsInMonth.push(dog);
-                    }
+                // Show ALL dogs for this month, regardless of whether they have data
+                dogs.forEach((dog, index) => {
+                    const monthData = dogMonthData[dog.name] && dogMonthData[dog.name][monthKey] 
+                        ? dogMonthData[dog.name][monthKey] 
+                        : null;
+                    
+                    // Calculate data for this dog and month
+                    const trainingDays = monthData ? monthData.trainingDays.size : 0;
+                    const trainingHours = monthData ? Math.round(monthData.trainingHours * 10) / 10 : 0;
+                    const operationDays = monthData ? monthData.operationDays.size : 0;
+                    const operationResults = monthData && monthData.operationDays.size > 0 ? 'Tốt' : '-';
+                    const careSchedule = monthData && monthData.journalDates.size > 0 ? 
+                        Array.from(monthData.journalDates).sort().map(date => formatDateToDDMMYYYY(date)).join(', ') : '-';
+                    const healthStatus = monthData && monthData.healthStatus.length > 0 ? 
+                        getMostCommonHealthStatus(monthData.healthStatus) : '-';
+                    
+                    const isFirstRow = index === 0;
+                    html += `
+                        <tr>
+                            <td class="dog-name"><strong>${dog.name}</strong></td>
+                            <td class="training-days">${trainingDays > 0 ? trainingDays : '-'}</td>
+                            <td class="training-hours">${trainingHours > 0 ? trainingHours + 'h' : '-'}</td>
+                            <td class="operation-days">${operationDays > 0 ? operationDays : '-'}</td>
+                            <td class="operation-results">${operationResults}</td>
+                            <td class="care-schedule">${careSchedule}</td>
+                            <td class="health-status">
+                                ${healthStatus !== '-' ? 
+                                    `<span class="status-indicator ${getHealthStatusClass(healthStatus)}">${healthStatus}</span>` : 
+                                    '-'
+                                }
+                            </td>
+                            <td class="month" ${isFirstRow ? `rowspan="${dogs.length}"` : ''}>
+                                ${isFirstRow ? `<strong>${monthName}</strong>` : ''}
+                            </td>
+                        </tr>
+                    `;
                 });
-                
-                // If no dogs have data for this month, show all dogs with empty data
-                if (dogsInMonth.length === 0) {
-                    dogs.forEach((dog, index) => {
-                        const isFirstRow = index === 0;
-                        html += `
-                            <tr>
-                                <td class="dog-name"><strong>${dog.name}</strong></td>
-                                <td class="training-days">-</td>
-                                <td class="training-hours">-</td>
-                                <td class="operation-days">-</td>
-                                <td class="operation-results">-</td>
-                                <td class="care-schedule">-</td>
-                                <td class="health-status">-</td>
-                                <td class="month" ${isFirstRow ? `rowspan="${dogs.length}"` : ''}>
-                                    ${isFirstRow ? `<strong>${monthName}</strong>` : ''}
-                                </td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    // Show dogs with data for this month
-                    dogsInMonth.forEach((dog, index) => {
-                        const monthData = dogMonthData[dog.name][monthKey];
-                        
-                        const trainingDays = monthData.trainingDays.size;
-                        const trainingHours = Math.round(monthData.trainingHours * 10) / 10; // Round to 1 decimal place
-                        const operationDays = monthData.operationDays.size;
-                        const operationResults = monthData.operationDays.size > 0 ? 'Tốt' : '-';
-                        const careSchedule = monthData.journalDates.size > 0 ? 
-                            Array.from(monthData.journalDates).sort().map(date => formatDateToDDMMYYYY(date)).join(', ') : '-';
-                        const healthStatus = monthData.healthStatus.length > 0 ? 
-                            getMostCommonHealthStatus(monthData.healthStatus) : '-';
-                        
-                        const isFirstRow = index === 0;
-                        html += `
-                            <tr>
-                                <td class="dog-name"><strong>${dog.name}</strong></td>
-                                <td class="training-days">${trainingDays}</td>
-                                <td class="training-hours">${trainingHours}h</td>
-                                <td class="operation-days">${operationDays}</td>
-                                <td class="operation-results">${operationResults}</td>
-                                <td class="care-schedule">${careSchedule}</td>
-                                <td class="health-status">
-                                    <span class="status-indicator ${getHealthStatusClass(healthStatus)}">${healthStatus}</span>
-                                </td>
-                                <td class="month" ${isFirstRow ? `rowspan="${dogsInMonth.length}"` : ''}>
-                                    ${isFirstRow ? `<strong>${monthName}</strong>` : ''}
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
             });
 
             html += `
@@ -3044,8 +3041,8 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 pdfContent += '.dog-name { width: 15%; }';
                 pdfContent += '.training-days { width: 7%; }';
                 pdfContent += '.training-hours { width: 7%; }';
-                pdfContent += '.operation-days { width: 7%; }';
-                pdfContent += '.operation-results { width: 12%; }';
+                pdfContent += '.operation-days { width: 3.5%; }';
+                pdfContent += '.operation-results { width: 6%; }';
                 pdfContent += '.care-schedule { width: 15%; }';
                 pdfContent += '.health-status { width: 8%; }';
                 pdfContent += '.month { width: 8%; }';
@@ -3076,12 +3073,12 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 tableHtml += '<th rowspan="2" class="month">Tháng</th>';
                 tableHtml += '</tr>';
                 tableHtml += '<tr>';
-                tableHtml += '<th class="training-days">Số ngày huấn luyện</th>';
-                tableHtml += '<th class="training-hours">Số giờ huấn luyện</th>';
+                tableHtml += '<th class="training-days">Số ngày HL</th>';
+                tableHtml += '<th class="training-hours">Số giờ HL</th>';
                 tableHtml += '<th class="operation-days">Số ngày tác nghiệp</th>';
                 tableHtml += '<th class="operation-results">Kết quả tác nghiệp</th>';
                 tableHtml += '<th class="care-schedule">Lịch thăm khám</th>';
-                tableHtml += '<th class="health-status">Sức khỏe chó nghiệp vụ</th>';
+                tableHtml += '<th class="health-status">Sức khỏe CNV</th>';
                 tableHtml += '</tr>';
                 tableHtml += '</thead>';
                 tableHtml += '<tbody>';
