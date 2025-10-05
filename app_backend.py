@@ -2,11 +2,17 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import json
 import os
+import hashlib
 from datetime import datetime
 from database import db
 
 app = Flask(__name__)
 CORS(app)
+
+# Audio cache directory
+AUDIO_CACHE_DIR = 'audio_cache'
+if not os.path.exists(AUDIO_CACHE_DIR):
+    os.makedirs(AUDIO_CACHE_DIR)
 
 def initialize_database():
     """Initialize database"""
@@ -1097,6 +1103,259 @@ def update_migration_status():
         
         return jsonify({"success": True, "message": "Status updated"})
     except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# =============================================================================
+# TEXT-TO-SPEECH ENDPOINTS
+# =============================================================================
+
+@app.route('/api/tts/speak', methods=['POST'])
+def text_to_speech():
+    """Convert text to speech using gTTS"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        lang = data.get('lang', 'vi')  # Default to Vietnamese
+        
+        if not text:
+            return jsonify({"success": False, "error": "No text provided"}), 400
+        
+        # Import gTTS here to avoid import errors if not installed
+        try:
+            from gtts import gTTS
+            import tempfile
+            import base64
+            import io
+        except ImportError:
+            return jsonify({"success": False, "error": "gTTS not installed. Please install with: pip install gTTS"}), 500
+        
+        # Create gTTS object
+        tts = gTTS(text=text, lang=lang, slow=False)
+        
+        # Generate audio in memory
+        audio_buffer = io.BytesIO()
+        tts.write_to_fp(audio_buffer)
+        audio_buffer.seek(0)
+        
+        # Convert to base64 for JSON response
+        audio_base64 = base64.b64encode(audio_buffer.getvalue()).decode('utf-8')
+        
+        return jsonify({
+            "success": True,
+            "audio": audio_base64,
+            "text": text,
+            "lang": lang,
+            "size": len(audio_buffer.getvalue())
+        })
+        
+    except Exception as e:
+        print(f"❌ TTS Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts/speak/file', methods=['POST'])
+def text_to_speech_file():
+    """Convert text to speech and save as file"""
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        lang = data.get('lang', 'vi')  # Default to Vietnamese
+        
+        if not text:
+            return jsonify({"success": False, "error": "No text provided"}), 400
+        
+        # Import gTTS here to avoid import errors if not installed
+        try:
+            from gtts import gTTS
+            import tempfile
+            import os
+        except ImportError:
+            return jsonify({"success": False, "error": "gTTS not installed. Please install with: pip install gTTS"}), 500
+        
+        # Create hash for filename based on content (UTF-8 safe, same as frontend)
+        cleaned_content = text.replace('\s+', ' ').strip()
+        content_hash = hashlib.md5(cleaned_content.encode('utf-8')).hexdigest()[:16]
+        audio_filename = f"{content_hash}.mp3"
+        audio_path = os.path.join(AUDIO_CACHE_DIR, audio_filename)
+        
+        # Check if audio already exists
+        if os.path.exists(audio_path):
+            file_size = os.path.getsize(audio_path)
+            return jsonify({
+                "success": True,
+                "filename": audio_filename,
+                "full_path": audio_path,
+                "text": text,
+                "lang": lang,
+                "size": file_size,
+                "cached": True
+            })
+        
+        # Create gTTS object and save to file
+        tts = gTTS(text=text, lang=lang, slow=False)
+        tts.save(audio_path)
+        
+        # Get file size
+        file_size = os.path.getsize(audio_path)
+        
+        return jsonify({
+            "success": True,
+            "filename": audio_filename,
+            "full_path": audio_path,
+            "text": text,
+            "lang": lang,
+            "size": file_size,
+            "cached": False
+        })
+        
+    except Exception as e:
+        print(f"❌ TTS File Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts/preload', methods=['POST'])
+def preload_audio():
+    """Pre-generate and cache audio for text content"""
+    try:
+        data = request.get_json()
+        content_sections = data.get('sections', [])
+        
+        if not content_sections:
+            return jsonify({"success": False, "error": "No content sections provided"}), 400
+        
+        # Import gTTS here to avoid import errors if not installed
+        try:
+            from gtts import gTTS
+        except ImportError:
+            return jsonify({"success": False, "error": "gTTS not installed. Please install with: pip install gTTS"}), 500
+        
+        generated_files = []
+        
+        for section in content_sections:
+            title = section.get('title', '')
+            content = section.get('content', '')
+            
+            if not content.strip():
+                continue
+            
+            # Create hash for filename based on content (UTF-8 safe, same as frontend)
+            cleaned_content = content.replace('\s+', ' ').strip()
+            content_hash = hashlib.md5(cleaned_content.encode('utf-8')).hexdigest()[:16]
+            audio_filename = f"{content_hash}.mp3"
+            audio_path = os.path.join(AUDIO_CACHE_DIR, audio_filename)
+            
+            # Check if audio already exists
+            if os.path.exists(audio_path):
+                generated_files.append({
+                    "title": title,
+                    "filename": audio_filename,
+                    "cached": True
+                })
+                continue
+            
+            # Generate audio
+            try:
+                tts = gTTS(text=content, lang='vi', slow=False)
+                tts.save(audio_path)
+                
+                file_size = os.path.getsize(audio_path)
+                
+                generated_files.append({
+                    "title": title,
+                    "filename": audio_filename,
+                    "size": file_size,
+                    "cached": False
+                })
+                
+                print(f"✅ Generated audio for '{title}': {audio_filename} ({file_size} bytes)")
+                
+            except Exception as e:
+                print(f"❌ Error generating audio for '{title}': {e}")
+                continue
+        
+        return jsonify({
+            "success": True,
+            "generated": generated_files,
+            "total_files": len(generated_files)
+        })
+        
+    except Exception as e:
+        print(f"❌ Preload Error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts/get/<filename>')
+def get_cached_audio(filename):
+    """Serve cached audio file"""
+    try:
+        # Security check - only allow .mp3 files
+        if not filename.endswith('.mp3'):
+            return jsonify({"success": False, "error": "Invalid file type"}), 400
+        
+        audio_path = os.path.join(AUDIO_CACHE_DIR, filename)
+        
+        if not os.path.exists(audio_path):
+            return jsonify({"success": False, "error": "Audio file not found"}), 404
+        
+        return send_from_directory(AUDIO_CACHE_DIR, filename, as_attachment=False, mimetype='audio/mpeg')
+        
+    except Exception as e:
+        print(f"❌ Audio serve error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts/cache/status')
+def get_cache_status():
+    """Get status of audio cache"""
+    try:
+        cache_files = []
+        total_size = 0
+        
+        if os.path.exists(AUDIO_CACHE_DIR):
+            for filename in os.listdir(AUDIO_CACHE_DIR):
+                if filename.endswith('.mp3'):
+                    file_path = os.path.join(AUDIO_CACHE_DIR, filename)
+                    file_size = os.path.getsize(file_path)
+                    total_size += file_size
+                    
+                    cache_files.append({
+                        "filename": filename,
+                        "size": file_size
+                    })
+        
+        return jsonify({
+            "success": True,
+            "cache_dir": AUDIO_CACHE_DIR,
+            "file_count": len(cache_files),
+            "total_size": total_size,
+            "files": cache_files
+        })
+        
+    except Exception as e:
+        print(f"❌ Cache status error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/tts/cache/clear', methods=['POST'])
+def clear_audio_cache():
+    """Clear all cached audio files"""
+    try:
+        cleared_count = 0
+        total_size = 0
+        
+        if os.path.exists(AUDIO_CACHE_DIR):
+            for filename in os.listdir(AUDIO_CACHE_DIR):
+                if filename.endswith('.mp3'):
+                    file_path = os.path.join(AUDIO_CACHE_DIR, filename)
+                    file_size = os.path.getsize(file_path)
+                    total_size += file_size
+                    
+                    os.remove(file_path)
+                    cleared_count += 1
+        
+        return jsonify({
+            "success": True,
+            "cleared_files": cleared_count,
+            "freed_space": total_size
+        })
+        
+    except Exception as e:
+        print(f"❌ Cache clear error: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 # =============================================================================

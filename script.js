@@ -3183,104 +3183,420 @@ function backToMainContent() {
 
     showContent(document.getElementById('title').innerText);
 
+    // Initialize audio system for TTS
+    initializeAudioSystem();
+
 }
 
 
 
 let isSpeaking = false;
-
 let currentUtterance = null;
+let currentAudio = null;
+let audioCache = new Map(); // Cache for audio file mappings
+let audioPreloaded = false;
 
+// UTF-8 safe content hashing function
+function createContentHash(text) {
+    // Convert string to UTF-8 bytes
+    const utf8Bytes = new TextEncoder().encode(text);
+    
+    // Convert bytes to hex string
+    let hexString = '';
+    for (let i = 0; i < utf8Bytes.length; i++) {
+        hexString += utf8Bytes[i].toString(16).padStart(2, '0');
+    }
+    
+    // Take first 16 characters as hash
+    return hexString.substring(0, 16);
+}
 
+// Function to preload audio files for all content sections
+async function preloadAllAudio() {
+    if (audioPreloaded) {
+        console.log('✅ Audio already preloaded');
+        return;
+    }
 
-// Function to toggle speech
-function toggleSpeech() {
-    const contentText = document.getElementById('content').innerText;
-    const toggleButton = document.getElementById('toggleReadButton');
+    console.log('🔄 Preloading audio files for all content sections...');
+    
+    const contentSections = [
+        {
+            title: 'TỔNG QUAN',
+            content: 'Trong bối cảnh tình hình buôn lậu, vận chuyển trái phép hàng hóa, ma túy và các hành vi vi phạm pháp luật qua biên giới ngày càng diễn biến phức tạp, tinh vi và có tổ chức, công tác kiểm soát, phát hiện, đấu tranh phòng chống tội phạm đặt ra nhiều yêu cầu, thách thức mới đối với lực lượng Hải quan Việt Nam. Một trong những biện pháp nghiệp vụ quan trọng, có tính đặc thù và hiệu quả cao là sử dụng chó nghiệp vụ trong công tác kiểm tra, giám sát hải quan, đặc biệt trong phát hiện chất ma túy, hàng cấm, vũ khí, và vật phẩm nguy hiểm.'
+        },
+        {
+            title: 'QUY TRÌNH CHĂM SÓC',
+            content: 'Việc chăm sóc, nuôi dưỡng CNV (chó nghiệp vụ) là công việc phải được thực hiện hàng ngày và liên tục trong suốt quá trình sử dụng. Trách nhiệm được phân công rõ ràng: Huấn luyện viên chịu trách nhiệm toàn diện về sức khỏe của CNV do mình quản lý. Nhân viên thú y tham mưu cho lãnh đạo về công tác chăn nuôi, theo dõi sức khỏe, xây dựng khẩu phần ăn, và trực tiếp thực hiện tiêm phòng, chẩn đoán, điều trị bệnh cho CNV.'
+        },
+        {
+            title: 'QUY TRÌNH SỬ DỤNG',
+            content: 'Quy trình sử dụng chó nghiệp vụ trong kiểm tra hải quan bao gồm các bước chuẩn bị, thực hiện kiểm tra, và xử lý kết quả. Huấn luyện viên cần đảm bảo chó được nghỉ ngơi đầy đủ trước khi thực hiện nhiệm vụ, kiểm tra sức khỏe và trạng thái tinh thần của chó.'
+        },
+        {
+            title: 'QUY TRÌNH HUẤN LUYỆN',
+            content: 'Quy trình huấn luyện chó nghiệp vụ được thực hiện theo các giai đoạn từ cơ bản đến nâng cao. Giai đoạn đầu tập trung vào việc xây dựng mối quan hệ tin cậy giữa huấn luyện viên và chó, sau đó chuyển sang các bài tập chuyên môn về phát hiện ma túy và chất cấm.'
+        }
+    ];
 
-    if (isSpeaking) {
-        speechSynthesis.cancel();
-        isSpeaking = false;
-        toggleButton.innerText = '🔊 Đọc nội dung';
-    } else {
-        // Function to find and set Vietnamese voice
-        function findVietnameseVoice() {
-            const voices = speechSynthesis.getVoices();
-            
-            // Try to find Vietnamese voices with different language codes
-            let vietnameseVoice = voices.find(v => 
-                v.lang === 'vi-VN' || 
-                v.lang === 'vi' || 
-                v.lang.startsWith('vi-') ||
-                v.name.toLowerCase().includes('vietnamese') ||
-                v.name.toLowerCase().includes('vietnam')
-            );
-            
-            // If no Vietnamese voice found, try to find any Asian voice
-            if (!vietnameseVoice) {
-                vietnameseVoice = voices.find(v => 
-                    v.lang.startsWith('zh-') || 
-                    v.lang.startsWith('ja-') || 
-                    v.lang.startsWith('ko-') ||
-                    v.name.toLowerCase().includes('chinese') ||
-                    v.name.toLowerCase().includes('japanese') ||
-                    v.name.toLowerCase().includes('korean')
-                );
-            }
-            
-            return vietnameseVoice;
+    try {
+        // Use the preload endpoint to generate all audio files
+        const response = await fetch('/api/tts/preload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                sections: contentSections
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Function to speak with voice selection
-        function speakWithVoice() {
-            currentUtterance = new SpeechSynthesisUtterance(contentText);
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('✅ Audio files preloaded successfully:', data.total_files + ' files');
             
-            // Set speech parameters for better Vietnamese pronunciation
-            currentUtterance.rate = 0.9; // Slightly slower for better clarity
-            currentUtterance.pitch = 1.0;
-            currentUtterance.volume = 1.0;
-            
-            const vietnameseVoice = findVietnameseVoice();
-            
-            if (vietnameseVoice) {
-                currentUtterance.voice = vietnameseVoice;
-                console.log('Đang sử dụng giọng:', vietnameseVoice.name, 'Ngôn ngữ:', vietnameseVoice.lang);
-            } else {
-                console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
-                // Try to set language to Vietnamese even if voice is not Vietnamese
-                currentUtterance.lang = 'vi-VN';
-            }
-
-            currentUtterance.onend = () => {
-                isSpeaking = false;
-                toggleButton.innerText = '🔊 Đọc nội dung';
-            };
-
-            currentUtterance.onerror = (event) => {
-                console.error('Lỗi khi đọc:', event.error);
-                isSpeaking = false;
-                toggleButton.innerText = '🔊 Đọc nội dung';
-            };
-
-            speechSynthesis.speak(currentUtterance);
-            isSpeaking = true;
-            toggleButton.innerText = '⏹️ Dừng đọc';
-        }
-
-        // Check if voices are already loaded
-        if (speechSynthesis.getVoices().length > 0) {
-            speakWithVoice();
-        } else {
-            // Wait for voices to be loaded
-            speechSynthesis.addEventListener('voiceschanged', function() {
-                speakWithVoice();
-                // Remove the event listener after first use
-                speechSynthesis.removeEventListener('voiceschanged', arguments.callee);
+            // Store audio file mappings in cache for instant access
+            data.generated.forEach(item => {
+                audioCache.set(item.title, item.filename);
+                console.log(`📁 Cached: ${item.title} → ${item.filename}`);
             });
+            
+            audioPreloaded = true;
+        } else {
+            throw new Error(data.error || 'Unknown error');
         }
+        
+    } catch (error) {
+        console.error('❌ Audio preload error:', error);
+        // Don't show alert for preload errors, just log them
     }
 }
 
+// Function to get cached audio filename for current content
+function getCachedAudioFilename() {
+    const contentElement = document.getElementById('content');
+    if (!contentElement) return null;
+    
+    const contentText = contentElement.innerText || contentElement.textContent || '';
+    if (!contentText.trim()) return null;
+    
+    // Create hash from actual content (UTF-8 safe)
+    const cleanedText = cleanTextForTTS(contentText);
+    const contentHash = createContentHash(cleanedText);
+    const expectedFilename = `${contentHash}.mp3`;
+    
+    console.log('🔍 Looking for cached audio:', expectedFilename);
+    console.log('📝 Content preview:', cleanedText.substring(0, 100) + '...');
+    
+    // Check if this file exists in our cache or server
+    return expectedFilename;
+}
+
+// Function to check if audio file exists on server
+async function checkAudioFileExists(filename) {
+    try {
+        const response = await fetch(`/api/tts/get/${filename}`, { method: 'HEAD' });
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Function to toggle speech using cached audio or generate new
+function toggleSpeech() {
+    const contentElement = document.getElementById('content');
+    const toggleButton = document.getElementById('toggleReadButton');
+    
+    if (!contentElement) {
+        console.error('❌ Content element not found');
+        alert('Không tìm thấy nội dung để đọc');
+        return;
+    }
+
+    const contentText = contentElement.innerText || contentElement.textContent || '';
+    
+    if (!contentText.trim()) {
+        console.warn('⚠️ No content to read');
+        alert('Không có nội dung để đọc');
+        return;
+    }
+
+    console.log('📝 Content to read:', contentText.substring(0, 100) + '...');
+
+    if (isSpeaking) {
+        console.log('⏹️ Stopping speech');
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+        isSpeaking = false;
+        toggleButton.innerText = '🔊 Đọc nội dung';
+        toggleButton.style.background = '#007bff';
+        return;
+    }
+
+    // Clean text for better TTS
+    function cleanTextForTTS(text) {
+        return text
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+    }
+
+    // Start Vietnamese TTS (immediate playback from saved files)
+    async function startVietnameseTTS() {
+        try {
+            const cleanedText = cleanTextForTTS(contentText);
+            
+            // Get expected filename based on content hash (UTF-8 safe)
+            const contentHash = createContentHash(cleanedText);
+            const expectedFilename = `${contentHash}.mp3`;
+            
+            // Check if audio file exists on server
+            const fileExists = await checkAudioFileExists(expectedFilename);
+            
+            if (fileExists) {
+                console.log('🎵 Found cached audio file:', expectedFilename);
+                
+                // Update button state
+                toggleButton.innerText = '🔄 Đang tải âm thanh...';
+                toggleButton.style.background = '#ffc107';
+                toggleButton.disabled = true;
+                
+                // Play the cached audio file immediately
+                const audioUrl = `/api/tts/get/${expectedFilename}`;
+                currentAudio = new Audio(audioUrl);
+                
+            } else {
+                console.log('🌐 No cached audio found, generating new file:', expectedFilename);
+                
+                // Update button state
+                toggleButton.innerText = '🔄 Đang tạo âm thanh...';
+                toggleButton.style.background = '#ffc107';
+                toggleButton.disabled = true;
+                
+                // Use file-based TTS endpoint
+                const response = await fetch('/api/tts/speak/file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: cleanedText,
+                        lang: 'vi' // Vietnamese
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Unknown error');
+                }
+
+                console.log('✅ Audio file generated:', data.filename, '(' + Math.round(data.size / 1024) + ' KB)');
+                
+                // Play the newly generated audio file
+                const audioUrl = `/api/tts/get/${data.filename}`;
+                currentAudio = new Audio(audioUrl);
+            }
+            
+            currentAudio.onloadstart = () => {
+                console.log('🎵 Audio loading started');
+                toggleButton.innerText = '⏸️ Dừng đọc';
+                toggleButton.style.background = '#dc3545';
+                toggleButton.disabled = false;
+            };
+            
+            currentAudio.oncanplaythrough = () => {
+                console.log('🎵 Audio ready to play');
+            };
+            
+            currentAudio.onplay = () => {
+                console.log('🎤 Speech started');
+                isSpeaking = true;
+                toggleButton.innerText = '⏹️ Dừng đọc';
+                toggleButton.style.background = '#dc3545';
+            };
+            
+            currentAudio.onended = () => {
+                console.log('✅ Speech completed');
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+                toggleButton.style.background = '#007bff';
+                currentAudio = null;
+            };
+            
+            currentAudio.onerror = (event) => {
+                console.error('❌ Audio error:', event);
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+                toggleButton.style.background = '#007bff';
+                toggleButton.disabled = false;
+                
+                alert('Lỗi khi phát âm thanh. Vui lòng thử lại.');
+                currentAudio = null;
+            };
+            
+            currentAudio.onpause = () => {
+                console.log('⏸️ Speech paused');
+                isSpeaking = false;
+                toggleButton.innerText = '🔊 Đọc nội dung';
+                toggleButton.style.background = '#007bff';
+            };
+            
+            // Start playing
+            await currentAudio.play();
+            
+        } catch (error) {
+            console.error('❌ TTS Error:', error);
+            
+            isSpeaking = false;
+            toggleButton.innerText = '🔊 Đọc nội dung';
+            toggleButton.style.background = '#007bff';
+            toggleButton.disabled = false;
+            
+            let errorMessage = 'Lỗi khi tạo âm thanh. ';
+            if (error.message.includes('gTTS not installed')) {
+                errorMessage += 'Vui lòng cài đặt gTTS: pip install gTTS';
+            } else if (error.message.includes('fetch')) {
+                errorMessage += 'Không thể kết nối đến server.';
+            } else {
+                errorMessage += error.message;
+            }
+            
+            alert(errorMessage);
+        }
+    }
+
+    // Start the TTS process
+    startVietnameseTTS();
+}
+
+// Initialize audio preloading when page loads
+async function initializeAudioSystem() {
+    console.log('🎵 Initializing audio system...');
+    
+    // Preload audio in background (don't wait for it)
+    preloadAllAudio().then(() => {
+        console.log('🎵 Audio system ready');
+    }).catch(error => {
+        console.warn('⚠️ Audio preload failed, will generate on demand:', error);
+    });
+}
+
+// Function to check audio cache status
+async function checkAudioCacheStatus() {
+    try {
+        const response = await fetch('/api/tts/cache/status');
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('📊 Audio cache status:', {
+                files: data.file_count,
+                size: Math.round(data.total_size / 1024) + ' KB'
+            });
+            return data;
+        }
+    } catch (error) {
+        console.error('❌ Error checking cache status:', error);
+    }
+    return null;
+}
+
+// Function to clear audio cache
+async function clearAudioCache() {
+    try {
+        const response = await fetch('/api/tts/cache/clear', {
+            method: 'POST'
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            console.log('🗑️ Audio cache cleared:', data.cleared_files + ' files, ' + Math.round(data.freed_space / 1024) + ' KB freed');
+            audioCache.clear();
+            audioPreloaded = false;
+            return true;
+        }
+    } catch (error) {
+        console.error('❌ Error clearing cache:', error);
+    }
+    return false;
+}
+
+// Test function to debug speech synthesis
+function testSpeechSynthesis() {
+    console.log('🧪 Testing speech synthesis...');
+    
+    // Check browser support
+    if (!('speechSynthesis' in window)) {
+        console.error('❌ Speech synthesis not supported');
+        alert('Trình duyệt không hỗ trợ speech synthesis');
+        return;
+    }
+    
+    // Get voices
+    const voices = speechSynthesis.getVoices();
+    console.log('🎤 Total voices available:', voices.length);
+    
+    if (voices.length === 0) {
+        console.warn('⚠️ No voices available');
+        alert('Không có giọng nào khả dụng');
+        return;
+    }
+    
+    // List all voices
+    console.log('📋 Available voices:');
+    voices.forEach((voice, index) => {
+        console.log(`${index + 1}. ${voice.name} (${voice.lang}) - ${voice.gender || 'unknown'}`);
+    });
+    
+    // Test with simple Vietnamese text (processed for English voices)
+    const testText = 'Xin chao, day la thu nghiem doc tieng Viet.';
+    console.log('📝 Test text:', testText);
+    
+    const utterance = new SpeechSynthesisUtterance(testText);
+    utterance.rate = 0.6;  // Slower for Vietnamese clarity
+    utterance.pitch = 0.9; // Lower pitch for Vietnamese tone
+    utterance.volume = 1.0;
+    utterance.lang = 'en-US'; // Use English for processed Vietnamese text
+    
+    // Try to find Vietnamese voice
+    const vietnameseVoice = voices.find(v => 
+        v.lang === 'vi-VN' || 
+        v.lang === 'vi' || 
+        v.name.toLowerCase().includes('vietnamese')
+    );
+    
+    if (vietnameseVoice) {
+        utterance.voice = vietnameseVoice;
+        console.log('✅ Using Vietnamese voice:', vietnameseVoice.name);
+    } else {
+        console.warn('⚠️ No Vietnamese voice found, using default');
+    }
+    
+    utterance.onstart = () => console.log('🎤 Test speech started');
+    utterance.onend = () => console.log('✅ Test speech completed');
+    utterance.onerror = (event) => console.error('❌ Test speech error:', event.error);
+    
+    try {
+        speechSynthesis.speak(utterance);
+        console.log('🚀 Test speech initiated');
+    } catch (error) {
+        console.error('❌ Failed to start test speech:', error);
+        alert('Không thể khởi động test speech: ' + error.message);
+    }
+}
+
+// Add test button to console for debugging
+console.log('🔧 Speech synthesis test function available: testSpeechSynthesis()');
 
 
 // Function to toggle "HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ" submenu
@@ -5504,7 +5820,7 @@ function addTrainingBlock(data = {}) {
 
 
 
-    // Initialize drug displays for all attempts
+    // Initialize drug displays and manifestation checkboxes for all attempts
 
     for (let i = 1; i <= 3; i++) {
 
@@ -5517,6 +5833,23 @@ function addTrainingBlock(data = {}) {
                 optionsList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
 
                     checkbox.checked = data.drugDetection[i - 1].selectedDrugs.includes(checkbox.dataset.drugValue);
+
+                });
+
+            }
+
+        }
+
+        // Initialize manifestation checkboxes
+        if (data.drugDetection && data.drugDetection[i - 1] && data.drugDetection[i - 1].manifestation) {
+
+            const manifestationContainer = document.querySelector('.detection-manifestation-' + i);
+
+            if (manifestationContainer) {
+
+                manifestationContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+
+                    checkbox.checked = data.drugDetection[i - 1].manifestation.includes(checkbox.value);
 
                 });
 
@@ -5662,7 +5995,57 @@ function addOperationBlock(data = {}) {
 
     container.appendChild(newBlock);
 
+    // Initialize operation location display
     updateOperationLocationDisplay(currentBlockId);
+
+    // Initialize content checkboxes and text inputs
+    if (data) {
+        // Initialize location text inputs
+        const locationKhoInput = document.getElementById(`operationLocationKho-${currentBlockId}`);
+        const locationOtherInput = document.getElementById(`operationLocationOther-${currentBlockId}`);
+        if (locationKhoInput && data.locationKhoText) {
+            locationKhoInput.value = data.locationKhoText;
+        }
+        if (locationOtherInput && data.locationOtherText) {
+            locationOtherInput.value = data.locationOtherText;
+        }
+
+        // Initialize content checkboxes
+        const checkGoodsCheckbox = document.getElementById(`checkGoods-${currentBlockId}`);
+        const checkLuggageCheckbox = document.getElementById(`checkLuggage-${currentBlockId}`);
+        const fieldTrainingCheckbox = document.getElementById(`fieldTraining-${currentBlockId}`);
+        const patrolCheckbox = document.getElementById(`patrol-${currentBlockId}`);
+        
+        if (checkGoodsCheckbox) checkGoodsCheckbox.checked = data.checkGoods || false;
+        if (checkLuggageCheckbox) checkLuggageCheckbox.checked = data.checkLuggage || false;
+        if (fieldTrainingCheckbox) fieldTrainingCheckbox.checked = data.fieldTraining || false;
+        if (patrolCheckbox) patrolCheckbox.checked = data.patrol || false;
+
+        // Initialize other operation text inputs and checkboxes
+        const otherOp1Checkbox = document.getElementById(`opKhacCheckbox1-${currentBlockId}`);
+        const otherOp1Text = document.getElementById(`opKhacText1-${currentBlockId}`);
+        const otherOp2Checkbox = document.getElementById(`opKhacCheckbox2-${currentBlockId}`);
+        const otherOp2Text = document.getElementById(`opKhacText2-${currentBlockId}`);
+        
+        if (otherOp1Checkbox) otherOp1Checkbox.checked = data.otherOperation1Checked || false;
+        if (otherOp1Text && data.otherOperation1) otherOp1Text.value = data.otherOperation1;
+        if (otherOp2Checkbox) otherOp2Checkbox.checked = data.otherOperation2Checked || false;
+        if (otherOp2Text && data.otherOperation2) otherOp2Text.value = data.otherOperation2;
+
+        // Initialize other issues textarea
+        const otherIssuesTextarea = document.getElementById(`operation_other_issues_${currentBlockId}`);
+        if (otherIssuesTextarea && data.otherIssues) {
+            otherIssuesTextarea.value = data.otherIssues;
+        }
+
+        // Update visibility of "other" inputs based on checkbox states
+        if (data.otherOperation1Checked) {
+            toggleOperationOtherInput(currentBlockId, 1);
+        }
+        if (data.otherOperation2Checked) {
+            toggleOperationOtherInput(currentBlockId, 2);
+        }
+    }
 
 }
 
@@ -6661,7 +7044,16 @@ function convertDatabaseToFrontendFormat(dbJournal) {
         if (dbJournal.care_activities) {
             const parsed = JSON.parse(dbJournal.care_activities);
             if (typeof parsed === 'object') {
-                care = parsed.activities || {};
+                // Apply proper field mapping for care activities
+                const activities = parsed.activities || {};
+                care = {
+                    morning: activities.morning || '',
+                    afternoon: activities.afternoon || '',
+                    evening: activities.evening || '',
+                    bath: activities.careBath || false,
+                    brush: activities.careBrush || false,
+                    wipe: activities.careWipe || false
+                };
                 meals = parsed.meals || {};
             } else {
                 care = convertCareActivitiesToFrontend(dbJournal.care_activities);
@@ -6805,9 +7197,34 @@ function convertFrontendToDatabaseFormat(frontendJournal) {
 
 // Function to convert care activities from database format to frontend format
 function convertCareActivitiesToFrontend(careActivities) {
-    const care = { morning: '', afternoon: '', evening: '' };
+    const care = { 
+        morning: '', 
+        afternoon: '', 
+        evening: '',
+        bath: false,
+        brush: false,
+        wipe: false
+    };
 
     if (careActivities) {
+        try {
+            // Try to parse as JSON first (new format)
+            const parsed = JSON.parse(careActivities);
+            if (typeof parsed === 'object' && parsed.activities) {
+                return {
+                    morning: parsed.activities.morning || '',
+                    afternoon: parsed.activities.afternoon || '',
+                    evening: parsed.activities.evening || '',
+                    bath: parsed.activities.careBath || false,
+                    brush: parsed.activities.careBrush || false,
+                    wipe: parsed.activities.careWipe || false
+                };
+            }
+        } catch (e) {
+            // Fallback to old string format
+        }
+        
+        // Old string format parsing
         const activities = careActivities.split(';').filter(a => a.trim());
 
         activities.forEach(activity => {
