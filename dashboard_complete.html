@@ -1611,40 +1611,8 @@
                     // Create new user via API
                     result = await createUserViaAPI(userData);
 
-                    // SỬA: AUTO-CREATE DOGS FOR NEW TRAINER
-                    if (result.success && userData.role === 'TRAINER') {
-                        const newUserId = result.data.id;
-
-                        // Tự động tạo 2 chó mới cho trainer
-                        const dogName1 =
-                            `CNV ${userData.name.split(' ')[userData.name.split(' ').length - 1].toUpperCase()}1`;
-                        const dogName2 =
-                            `CNV ${userData.name.split(' ')[userData.name.split(' ').length - 1].toUpperCase()}2`;
-
-                        const newDog1 = {
-                            name: dogName1,
-                            chip_id: `CHIP${Date.now()}1`,
-                            breed: 'German Shepherd',
-                            trainer_id: newUserId,
-                            status: 'ACTIVE'
-                        };
-
-                        const newDog2 = {
-                            name: dogName2,
-                            chip_id: `CHIP${Date.now()}2`,
-                            breed: 'Belgian Malinois',
-                            trainer_id: newUserId,
-                            status: 'TRAINING'
-                        };
-
-                        // Create dogs via API
-                        const dog1Result = await createDogViaAPI(newDog1);
-                        const dog2Result = await createDogViaAPI(newDog2);
-
-                        if (dog1Result.success && dog2Result.success) {
-                            // console.log(`✅ Auto-created dogs ${dogName1} and ${dogName2} for trainer ${userData.name}`);
-                        }
-                    }
+                    // REMOVED: Automatic dog creation for new trainers
+                    // Dogs should be created manually through the dog management interface
                 }
 
                 if (result.success) {

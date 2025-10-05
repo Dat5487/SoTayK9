@@ -500,9 +500,24 @@ class JournalDatabaseManager {
                     });
                 }
 
+                // Get selected manifestations from checkboxes
+                const manifestationContainer = document.querySelector(`.detection-manifestation-${i}`);
+                const selectedManifestations = [];
+                if (manifestationContainer) {
+                    manifestationContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                        selectedManifestations.push(checkbox.value);
+                    });
+                }
+
                 const result = document.getElementById(`drugDetectionResult-${blockId}-${i}`)?.value || '';
+                const drugTypeOther = document.getElementById(`drugTypeOther-${blockId}-${i}`)?.value || '';
+                const manifestationOther = document.getElementById(`manifestationOther-${blockId}-${i}`)?.value || '';
+                
                 drugDetectionData.push({
                     selectedDrugs: selectedDrugs,
+                    manifestation: selectedManifestations,
+                    drugTypeOther: drugTypeOther,
+                    manifestationOther: manifestationOther,
                     result: result
                 });
             }
@@ -577,7 +592,7 @@ class JournalDatabaseManager {
             const fromTime = document.getElementById(`operationFromTime-${blockId}`)?.value || '';
             const toTime = document.getElementById(`operationToTime-${blockId}`)?.value || '';
             
-            // Get selected operation locations using the same method as script.js
+            // Get selected operation locations
             const selectedLocations = [];
             const locationOptionsContainer = document.getElementById(`operationLocationOptions-${blockId}`);
             if (locationOptionsContainer) {
@@ -589,13 +604,40 @@ class JournalDatabaseManager {
                 });
             }
 
-            const otherIssues = document.getElementById(`journal_other_issues`)?.value || '';
+            // Get location text inputs
+            const locationKhoText = document.getElementById(`operationLocationKho-${blockId}`)?.value || '';
+            const locationOtherText = document.getElementById(`operationLocationOther-${blockId}`)?.value || '';
+
+            // Get content checkboxes (Nội dung fields)
+            const checkGoods = document.getElementById(`checkGoods-${blockId}`)?.checked || false;
+            const checkLuggage = document.getElementById(`checkLuggage-${blockId}`)?.checked || false;
+            const fieldTraining = document.getElementById(`fieldTraining-${blockId}`)?.checked || false;
+            const patrol = document.getElementById(`patrol-${blockId}`)?.checked || false;
+
+            // Get other operation text inputs
+            const otherOperation1 = document.getElementById(`opKhacText1-${blockId}`)?.value || '';
+            const otherOperation2 = document.getElementById(`opKhacText2-${blockId}`)?.value || '';
+            const otherOperation1Checked = document.getElementById(`opKhacCheckbox1-${blockId}`)?.checked || false;
+            const otherOperation2Checked = document.getElementById(`opKhacCheckbox2-${blockId}`)?.checked || false;
+
+            // Get other issues (textarea)
+            const otherIssues = document.getElementById(`operation_other_issues_${blockId}`)?.value || '';
 
             operationBlocksData.push({
                 blockId: blockId,
                 fromTime: fromTime,
                 toTime: toTime,
                 selectedLocations: selectedLocations,
+                locationKhoText: locationKhoText,
+                locationOtherText: locationOtherText,
+                checkGoods: checkGoods,
+                checkLuggage: checkLuggage,
+                fieldTraining: fieldTraining,
+                patrol: patrol,
+                otherOperation1: otherOperation1,
+                otherOperation2: otherOperation2,
+                otherOperation1Checked: otherOperation1Checked,
+                otherOperation2Checked: otherOperation2Checked,
                 otherIssues: otherIssues
             });
         });
@@ -920,40 +962,144 @@ class JournalDatabaseManager {
         }
 
         if (activities) {
-            const activityList = activities.split(';').filter(a => a.trim());
-            activityList.forEach(activity => {
-                this.addTrainingBlock(activity.trim());
-            });
+            try {
+                // Try to parse as JSON first (new format with manifestation data)
+                const trainingBlocks = JSON.parse(activities);
+                if (Array.isArray(trainingBlocks)) {
+                    trainingBlocks.forEach(blockData => {
+                        this.addTrainingBlock(blockData);
+                    });
+                } else {
+                    // Fallback to simple string parsing (old format)
+                    const activityList = activities.split(';').filter(a => a.trim());
+                    activityList.forEach(activity => {
+                        this.addTrainingBlock({ content: activity.trim() });
+                    });
+                }
+            } catch (e) {
+                // Fallback to simple string parsing (old format)
+                const activityList = activities.split(';').filter(a => a.trim());
+                activityList.forEach(activity => {
+                    this.addTrainingBlock({ content: activity.trim() });
+                });
+            }
         }
 
         // Ensure at least one block exists
-        if (!activities || activities.split(';').filter(a => a.trim()).length === 0) {
+        if (!activities) {
             this.addTrainingBlock();
         }
     }
 
     populateCareActivities(activities) {
         if (activities) {
-            const activityList = activities.split(';').filter(a => a.trim());
-            
-            activityList.forEach(activity => {
-                if (activity.includes('Sáng:')) {
-                    const morningField = document.getElementById('care_morning');
-                    if (morningField) {
-                        morningField.value = activity.replace('Sáng:', '').trim();
+            try {
+                // Try to parse as JSON first (new format with care checkboxes)
+                const careData = JSON.parse(activities);
+                if (typeof careData === 'object') {
+                    // Populate meals data
+                    if (careData.meals) {
+                        this.populateMealData(careData.meals);
                     }
-                } else if (activity.includes('Chiều:')) {
-                    const afternoonField = document.getElementById('care_afternoon');
-                    if (afternoonField) {
-                        afternoonField.value = activity.replace('Chiều:', '').trim();
+                    
+                    // Populate care activities (checkboxes and text fields)
+                    if (careData.activities) {
+                        const care = careData.activities;
+                        
+                        // Populate care checkboxes
+                        const bathField = document.getElementById('care_bath');
+                        const brushField = document.getElementById('care_brush');
+                        const wipeField = document.getElementById('care_wipe');
+                        
+                        if (bathField) bathField.checked = care.careBath || false;
+                        if (brushField) brushField.checked = care.careBrush || false;
+                        if (wipeField) wipeField.checked = care.careWipe || false;
+                        
+                        // Populate care text fields
+                        const morningField = document.getElementById('care_morning');
+                        const afternoonField = document.getElementById('care_afternoon');
+                        const eveningField = document.getElementById('care_evening');
+                        
+                        if (morningField && care.morning) morningField.value = care.morning;
+                        if (afternoonField && care.afternoon) afternoonField.value = care.afternoon;
+                        if (eveningField && care.evening) eveningField.value = care.evening;
                     }
-                } else if (activity.includes('Tối:')) {
-                    const eveningField = document.getElementById('care_evening');
-                    if (eveningField) {
-                        eveningField.value = activity.replace('Tối:', '').trim();
-                    }
+                } else {
+                    // Fallback to simple string parsing (old format)
+                    this.populateCareActivitiesFromString(activities);
                 }
-            });
+            } catch (e) {
+                // Fallback to simple string parsing (old format)
+                this.populateCareActivitiesFromString(activities);
+            }
+        }
+    }
+
+    populateCareActivitiesFromString(activities) {
+        // Handle old string format
+        const activityList = activities.split(';').filter(a => a.trim());
+        
+        activityList.forEach(activity => {
+            if (activity.includes('Sáng:')) {
+                const morningField = document.getElementById('care_morning');
+                if (morningField) {
+                    morningField.value = activity.replace('Sáng:', '').trim();
+                }
+            } else if (activity.includes('Chiều:')) {
+                const afternoonField = document.getElementById('care_afternoon');
+                if (afternoonField) {
+                    afternoonField.value = activity.replace('Chiều:', '').trim();
+                }
+            } else if (activity.includes('Tối:')) {
+                const eveningField = document.getElementById('care_evening');
+                if (eveningField) {
+                    eveningField.value = activity.replace('Tối:', '').trim();
+                }
+            }
+        });
+    }
+
+    populateMealData(mealsData) {
+        // Populate lunch data
+        if (mealsData.lunch) {
+            const lunchTimeField = document.getElementById('lunchTime');
+            const lunchAmountField = document.getElementById('lunchAmount');
+            const lunchFoodOtherField = document.getElementById('lunchFoodOther');
+            
+            if (lunchTimeField) lunchTimeField.value = mealsData.lunch.time || '';
+            if (lunchAmountField) lunchAmountField.value = mealsData.lunch.amount || '';
+            if (lunchFoodOtherField) lunchFoodOtherField.value = mealsData.lunch.otherFood || '';
+            
+            // Populate lunch food checkboxes
+            if (mealsData.lunch.food && Array.isArray(mealsData.lunch.food)) {
+                const lunchFoodOptions = document.getElementById('lunchFoodOptions');
+                if (lunchFoodOptions) {
+                    lunchFoodOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = mealsData.lunch.food.includes(checkbox.dataset.foodValue);
+                    });
+                }
+            }
+        }
+        
+        // Populate dinner data
+        if (mealsData.dinner) {
+            const dinnerTimeField = document.getElementById('dinnerTime');
+            const dinnerAmountField = document.getElementById('dinnerAmount');
+            const dinnerFoodOtherField = document.getElementById('dinnerFoodOther');
+            
+            if (dinnerTimeField) dinnerTimeField.value = mealsData.dinner.time || '';
+            if (dinnerAmountField) dinnerAmountField.value = mealsData.dinner.amount || '';
+            if (dinnerFoodOtherField) dinnerFoodOtherField.value = mealsData.dinner.otherFood || '';
+            
+            // Populate dinner food checkboxes
+            if (mealsData.dinner.food && Array.isArray(mealsData.dinner.food)) {
+                const dinnerFoodOptions = document.getElementById('dinnerFoodOptions');
+                if (dinnerFoodOptions) {
+                    dinnerFoodOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = mealsData.dinner.food.includes(checkbox.dataset.foodValue);
+                    });
+                }
+            }
         }
     }
 
@@ -965,14 +1111,31 @@ class JournalDatabaseManager {
         }
 
         if (activities) {
-            const activityList = activities.split(';').filter(a => a.trim());
-            activityList.forEach(activity => {
-                this.addOperationBlock(activity.trim());
-            });
+            try {
+                // Try to parse as JSON first (new format with content data)
+                const operationBlocks = JSON.parse(activities);
+                if (Array.isArray(operationBlocks)) {
+                    operationBlocks.forEach(blockData => {
+                        this.addOperationBlock(blockData);
+                    });
+                } else {
+                    // Fallback to simple string parsing (old format)
+                    const activityList = activities.split(';').filter(a => a.trim());
+                    activityList.forEach(activity => {
+                        this.addOperationBlock({ content: activity.trim() });
+                    });
+                }
+            } catch (e) {
+                // Fallback to simple string parsing (old format)
+                const activityList = activities.split(';').filter(a => a.trim());
+                activityList.forEach(activity => {
+                    this.addOperationBlock({ content: activity.trim() });
+                });
+            }
         }
 
         // Ensure at least one block exists - Add default operation block "Ca 1"
-        if (!activities || activities.split(';').filter(a => a.trim()).length === 0) {
+        if (!activities) {
             this.addOperationBlock();
         }
     }
