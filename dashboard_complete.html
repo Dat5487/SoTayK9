@@ -605,6 +605,17 @@
                     </div>
                     <div id="journalListContainer"></div>
                 </div>
+
+                <!-- Training Data Management Panel -->
+                <div class="control-panel">
+                    <h3>📊 BÁO CÁO HUẤN LUYỆN VÀ TÁC NGHIỆP</h3>
+                    <div class="control-buttons">
+                        <button class="btn btn-info" onclick="loadTrainingDataTable()">Tải Báo Cáo</button>
+                        <button class="btn btn-success" onclick="exportTrainingDataToPDF()">Xuất PDF</button>
+                        <button class="btn btn-warning" onclick="refreshTrainingData()">Làm Mới</button>
+                    </div>
+                    <div id="trainingDataContainer"></div>
+                </div>
             </div>
 
             <!-- Web Control Section -->
@@ -1323,6 +1334,7 @@
                 await loadUserList();
                 await loadDogList();
                 loadJournalList();
+                loadTrainingDataTable();
 
                 // Show welcome back message
                 showNotification(`Chào mừng trở lại, ${sessionUser.name}!`, 'success');
@@ -1410,6 +1422,7 @@
                     await loadUserList();
                     await loadDogList();
                     loadJournalList();
+                    loadTrainingDataTable();
 
                     // Show success message
                     showNotification(`Chào mừng ${user.name}! Đăng nhập thành công.`, 'success');
@@ -2662,6 +2675,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             loadJournalList();
             loadUserList();
             loadDogList();
+            loadTrainingDataTable();
 
             // SỬA: FORCE Refresh trainer dropdown khi focus dashboard
             const dogModal = document.getElementById('dogModal');
@@ -2678,6 +2692,453 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 loadJournalList();
             }
         }, 5000);
+
+        // Training Data Management Functions
+        function calculateTrainingHoursFromActivities(trainingActivities) {
+            if (!trainingActivities || !trainingActivities.trim()) {
+                return 0;
+            }
+            
+            let totalHours = 0;
+            
+            try {
+                // Parse training activities - could be JSON or text format
+                let activities = [];
+                
+                // Try to parse as JSON first
+                try {
+                    activities = JSON.parse(trainingActivities);
+                } catch (e) {
+                    // If not JSON, try to parse as semicolon-separated text
+                    activities = trainingActivities.split(';').map(activity => activity.trim()).filter(activity => activity);
+                }
+                
+                // Process each activity
+                activities.forEach(activity => {
+                    if (typeof activity === 'string') {
+                        // Look for time patterns in the text
+                        const timePattern = /(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/g;
+                        let match;
+                        
+                        while ((match = timePattern.exec(activity)) !== null) {
+                            const fromHour = parseInt(match[1]);
+                            const fromMinute = parseInt(match[2]);
+                            const toHour = parseInt(match[3]);
+                            const toMinute = parseInt(match[4]);
+                            
+                            // Calculate duration in hours
+                            const fromTime = fromHour + (fromMinute / 60);
+                            const toTime = toHour + (toMinute / 60);
+                            const duration = toTime - fromTime;
+                            
+                            if (duration > 0) {
+                                totalHours += duration;
+                            }
+                        }
+                    } else if (typeof activity === 'object' && activity !== null) {
+                        // Handle object format with fromTime and toTime properties
+                        if (activity.fromTime && activity.toTime) {
+                            const fromTime = parseTimeToHours(activity.fromTime);
+                            const toTime = parseTimeToHours(activity.toTime);
+                            const duration = toTime - fromTime;
+                            
+                            if (duration > 0) {
+                                totalHours += duration;
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error parsing training activities:', error);
+            }
+            
+            return totalHours;
+        }
+        
+        function parseTimeToHours(timeString) {
+            if (!timeString) return 0;
+            
+            // Handle various time formats: "08:30", "8:30", "08:30:00"
+            const timeMatch = timeString.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+            if (timeMatch) {
+                const hours = parseInt(timeMatch[1]);
+                const minutes = parseInt(timeMatch[2]);
+                return hours + (minutes / 60);
+            }
+            
+            return 0;
+        }
+
+        async function loadTrainingDataTable() {
+            const container = document.getElementById('trainingDataContainer');
+            if (!container) {
+                console.error('❌ trainingDataContainer element not found!');
+                return;
+            }
+
+            try {
+                // Show loading state
+                container.innerHTML = '<p>Đang tải dữ liệu huấn luyện...</p>';
+
+                // Fetch dogs and training journals from API
+                const [dogsResponse, journalsResponse] = await Promise.all([
+                    fetch(`${API_BASE_URL}/api/dogs`),
+                    fetch(`${API_BASE_URL}/api/journals`)
+                ]);
+
+                const dogsResult = await dogsResponse.json();
+                const journalsResult = await journalsResponse.json();
+
+                if (!dogsResult.success || !journalsResult.success) {
+                    throw new Error('Failed to fetch data from API');
+                }
+
+                const dogs = dogsResult.data || [];
+                const journals = journalsResult.data || [];
+
+                // Generate training data table
+                generateTrainingDataTable(dogs, journals, container);
+
+            } catch (error) {
+                console.error('❌ Error loading training data:', error);
+                container.innerHTML = '<p style="color: red;">❌ Không thể tải dữ liệu huấn luyện. Vui lòng kiểm tra kết nối server.</p>';
+            }
+        }
+
+        function generateTrainingDataTable(dogs, journals, container) {
+            // Group journals by dog and month
+            const dogMonthData = {};
+            
+            journals.forEach(journal => {
+                const dogName = journal.dog_name;
+                const journalDate = new Date(journal.journal_date);
+                const month = journalDate.getMonth() + 1; // 1-12
+                const year = journalDate.getFullYear();
+                const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+                
+                if (!dogMonthData[dogName]) {
+                    dogMonthData[dogName] = {};
+                }
+                
+                if (!dogMonthData[dogName][monthKey]) {
+                    dogMonthData[dogName][monthKey] = {
+                        month: month,
+                        trainingDays: new Set(),
+                        trainingHours: 0,
+                        operationDays: new Set(),
+                        operationResults: [],
+                        careActivities: [],
+                        healthStatus: [],
+                        journalDates: new Set()
+                    };
+                }
+                
+                const data = dogMonthData[dogName][monthKey];
+                
+                // Add journal date to unique dates
+                data.journalDates.add(journal.journal_date);
+                
+                // Count training days and hours
+                if (journal.training_activities && journal.training_activities.trim()) {
+                    data.trainingDays.add(journal.journal_date);
+                    
+                    // Calculate training hours from fromTime to toTime in training_activities
+                    const trainingHours = calculateTrainingHoursFromActivities(journal.training_activities);
+                    data.trainingHours += trainingHours;
+                }
+                
+                // Count operation days and results
+                if (journal.operation_activities && journal.operation_activities.trim()) {
+                    data.operationDays.add(journal.journal_date);
+                    data.operationResults.push(journal.operation_activities);
+                }
+                
+                // Collect care activities and health status
+                if (journal.care_activities && journal.care_activities.trim()) {
+                    data.careActivities.push(journal.care_activities);
+                }
+                
+                if (journal.health_status && journal.health_status.trim()) {
+                    data.healthStatus.push(journal.health_status);
+                }
+            });
+
+            // Get all unique months from all dogs
+            const allMonths = new Set();
+            Object.values(dogMonthData).forEach(dogData => {
+                Object.keys(dogData).forEach(month => allMonths.add(month));
+            });
+            
+            const sortedMonths = Array.from(allMonths).sort();
+
+            // Generate HTML table
+            let html = `
+                <div style="overflow-x: auto; margin-top: 15px;">
+                    <table class="data-table" style="min-width: 1200px;">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="vertical-align: middle; background: #667eea; color: white; text-align: center;">Chó Nghiệp Vụ</th>
+                                <th colspan="2" style="background: #4CAF50; color: white; text-align: center;">Huấn luyện</th>
+                                <th colspan="2" style="background: #FF9800; color: white; text-align: center;">Tác nghiệp</th>
+                                <th colspan="2" style="background: #2196F3; color: white; text-align: center;">Chăm sóc</th>
+                                <th rowspan="2" style="vertical-align: middle; background: #667eea; color: white; text-align: center;">Tháng</th>
+                            </tr>
+                            <tr>
+                                <th style="background: #4CAF50; color: white; text-align: center;">Số ngày huấn luyện</th>
+                                <th style="background: #4CAF50; color: white; text-align: center;">Số giờ huấn luyện</th>
+                                <th style="background: #FF9800; color: white; text-align: center;">Số ngày tác nghiệp</th>
+                                <th style="background: #FF9800; color: white; text-align: center;">Kết quả tác nghiệp</th>
+                                <th style="background: #2196F3; color: white; text-align: center;">Lịch thăm khám</th>
+                                <th style="background: #2196F3; color: white; text-align: center;">Sức khỏe chó nghiệp vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            // Generate rows for each month, showing each dog's summary for that month
+            sortedMonths.forEach(monthKey => {
+                const monthNumber = parseInt(monthKey.split('-')[1]);
+                const monthName = `Tháng ${monthNumber}`;
+                
+                // Get all dogs that have data for this month
+                const dogsInMonth = [];
+                dogs.forEach(dog => {
+                    if (dogMonthData[dog.name] && dogMonthData[dog.name][monthKey]) {
+                        dogsInMonth.push(dog);
+                    }
+                });
+                
+                // If no dogs have data for this month, show all dogs with empty data
+                if (dogsInMonth.length === 0) {
+                    dogs.forEach((dog, index) => {
+                        const isFirstRow = index === 0;
+                        html += `
+                            <tr>
+                                <td class="dog-name"><strong>${dog.name}</strong></td>
+                                <td class="training-days">-</td>
+                                <td class="training-hours">-</td>
+                                <td class="operation-days">-</td>
+                                <td class="operation-results">-</td>
+                                <td class="care-schedule">-</td>
+                                <td class="health-status">-</td>
+                                <td class="month" ${isFirstRow ? `rowspan="${dogs.length}"` : ''}>
+                                    ${isFirstRow ? `<strong>${monthName}</strong>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    // Show dogs with data for this month
+                    dogsInMonth.forEach((dog, index) => {
+                        const monthData = dogMonthData[dog.name][monthKey];
+                        
+                        const trainingDays = monthData.trainingDays.size;
+                        const trainingHours = Math.round(monthData.trainingHours * 10) / 10; // Round to 1 decimal place
+                        const operationDays = monthData.operationDays.size;
+                        const operationResults = monthData.operationDays.size > 0 ? 'Tốt' : '-';
+                        const careSchedule = monthData.journalDates.size > 0 ? 
+                            Array.from(monthData.journalDates).sort().map(date => formatDateToDDMMYYYY(date)).join(', ') : '-';
+                        const healthStatus = monthData.healthStatus.length > 0 ? 
+                            getMostCommonHealthStatus(monthData.healthStatus) : '-';
+                        
+                        const isFirstRow = index === 0;
+                        html += `
+                            <tr>
+                                <td class="dog-name"><strong>${dog.name}</strong></td>
+                                <td class="training-days">${trainingDays}</td>
+                                <td class="training-hours">${trainingHours}h</td>
+                                <td class="operation-days">${operationDays}</td>
+                                <td class="operation-results">${operationResults}</td>
+                                <td class="care-schedule">${careSchedule}</td>
+                                <td class="health-status">
+                                    <span class="status-indicator ${getHealthStatusClass(healthStatus)}">${healthStatus}</span>
+                                </td>
+                                <td class="month" ${isFirstRow ? `rowspan="${dogsInMonth.length}"` : ''}>
+                                    ${isFirstRow ? `<strong>${monthName}</strong>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                    <h4>📈 Tổng kết:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                        <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                            <h3 style="color: #4CAF50;">${dogs.length}</h3>
+                            <p>Tổng số CNV</p>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                            <h3 style="color: #FF9800;">${sortedMonths.length}</h3>
+                            <p>Tháng có dữ liệu</p>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                            <h3 style="color: #2196F3;">${journals.length}</h3>
+                            <p>Tổng nhật ký</p>
+                        </div>
+                        <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                            <h3 style="color: #9C27B0;">${Math.round(journals.reduce((sum, j) => sum + calculateTrainingHoursFromActivities(j.training_activities), 0) * 10) / 10}h</h3>
+                            <p>Tổng giờ huấn luyện</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+            console.log('✅ Dog-month summary table generated successfully');
+        }
+
+        function getMostCommonHealthStatus(healthStatuses) {
+            if (healthStatuses.length === 0) return 'Chưa có';
+            
+            const counts = {};
+            healthStatuses.forEach(status => {
+                counts[status] = (counts[status] || 0) + 1;
+            });
+            
+            return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        }
+
+        function getHealthStatusClass(healthStatus) {
+            switch (healthStatus) {
+                case 'Tốt': return 'status-active';
+                case 'Khá': return 'status-active';
+                case 'Trung bình': return 'status-pending';
+                case 'Kém': return 'status-inactive';
+                default: return 'status-pending';
+            }
+        }
+
+        function exportTrainingDataToPDF() {
+            const container = document.getElementById('trainingDataContainer');
+            if (!container || !container.innerHTML.includes('table')) {
+                alert('Vui lòng tải báo cáo trước khi xuất PDF!');
+                return;
+            }
+
+            try {
+                // Create a new window for PDF generation
+                const printWindow = window.open('', '_blank');
+                
+                // Get current date for filename
+                const currentDate = new Date();
+                const dateString = formatDateToDDMMYYYY(currentDate).replace(/\//g, '-');
+                
+                // Create PDF content using string concatenation
+                let pdfContent = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+                pdfContent += '<title>Báo Cáo Huấn Luyện và Tác Nghiệp - ' + dateString + '</title>';
+                pdfContent += '<style>';
+                pdfContent += 'body { font-family: Arial, sans-serif; margin: 20px; color: #333; }';
+                pdfContent += '.header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px; }';
+                pdfContent += '.header h1 { color: #667eea; margin: 0; font-size: 24px; }';
+                pdfContent += '.header p { margin: 5px 0; color: #666; }';
+                pdfContent += 'table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 8px; table-layout: fixed; }';
+                pdfContent += 'th, td { border: 1px solid #ddd; padding: 2px; text-align: center; vertical-align: middle; word-wrap: break-word; overflow: hidden; }';
+                pdfContent += 'th { background-color: #667eea; color: white; font-weight: bold; font-size: 8px; }';
+                pdfContent += '.dog-name { width: 15%; }';
+                pdfContent += '.training-days { width: 7%; }';
+                pdfContent += '.training-hours { width: 7%; }';
+                pdfContent += '.operation-days { width: 7%; }';
+                pdfContent += '.operation-results { width: 12%; }';
+                pdfContent += '.care-schedule { width: 15%; }';
+                pdfContent += '.health-status { width: 8%; }';
+                pdfContent += '.month { width: 8%; }';
+                pdfContent += '.training-header { background-color: #4CAF50 !important; }';
+                pdfContent += '.operation-header { background-color: #FF9800 !important; }';
+                pdfContent += '.care-header { background-color: #2196F3 !important; }';
+                pdfContent += 'tbody td { text-align: center !important; }';
+                pdfContent += 'tbody td * { text-align: center !important; }';
+                pdfContent += 'tbody td strong { text-align: center !important; }';
+                pdfContent += 'tbody td span { text-align: center !important; }';
+                pdfContent += '@media print { body { margin: 5px; } .no-print { display: none; } table { font-size: 7px; width: 100%; } th, td { padding: 1px; font-size: 7px; } .header h1 { font-size: 16px; } .header p { font-size: 9px; } @page { size: A4 landscape; margin: 0.5cm; } }';
+                pdfContent += '</style></head><body>';
+                
+                pdfContent += '<div class="header">';
+                pdfContent += '<h1>🐕 BÁO CÁO HUẤN LUYỆN VÀ TÁC NGHIỆP</h1>';
+                pdfContent += '<p>Hệ Thống Quản Lý Chó Nghiệp Vụ Hải Quan</p>';
+                pdfContent += '<p>Ngày xuất báo cáo: ' + formatDateToDDMMYYYY(currentDate) + '</p>';
+                pdfContent += '</div>';
+                
+                // Create custom table for PDF with exactly 8 columns
+                let tableHtml = '<table>';
+                tableHtml += '<thead>';
+                tableHtml += '<tr>';
+                tableHtml += '<th rowspan="2" class="dog-name">Chó Nghiệp Vụ</th>';
+                tableHtml += '<th colspan="2" class="training-header">Huấn luyện</th>';
+                tableHtml += '<th colspan="2" class="operation-header">Tác nghiệp</th>';
+                tableHtml += '<th colspan="2" class="care-header">Chăm sóc</th>';
+                tableHtml += '<th rowspan="2" class="month">Tháng</th>';
+                tableHtml += '</tr>';
+                tableHtml += '<tr>';
+                tableHtml += '<th class="training-days">Số ngày huấn luyện</th>';
+                tableHtml += '<th class="training-hours">Số giờ huấn luyện</th>';
+                tableHtml += '<th class="operation-days">Số ngày tác nghiệp</th>';
+                tableHtml += '<th class="operation-results">Kết quả tác nghiệp</th>';
+                tableHtml += '<th class="care-schedule">Lịch thăm khám</th>';
+                tableHtml += '<th class="health-status">Sức khỏe chó nghiệp vụ</th>';
+                tableHtml += '</tr>';
+                tableHtml += '</thead>';
+                tableHtml += '<tbody>';
+                
+                // Manually create table rows to ensure exactly 8 columns
+                const tableElement = container.querySelector('table tbody');
+                if (tableElement) {
+                    const rows = tableElement.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        if (cells.length === 8) {
+                            // Only include rows with exactly 8 columns
+                            tableHtml += '<tr>';
+                            cells.forEach(cell => {
+                                const className = cell.className || '';
+                                const content = cell.innerHTML;
+                                tableHtml += '<td class="' + className + '">' + content + '</td>';
+                            });
+                            tableHtml += '</tr>';
+                        }
+                    });
+                }
+                
+                tableHtml += '</tbody>';
+                tableHtml += '</table>';
+                
+                pdfContent += tableHtml;
+                
+                // Add landscape orientation instruction
+                pdfContent += '<div class="no-print" style="text-align: center; margin-top: 20px; padding: 15px; background: #e3f2fd; border: 2px solid #2196F3; border-radius: 8px;">';
+                pdfContent += '<h3 style="margin: 0; color: #1976D2;">📄 Hướng dẫn in PDF</h3>';
+                pdfContent += '<p style="margin: 10px 0; color: #1976D2; font-weight: bold;">1. Nhấn nút "In PDF" bên dưới</p>';
+                pdfContent += '<p style="margin: 10px 0; color: #1976D2; font-weight: bold;">2. Trong cửa sổ in, chọn "Landscape" (Ngang)</p>';
+                pdfContent += '<p style="margin: 10px 0; color: #1976D2; font-weight: bold;">3. Đảm bảo "More settings" → "Margins" → "Minimum"</p>';
+                pdfContent += '</div>';
+                pdfContent += '<div class="no-print" style="text-align: center; margin-top: 10px;">';
+                pdfContent += '<button onclick="window.print()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">🖨️ In PDF</button>';
+                pdfContent += '<button onclick="window.close()" style="background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; margin-left: 10px;">❌ Đóng</button>';
+                pdfContent += '</div>';
+                
+                pdfContent += '</body></html>';
+                
+                printWindow.document.write(pdfContent);
+                printWindow.document.close();
+                
+                showNotification('Đang tạo file PDF...', 'success');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Có lỗi xảy ra khi tạo PDF! Vui lòng thử lại.');
+            }
+        }
+
+        function refreshTrainingData() {
+            loadTrainingDataTable();
+            showNotification('Dữ liệu huấn luyện đã được làm mới!', 'success');
+        }
 
         // SỬA: Notification system
         function showNotification(message, type = 'info') {
@@ -2704,9 +3165,9 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             document.body.appendChild(notification);
 
             // Auto remove after 3 seconds
-            setTimeout(() => {
+            setTimeout(function() {
                 notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
+                setTimeout(function() { notification.remove(); }, 300);
             }, 3000);
         }
     </script>

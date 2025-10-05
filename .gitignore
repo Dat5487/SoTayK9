@@ -7,6 +7,8 @@ debug.log
 
 # Python cache files
 __pycache__/
+audio_cache/
+care-plans/
 *.py[cod]
 *$py.class
 *.so
