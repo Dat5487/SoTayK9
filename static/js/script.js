@@ -79,7 +79,6 @@ async function login(username, password) {
             return false;
         }
     } catch (error) {
-        console.error('Login error:', error);
         showNotification('Lỗi kết nối server', 'error');
         return false;
     }
@@ -120,7 +119,6 @@ async function apiCall(endpoint, options = {}) {
         const data = await response.json();
         return data;
     } catch (error) {
-        console.error('API call error:', error);
         throw error;
     }
 }
@@ -237,7 +235,6 @@ async function loadDashboardStats() {
             updateDashboardUI(result.stats);
         }
     } catch (error) {
-        console.error('Error loading dashboard stats:', error);
     }
 }
 
@@ -722,7 +719,6 @@ async function loadDogProfilesFromDatabase() {
     const container = document.getElementById('dogProfilesList');
     
     if (!container) {
-        console.error('Dog profiles container not found');
         return;
     }
     
@@ -778,7 +774,6 @@ async function loadDogProfilesFromDatabase() {
             container.innerHTML = '<div class="error">Lỗi khi tải dữ liệu từ cơ sở dữ liệu.</div>';
         }
     } catch (error) {
-        console.error('Error loading dog profiles:', error);
         container.innerHTML = '<div class="error">Không thể kết nối đến cơ sở dữ liệu.</div>';
     }
 }
@@ -917,15 +912,11 @@ async function loadDogProfile(dogName) {
                 document.getElementById('hlv_donvi').value = dog.hlv_donvi || '';
                 document.getElementById('hlv_daotao').value = dog.hlv_daotao || '';
                 
-                console.log('Dog profile loaded successfully:', dog);
             } else {
-                console.warn(`Dog ${dogName} not found in database`);
             }
         } else {
-            console.error('Failed to fetch dog data from database');
         }
     } catch (error) {
-        console.error('Error loading dog profile:', error);
     }
 }
 
@@ -1073,9 +1064,7 @@ function toggleSpeech() {
             
             if (vietnameseVoice) {
                 currentUtterance.voice = vietnameseVoice;
-                console.log('Đang sử dụng giọng:', vietnameseVoice.name, 'Ngôn ngữ:', vietnameseVoice.lang);
             } else {
-                console.warn("Không tìm thấy giọng tiếng Việt. Đang dùng giọng mặc định.");
                 // Try to set language to Vietnamese even if voice is not Vietnamese
                 currentUtterance.lang = 'vi-VN';
             }
@@ -1086,7 +1075,6 @@ function toggleSpeech() {
             };
 
             currentUtterance.onerror = (event) => {
-                console.error('Lỗi khi đọc:', event.error);
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
             };
@@ -1141,7 +1129,6 @@ function updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId) {
     const otherFoodInput = document.getElementById(otherFoodInputId);
 
     if (!optionsList || !displayBox || !otherFoodInput) {
-        console.warn(`Missing elements for updateFoodDisplay: displayBoxId=${displayBoxId}, optionsListId=${optionsListId}, otherFoodInputId=${otherFoodInputId}`);
         return;
     }
 
@@ -1191,7 +1178,6 @@ function updateOperationLocationDisplay(blockId) {
     const otherInput = document.getElementById(`operationLocationOther-${blockId}`);
 
     if (!optionsList || !displayBox || !khoInput || !otherInput) {
-        console.warn(`Missing elements for updateOperationLocationDisplay for block ${blockId}.`);
         return;
     }
 
@@ -1254,8 +1240,6 @@ function updateDrugDisplay(blockId, attemptNumber) {
     const otherInput = document.getElementById(`drugTypeOther-${blockId}-${attemptNumber}`);
 
     if (!optionsList || !displayBox || !otherInput) {
-        console.warn(`Missing elements for updateDrugDisplay for block ${blockId}, attempt ${attemptNumber}.`);
-        console.warn(`optionsList: ${optionsList}, displayBox: ${displayBox}, otherInput: ${otherInput}`);
         return;
     }
 
@@ -1304,7 +1288,6 @@ function addTrainingBlock(data = {}) {
     blockCounter++;
     const container = document.getElementById('training-blocks-container');
     if (!container) {
-        console.error("Error: 'training-blocks-container' not found in DOM.");
         return;
     }
     const newBlock = document.createElement('div');
@@ -1401,7 +1384,6 @@ function addTrainingBlock(data = {}) {
 function addOperationBlock(data = {}) {
     const container = document.getElementById('operation-blocks-container');
     if (!container) {
-        console.error("Error: 'operation-blocks-container' not found in DOM.");
         return;
     }
 
@@ -1651,7 +1633,6 @@ async function saveJournalData() {
         await window.journalDBManager.saveJournalData();
         alert(`Nhật ký cho CNV ${dogName} ngày ${journalDate} đã được lưu thành công!`);
     } catch (error) {
-        console.error('Error saving journal to database:', error);
         alert('Có lỗi xảy ra khi lưu nhật ký vào database');
     }
 }
@@ -1915,7 +1896,6 @@ function showJournalEditForm(dogName, date = null) {
         </div>
     `;
     blockCounter = 0; // Reset block counter for new form
-    loadJournalData(dogName, date || defaultDate, true).catch(console.error); // Load data or create empty form
     initializeHiddenInputs(); // Initialize visibility for "Other" inputs after form is built
 }
 
@@ -2093,7 +2073,6 @@ async function handleApproval(actionType) {
             document.querySelector('.substitute-hvl-section .substitute-hvl-status').innerText = 'Đã ký';
             document.querySelector('.substitute-hvl-section .substitute-hvl-status').classList.add('signed');
             disableJournalForm(true, 'substitute');
-            saveJournalData().catch(console.error); // Save changes after signing
             alert('Nhật ký đã được HLV trực thay ký duyệt.');
         }
     }
@@ -2101,7 +2080,6 @@ async function handleApproval(actionType) {
     try {
         await window.journalDBManager.saveJournalData();
     } catch (error) {
-        console.error('Error saving journal to database:', error);
     }
 }
 
@@ -2191,7 +2169,6 @@ async function viewOldJournals() {
             }
         }
     } catch (error) {
-        console.error('Error loading journals from database:', error);
     }
 
     journals.sort((a, b) => {
@@ -2275,7 +2252,6 @@ function exportPdf() {
             pdf.save(`NhatKyCNV_${currentDogForJournal}_${document.getElementById('journal_date').value}.pdf`);
             pdfLoadingIndicator.remove();
         }).catch(error => {
-            console.error('Lỗi khi tạo PDF:', error);
             alert('Đã xảy ra lỗi khi tạo PDF. Vui lòng thử lại.');
             pdfLoadingIndicator.remove();
         });
@@ -2307,7 +2283,6 @@ async function showA4JournalView(dogName, journalDate) {
             }
         }
     } catch (error) {
-        console.error('Error loading journal from database:', error);
     }
 
     if (!journal) {
@@ -2516,7 +2491,6 @@ document.addEventListener('click', function (e) {
                 });
             }
         } else {
-            console.warn("No training blocks to remove.");
         }
     } else if (e.target.classList.contains('add-operation-block')) {
         addOperationBlock();
@@ -2528,7 +2502,6 @@ document.addEventListener('click', function (e) {
                 updateOperationBlockNumbers();
             }
         } else {
-            console.warn("No operation blocks to remove.");
         }
     } else if (e.target.classList.contains('save-journal')) {
         saveJournalData();

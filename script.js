@@ -1,5 +1,4 @@
-// Log to confirm script loads and executes
-console.log('🚀 SCRIPT LOADED - VERSION WITH NO DEFAULT OPERATION BLOCKS');
+// Script loaded successfully
 
 // Script loaded successfully
 
@@ -108,10 +107,8 @@ async function getUserSignature(userName, role) {
                 // User not found
             }
         } else {
-            console.error('❌ Failed to fetch users:', response.status, response.statusText);
         }
     } catch (error) {
-        console.error('Error fetching signature from database:', error);
     }
 
     // Return default signature if none found
@@ -178,7 +175,6 @@ async function generateSignatureHTML(signatureData, timestamp) {
 
     // Validate signatureData
     if (!signatureData || typeof signatureData !== 'object') {
-        console.error('❌ Invalid signatureData provided to generateSignatureHTML:', signatureData);
         return '<div class="signature-error">Lỗi: Dữ liệu chữ ký không hợp lệ</div>';
     }
 
@@ -493,7 +489,6 @@ async function updateUserDisplay() {
                 // Failed to fetch users from database
             }
         } catch (error) {
-            console.error('❌ Error fetching user data from database:', error);
             // Using current name as fallback
         }
 
@@ -651,7 +646,6 @@ function toggleUserDropdown(e) {
         const computedStyle = window.getComputedStyle(dropdown);
         // Computed styles debug info available
     } else {
-        console.error('❌ Dropdown element not found!');
     }
 }
 
@@ -884,23 +878,18 @@ async function refreshDynamicMenus() {
                 if (data.success && data.data) {
                     // Convert database dogs to expected format
                     userDogs = data.data.map(dog => ({ name: dog.name, id: dog.id }));
-                    console.log('✅ Fetched assigned dogs from database:', userDogs);
                 } else {
-                    console.warn('⚠️ Failed to fetch assigned dogs from database, using fallback');
                     userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
                 }
             } else {
-                console.warn('⚠️ API request failed, using fallback assigned dogs');
                 userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
             }
         } catch (error) {
-            console.error('❌ Error fetching assigned dogs:', error);
             // Fallback to currentUserAssignedDogs
             userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
         }
     } else {
         // Fallback to currentUserAssignedDogs if no user ID
-        console.log('⚠️ No user ID available, using fallback assigned dogs');
         userDogs = currentUserAssignedDogs.map(dogName => ({ name: dogName }));
     }
 
@@ -1006,7 +995,6 @@ async function updateJournalSubMenu(dashboardDogs) {
                 throw new Error('Database request failed');
             }
         } catch (error) {
-            console.error('Failed to get pending journals from database:', error);
             actualPendingCount = 0;
         }
 
@@ -1549,7 +1537,6 @@ function showDefaultImage() {
 // Function showA4JournalViewFromKey để xem journal từ Dashboard - SỬA: FORCE PDF VIEW
 
 async function showA4JournalViewFromKey(journalKey) {
-    console.log('🔍 showA4JournalViewFromKey called with key:', journalKey);
 
     try {
         // Extract dog name, date, and ID from journal key
@@ -1567,7 +1554,6 @@ async function showA4JournalViewFromKey(journalKey) {
             date = keyParts.slice(1).join('_');
         }
 
-        console.log('🔍 Parsed key - Dog:', dogName, 'Date:', date, 'ID:', journalId);
 
         // Try to get journal by ID first if available, otherwise by dog+date
         let journalData = null;
@@ -1580,28 +1566,22 @@ async function showA4JournalViewFromKey(journalKey) {
                     const data = await response.json();
                     if (data.success && data.data) {
                         journalData = convertDatabaseToFrontendFormat(data.data);
-                        console.log('✅ Found specific journal by ID:', journalId);
                     }
                 } else {
-                    console.warn('⚠️ Journal not found by ID:', journalId, 'Status:', response.status);
                 }
             } catch (error) {
-                console.log('⚠️ Failed to get journal by ID, trying by dog+date');
             }
         }
         
         // Only try by dog+date if we couldn't get the specific journal by ID
         if (!journalData) {
-            console.log('🔍 Falling back to dog+date method for:', dogName, date);
             const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.data) {
                     journalData = convertDatabaseToFrontendFormat(data.data);
-                    console.log('✅ Found journal by dog+date:', dogName, date);
                 }
             } else {
-                console.warn('⚠️ Journal not found by dog+date:', dogName, date, 'Status:', response.status);
             }
         }
 
@@ -1610,28 +1590,15 @@ async function showA4JournalViewFromKey(journalKey) {
             const date = journalData.generalInfo.date;
             currentDogForJournal = dogName;
 
-            // Debug: Log the journal data to see what we're actually showing
-            console.log('📄 Journal data being displayed:', {
-                journalId: journalData.id || 'No ID',
-                dogName: dogName,
-                date: date,
-                trainer: journalData.generalInfo?.hlv || 'Unknown',
-                approvalStatus: journalData.approval?.status || 'Unknown',
-                hasHlvSignature: !!journalData.approval?.hvlSignature,
-                hasLeaderSignature: !!journalData.approval?.leaderSignature
-            });
 
             // SỬA: FORCE chuyển sang pure PDF view ngay lập tức
-            console.log('📄 Loading journal for:', dogName, date);
             showPureA4JournalView(dogName, date);
 
         } else {
-            console.error('❌ Journal not found for key:', journalKey);
             alert('Không tìm thấy nhật ký!');
         }
 
     } catch (error) {
-        console.error('Error loading journal:', error);
         alert('Có lỗi khi tải nhật ký!');
     }
 }
@@ -2100,7 +2067,6 @@ async function loadDogProfilesFromDatabase() {
     const container = document.getElementById('dogProfilesList');
     
     if (!container) {
-        console.error('Dog profiles container not found');
         return;
     }
     
@@ -2156,7 +2122,6 @@ async function loadDogProfilesFromDatabase() {
             container.innerHTML = '<div class="error">Lỗi khi tải dữ liệu từ cơ sở dữ liệu.</div>';
         }
     } catch (error) {
-        console.error('Error loading dog profiles:', error);
         container.innerHTML = '<div class="error">Không thể kết nối đến cơ sở dữ liệu.</div>';
     }
 }
@@ -2223,7 +2188,6 @@ async function showDogProfileForm(dogName) {
             currentDog = dogs.find(d => d.name === dogName);
         }
     } catch (error) {
-        console.error('Error fetching dog data:', error);
     }
 
 
@@ -2561,10 +2525,8 @@ async function saveDogProfile(dogName) {
         if (response.ok) {
             // Dog profile saved to database
         } else {
-            console.error('Failed to save dog profile to database');
         }
     } catch (error) {
-        console.error('Error saving dog profile:', error);
     }
 
 }
@@ -2638,7 +2600,6 @@ async function loadDogProfile(dogName) {
                     statusIndicator.className = `status-indicator status-${dogData.status.toLowerCase()}`;
                 }
                 
-                console.log('Dog profile loaded successfully:', dogData);
 
             } else {
 
@@ -2648,7 +2609,6 @@ async function loadDogProfile(dogName) {
 
         }
     } catch (error) {
-        console.error('Error loading dog profile:', error);
         // Set default trainer name on error
         document.getElementById('hlv_ten').value = currentUserName || hlvInfo.name;
     }
@@ -2751,7 +2711,6 @@ function exportDogProfile(dogName) {
 
     }).catch(error => {
 
-        console.error('Lỗi khi xuất PDF:', error);
 
         alert('❌ Có lỗi khi xuất PDF. Vui lòng thử lại!');
 
@@ -3214,11 +3173,9 @@ function createContentHash(text) {
 // Function to preload audio files for all content sections
 async function preloadAllAudio() {
     if (audioPreloaded) {
-        console.log('✅ Audio already preloaded');
         return;
     }
 
-    console.log('🔄 Preloading audio files for all content sections...');
     
     const contentSections = [
         {
@@ -3258,12 +3215,10 @@ async function preloadAllAudio() {
         const data = await response.json();
         
         if (data.success) {
-            console.log('✅ Audio files preloaded successfully:', data.total_files + ' files');
             
             // Store audio file mappings in cache for instant access
             data.generated.forEach(item => {
                 audioCache.set(item.title, item.filename);
-                console.log(`📁 Cached: ${item.title} → ${item.filename}`);
             });
             
             audioPreloaded = true;
@@ -3272,7 +3227,6 @@ async function preloadAllAudio() {
         }
         
     } catch (error) {
-        console.error('❌ Audio preload error:', error);
         // Don't show alert for preload errors, just log them
     }
 }
@@ -3290,8 +3244,6 @@ function getCachedAudioFilename() {
     const contentHash = createContentHash(cleanedText);
     const expectedFilename = `${contentHash}.mp3`;
     
-    console.log('🔍 Looking for cached audio:', expectedFilename);
-    console.log('📝 Content preview:', cleanedText.substring(0, 100) + '...');
     
     // Check if this file exists in our cache or server
     return expectedFilename;
@@ -3313,7 +3265,6 @@ function toggleSpeech() {
     const toggleButton = document.getElementById('toggleReadButton');
     
     if (!contentElement) {
-        console.error('❌ Content element not found');
         alert('Không tìm thấy nội dung để đọc');
         return;
     }
@@ -3321,15 +3272,12 @@ function toggleSpeech() {
     const contentText = contentElement.innerText || contentElement.textContent || '';
     
     if (!contentText.trim()) {
-        console.warn('⚠️ No content to read');
         alert('Không có nội dung để đọc');
         return;
     }
 
-    console.log('📝 Content to read:', contentText.substring(0, 100) + '...');
 
     if (isSpeaking) {
-        console.log('⏹️ Stopping speech');
         if (currentAudio) {
             currentAudio.pause();
             currentAudio.currentTime = 0;
@@ -3360,7 +3308,6 @@ function toggleSpeech() {
             const fileExists = await checkAudioFileExists(expectedFilename);
             
             if (fileExists) {
-                console.log('🎵 Found cached audio file:', expectedFilename);
                 
                 // Update button state
                 toggleButton.innerText = '🔄 Đang tải âm thanh...';
@@ -3372,7 +3319,6 @@ function toggleSpeech() {
                 currentAudio = new Audio(audioUrl);
                 
             } else {
-                console.log('🌐 No cached audio found, generating new file:', expectedFilename);
                 
                 // Update button state
                 toggleButton.innerText = '🔄 Đang tạo âm thanh...';
@@ -3401,7 +3347,6 @@ function toggleSpeech() {
                     throw new Error(data.error || 'Unknown error');
                 }
 
-                console.log('✅ Audio file generated:', data.filename, '(' + Math.round(data.size / 1024) + ' KB)');
                 
                 // Play the newly generated audio file
                 const audioUrl = `/api/tts/get/${data.filename}`;
@@ -3409,25 +3354,21 @@ function toggleSpeech() {
             }
             
             currentAudio.onloadstart = () => {
-                console.log('🎵 Audio loading started');
                 toggleButton.innerText = '⏸️ Dừng đọc';
                 toggleButton.style.background = '#dc3545';
                 toggleButton.disabled = false;
             };
             
             currentAudio.oncanplaythrough = () => {
-                console.log('🎵 Audio ready to play');
             };
             
             currentAudio.onplay = () => {
-                console.log('🎤 Speech started');
                 isSpeaking = true;
                 toggleButton.innerText = '⏹️ Dừng đọc';
                 toggleButton.style.background = '#dc3545';
             };
             
             currentAudio.onended = () => {
-                console.log('✅ Speech completed');
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
@@ -3435,7 +3376,6 @@ function toggleSpeech() {
             };
             
             currentAudio.onerror = (event) => {
-                console.error('❌ Audio error:', event);
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
@@ -3446,7 +3386,6 @@ function toggleSpeech() {
             };
             
             currentAudio.onpause = () => {
-                console.log('⏸️ Speech paused');
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
@@ -3456,7 +3395,6 @@ function toggleSpeech() {
             await currentAudio.play();
             
         } catch (error) {
-            console.error('❌ TTS Error:', error);
             
             isSpeaking = false;
             toggleButton.innerText = '🔊 Đọc nội dung';
@@ -3482,13 +3420,10 @@ function toggleSpeech() {
 
 // Initialize audio preloading when page loads
 async function initializeAudioSystem() {
-    console.log('🎵 Initializing audio system...');
     
     // Preload audio in background (don't wait for it)
     preloadAllAudio().then(() => {
-        console.log('🎵 Audio system ready');
     }).catch(error => {
-        console.warn('⚠️ Audio preload failed, will generate on demand:', error);
     });
 }
 
@@ -3506,7 +3441,6 @@ async function checkAudioCacheStatus() {
             return data;
         }
     } catch (error) {
-        console.error('❌ Error checking cache status:', error);
     }
     return null;
 }
@@ -3520,83 +3454,16 @@ async function clearAudioCache() {
         const data = await response.json();
         
         if (data.success) {
-            console.log('🗑️ Audio cache cleared:', data.cleared_files + ' files, ' + Math.round(data.freed_space / 1024) + ' KB freed');
             audioCache.clear();
             audioPreloaded = false;
             return true;
         }
     } catch (error) {
-        console.error('❌ Error clearing cache:', error);
     }
     return false;
 }
 
-// Test function to debug speech synthesis
-function testSpeechSynthesis() {
-    console.log('🧪 Testing speech synthesis...');
-    
-    // Check browser support
-    if (!('speechSynthesis' in window)) {
-        console.error('❌ Speech synthesis not supported');
-        alert('Trình duyệt không hỗ trợ speech synthesis');
-        return;
-    }
-    
-    // Get voices
-    const voices = speechSynthesis.getVoices();
-    console.log('🎤 Total voices available:', voices.length);
-    
-    if (voices.length === 0) {
-        console.warn('⚠️ No voices available');
-        alert('Không có giọng nào khả dụng');
-        return;
-    }
-    
-    // List all voices
-    console.log('📋 Available voices:');
-    voices.forEach((voice, index) => {
-        console.log(`${index + 1}. ${voice.name} (${voice.lang}) - ${voice.gender || 'unknown'}`);
-    });
-    
-    // Test with simple Vietnamese text (processed for English voices)
-    const testText = 'Xin chao, day la thu nghiem doc tieng Viet.';
-    console.log('📝 Test text:', testText);
-    
-    const utterance = new SpeechSynthesisUtterance(testText);
-    utterance.rate = 0.6;  // Slower for Vietnamese clarity
-    utterance.pitch = 0.9; // Lower pitch for Vietnamese tone
-    utterance.volume = 1.0;
-    utterance.lang = 'en-US'; // Use English for processed Vietnamese text
-    
-    // Try to find Vietnamese voice
-    const vietnameseVoice = voices.find(v => 
-        v.lang === 'vi-VN' || 
-        v.lang === 'vi' || 
-        v.name.toLowerCase().includes('vietnamese')
-    );
-    
-    if (vietnameseVoice) {
-        utterance.voice = vietnameseVoice;
-        console.log('✅ Using Vietnamese voice:', vietnameseVoice.name);
-    } else {
-        console.warn('⚠️ No Vietnamese voice found, using default');
-    }
-    
-    utterance.onstart = () => console.log('🎤 Test speech started');
-    utterance.onend = () => console.log('✅ Test speech completed');
-    utterance.onerror = (event) => console.error('❌ Test speech error:', event.error);
-    
-    try {
-        speechSynthesis.speak(utterance);
-        console.log('🚀 Test speech initiated');
-    } catch (error) {
-        console.error('❌ Failed to start test speech:', error);
-        alert('Không thể khởi động test speech: ' + error.message);
-    }
-}
 
-// Add test button to console for debugging
-console.log('🔧 Speech synthesis test function available: testSpeechSynthesis()');
 
 
 // Function to toggle "HỒ SƠ QUẢN LÝ CHÓ NGHIỆP VỤ" submenu
@@ -3758,11 +3625,9 @@ function showJournalEditForm(dogName, date = null) {
 
 
     // Reset counters khi tạo form mới
-    console.log('🔄 Resetting counters - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
     trainingSessionCounter = 0;
     operationSessionCounter = 0;
     blockCounter = 0;
-    console.log('✅ Counters reset - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
 
     // Reset counters for new journal form
 
@@ -3822,14 +3687,6 @@ async function showAllPendingJournalsForManager() {
             // Convert database format to frontend format for compatibility
             for (const journal of dbJournals) {
                 const journalKey = `journal_${journal.dog_name}_${journal.journal_date}_${journal.id}`;
-                console.log('📋 Manager journal entry:', {
-                    key: journalKey,
-                    id: journal.id,
-                    dogName: journal.dog_name,
-                    date: journal.journal_date,
-                    trainer: journal.trainer_name,
-                    status: journal.approval_status
-                });
                 
                 allPendingJournals.push({
                     key: journalKey, // Include journal ID for uniqueness
@@ -3844,7 +3701,6 @@ async function showAllPendingJournalsForManager() {
             throw new Error('Database request failed');
         }
     } catch (error) {
-        console.error('Failed to get pending journals from database:', error);
     }
 
 
@@ -4071,14 +3927,11 @@ async function showManagerJournalView() {
     let allJournals = [];
     
     try {
-        console.log('🔍 Loading all journals for Manager view...');
         
         const response = await fetch('/api/journals');
-        console.log('📡 API Response status:', response.status);
         
         if (response.ok) {
             const data = await response.json();
-            console.log('📄 API Response data:', data);
             
             if (data.success && data.data) {
                 allJournals = data.data.map(journal => ({
@@ -4092,18 +3945,13 @@ async function showManagerJournalView() {
                     approvedAt: journal.approved_at,
                     approvedBy: journal.approver_name
                 }));
-                console.log('✅ Loaded journals from database:', allJournals.length);
-                console.log('📋 Journal details:', allJournals.map(j => ({ id: j.id, dog: j.dogName, date: j.date, status: j.status })));
             } else {
-                console.error('❌ API returned unsuccessful response:', data);
             }
         } else {
             const errorText = await response.text();
-            console.error('❌ API request failed:', response.status, errorText);
             throw new Error('Database request failed');
         }
     } catch (error) {
-        console.error('❌ Failed to get journals from database:', error);
         content.innerHTML = `
             <div style="text-align: center; padding: 50px; background: white; border-radius: 10px; margin: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                 <h3 style="color: #f44336; margin-bottom: 20px;">❌ Lỗi tải dữ liệu</h3>
@@ -4130,7 +3978,6 @@ async function showManagerJournalView() {
     
     // Sort by date (newest first)
     allJournals.sort((a, b) => new Date(b.date) - new Date(a.date));
-    console.log('📅 Sorted journals:', allJournals.map(j => ({ id: j.id, dog: j.dogName, date: j.date })));
     
     // Group by dog
     const journalsByDog = {};
@@ -4140,7 +3987,6 @@ async function showManagerJournalView() {
         }
         journalsByDog[journal.dogName].push(journal);
     });
-    console.log('🐕 Journals grouped by dog:', journalsByDog);
     
     // Create HTML for journal view
     let html = `
@@ -4255,12 +4101,10 @@ async function viewJournalFromManagerView(journalKey) {
             date = keyParts.slice(1).join('_');
         }
         
-        console.log('🔍 Manager viewing journal - Dog:', dogName, 'Date:', date, 'ID:', journalId);
         
         // Use existing function to show A4 view
         await showPureA4JournalView(dogName, date);
     } catch (error) {
-        console.error('Error viewing journal from manager view:', error);
         alert('Có lỗi khi xem nhật ký: ' + error.message);
     }
 }
@@ -4282,7 +4126,6 @@ async function exportJournalFromManagerView(journalKey) {
             date = keyParts.slice(1).join('_');
         }
         
-        console.log('🔍 Manager exporting journal - Dog:', dogName, 'Date:', date, 'ID:', journalId);
         
         // Use existing PDF export functionality
         if (window.pdfExportSystem) {
@@ -4291,7 +4134,6 @@ async function exportJournalFromManagerView(journalKey) {
             alert('Chức năng xuất PDF chưa sẵn sàng. Vui lòng thử lại sau.');
         }
     } catch (error) {
-        console.error('Error exporting journal from manager view:', error);
         alert('Có lỗi khi xuất PDF: ' + error.message);
     }
 }
@@ -4300,7 +4142,6 @@ async function exportAllJournalsForManager() {
     try {
         alert('Chức năng xuất báo cáo tổng hợp đang được phát triển. Vui lòng sử dụng chức năng xuất PDF cho từng nhật ký riêng lẻ.');
     } catch (error) {
-        console.error('Error exporting all journals:', error);
         alert('Có lỗi khi xuất báo cáo: ' + error.message);
     }
 }
@@ -4320,8 +4161,6 @@ async function showManagerPastJournalsModal() {
         }
         
         const allJournals = result.data;
-        console.log('📚 Manager Past Journals - Total journals:', allJournals.length);
-        console.log('📚 Journal details:', allJournals.map(j => ({ id: j.id, dog: j.dog_name, date: j.journal_date, trainer: j.trainer_name })));
         
         if (allJournals.length === 0) {
             alert('Không có nhật ký nào trong hệ thống.');
@@ -4330,7 +4169,6 @@ async function showManagerPastJournalsModal() {
         
         // Sort by date (newest first)
         allJournals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
-        console.log('📅 Sorted journals for dropdown:', allJournals.map(j => ({ id: j.id, dog: j.dog_name, date: j.journal_date })));
         
         // Create dropdown options
         let dateOptions = '<option value="">Chọn ngày xem nhật ký</option>';
@@ -4366,10 +4204,8 @@ async function showManagerPastJournalsModal() {
             // Create comprehensive option text
             const optionText = `${dateStr} - CNV ${journal.dog_name} | HLV: ${trainerInfo} | ${statusBadge}${approverInfo}`;
             dateOptions += `<option value="${journal.journal_date}|${journal.dog_name}|${journal.id}">${optionText}</option>`;
-            console.log('➕ Added detailed option:', optionText, '| Journal ID:', journal.id);
         });
         
-        console.log('📋 Total dropdown options created:', allJournals.length + 1);
         
         // Create modal HTML
         const modalHtml = `
@@ -4400,7 +4236,6 @@ async function showManagerPastJournalsModal() {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         
     } catch (error) {
-        console.error('Error loading past journals for manager:', error);
         alert('Có lỗi khi tải danh sách nhật ký: ' + error.message);
     }
 }
@@ -4425,7 +4260,6 @@ function viewSelectedManagerPastJournal() {
     try {
         const [date, dogName, journalId] = selectedValue.split('|');
         
-        console.log('🎯 Manager selected journal:', { date, dogName, journalId });
         
         // Use existing function to show A4 view with specific journal ID
         showPureA4JournalView(dogName, date, journalId);
@@ -4434,7 +4268,6 @@ function viewSelectedManagerPastJournal() {
         closeManagerPastJournalsModal();
         
     } catch (error) {
-        console.error('Error viewing selected past journal:', error);
         alert('Có lỗi khi xem nhật ký: ' + error.message);
     }
 }
@@ -4446,7 +4279,6 @@ async function markManagerNotificationsAsRead() {
         // TODO: Update notifications in database
         // Manager notifications marked as read
     } catch (error) {
-        console.error('Failed to mark notifications as read:', error);
     }
 }
 
@@ -4508,7 +4340,6 @@ async function showManagerStatistics() {
             throw new Error('Failed to fetch journals');
         }
     } catch (error) {
-        console.error('Error getting journal statistics:', error);
         showStatisticsError(error.message);
     }
 }
@@ -4902,7 +4733,6 @@ async function loadAISearchHistory() {
         // TODO: Implement database loading for AI search history
         aiSearchHistory = [];
     } catch (error) {
-        console.error('Failed to load AI search history:', error);
         aiSearchHistory = [];
     }
 }
@@ -5113,7 +4943,6 @@ async function performAISearch() {
         displayAISearchResults(results, query);
 
     } catch (error) {
-        console.error('❌ AI search error:', error);
         showAISearchError('Có lỗi xảy ra khi tìm kiếm: ' + error.message);
     }
 }
@@ -5130,7 +4959,6 @@ async function performComprehensiveSearch(query) {
         const dbResults = await searchDatabase(query);
         results.push(...dbResults);
     } catch (error) {
-        console.warn('⚠️ Database search failed:', error);
     }
 
     // 2. Search static content
@@ -5187,7 +5015,6 @@ async function searchDatabase(query) {
         }
 
     } catch (error) {
-        console.warn('⚠️ Database search error:', error);
     }
 
     return results;
@@ -5656,7 +5483,6 @@ function updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId) {
 
     if (!optionsList || !displayBox || !otherFoodInput) {
 
-        console.warn('Missing elements for updateFoodDisplay: displayBoxId=' + displayBoxId + ', optionsListId=' + optionsListId + ', otherFoodInputId=' + otherFoodInputId);
 
         return;
 
@@ -5753,14 +5579,11 @@ function updateFoodDisplay(displayBoxId, optionsListId, otherFoodInputId) {
 // Function to add a new training block
 
 function addTrainingBlock(data = {}) {
-    console.log('🏋️ addTrainingBlock called with data:', data);
-    console.log('📊 Current counters - trainingSessionCounter:', trainingSessionCounter, 'operationSessionCounter:', operationSessionCounter);
 
     const container = document.getElementById('training-blocks-container');
 
     if (!container) {
 
-        console.error("Error: 'training-blocks-container' not found in DOM.");
 
         return;
 
@@ -5952,14 +5775,12 @@ function toggleDrugDropdown(optionsId) {
 // Function to add a new operation block
 
 function addOperationBlock(data = {}) {
-    console.log('🚨 addOperationBlock called with data:', data);
     console.trace('Call stack for addOperationBlock:');
 
     const container = document.getElementById('operation-blocks-container');
 
     if (!container) {
 
-        console.error("Error: 'operation-blocks-container' not found in DOM.");
 
         return;
 
@@ -6129,7 +5950,6 @@ function updateDrugDisplay(blockId, attemptNumber) {
 
     if (!optionsList || !displayBox || !otherInput) {
 
-        console.warn('Missing elements for updateDrugDisplay for block ' + blockId + ', attempt ' + attemptNumber + '.');
 
         return;
 
@@ -6231,7 +6051,6 @@ function updateOperationLocationDisplay(blockId) {
 
     if (!optionsList || !displayBox || !khoInput || !otherInput) {
 
-        console.warn('Missing elements for updateOperationLocationDisplay for block ' + blockId + '.');
 
         return;
 
@@ -6356,7 +6175,6 @@ function updateOperationLocationDisplay(blockId) {
 // SỬA: Function to show pure A4 journal view - CHỈ PDF, KHÔNG WEB CONTROLS - ĐẢM BẢO HIỂN THỊ PDF ĐÚNG CÁCH
 
 async function showPureA4JournalView(dogName, date, journalId = null) {
-    console.log('🎯 showPureA4JournalView called for:', dogName, date, 'Journal ID:', journalId);
 
     // SỬA: FORCE ẨN TẤT CẢ web navigation elements NGAY LẬP TỨC
 
@@ -6431,29 +6249,24 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
     try {
         if (journalId) {
             // Load specific journal by ID
-            console.log('🔍 Loading specific journal by ID:', journalId);
             const response = await fetch(`/api/journals/${journalId}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.data) {
                     journalData = convertDatabaseToFrontendFormat(data.data);
-                    console.log('✅ Loaded specific journal:', journalData.generalInfo?.dogName, journalData.generalInfo?.date);
                 }
             }
         } else {
             // Load best journal for dog+date (original behavior)
-            console.log('🔍 Loading best journal for dog+date:', dogName, date);
             const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.data) {
                     journalData = convertDatabaseToFrontendFormat(data.data);
-                    console.log('✅ Loaded best journal:', journalData.generalInfo?.dogName, journalData.generalInfo?.date);
                 }
             }
         }
     } catch (error) {
-        console.error('Failed to load journal from database:', error);
     }
 
 
@@ -6482,15 +6295,9 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
         const health = journalData.health || {};
         const care = journalData.care || {};
         
-        // Debug: Log journal data structure
-        console.log('🔍 Journal data structure:', journalData);
-        console.log('🔍 General info:', generalInfo);
-        console.log('🔍 Approval:', approval);
-        console.log('🔍 HLV Signature:', hlvSignature);
         
         // Simple fallback HTML if data is missing
         if (!generalInfo.dogName) {
-            console.log('⚠️ No general info found, using fallback data');
             // Use provided parameters as fallback
             generalInfo.dogName = dogName || 'N/A';
             generalInfo.date = date || 'N/A';
@@ -7261,7 +7068,6 @@ async function getJournalFromDatabase(journalKey) {
         // Check if this is the new format with journal ID (4+ parts: dogName_date_id)
         if (keyParts.length >= 3) {
             const journalId = keyParts[keyParts.length - 1]; // Last part is journal ID
-            console.log('🔍 Loading specific journal by ID:', journalId);
             
             // Load specific journal by ID
             const response = await fetch(`/api/journals/${journalId}`);
@@ -9389,7 +9195,6 @@ async function generatePDFFromA4View(dogName, date, journalData) {
 
         // Simple fallback HTML if data is missing
         if (!generalInfo.dogName) {
-            console.log('⚠️ No general info found, using fallback data');
             // Use provided parameters as fallback
             generalInfo.dogName = dogName || 'N/A';
             generalInfo.date = date || 'N/A';
@@ -10084,11 +9889,8 @@ function loadApprovalData(approval) {
 
 function debugSignatureSystem() {
 
-    console.log('🔍 DEBUG SIGNATURE SYSTEM:');
 
-    console.log('Current User:', currentUserName, currentUserRole);
 
-    console.log('HLV Info:', hlvInfo);
 
 
 
@@ -10102,23 +9904,11 @@ function debugSignatureSystem() {
 
 
 
-    console.log('DOM Elements Check:', {
-
-        hvlDisplay: !!hvlDisplay,
-
-        submissionStatus: !!submissionStatus,
-
-        submitBtn: !!submitBtn,
-
-        allSubmissionStatus: document.querySelectorAll('.submission-status').length
-
-    });
 
 
 
     // Check signature database - now using database
     // Signatures are stored in database, no need to check localStorage
-    console.log('✅ Signature system now uses database storage');
 
 
 
@@ -10128,17 +9918,14 @@ function debugSignatureSystem() {
 
         const testSig = getUserSignature(currentUserName || 'Test User', currentUserRole || 'TRAINER');
 
-        console.log('Test signature:', testSig);
 
     } catch (error) {
 
-        console.error('Error getting signature:', error);
 
     }
 
 
 
-    alert('Debug info đã được ghi vào Console. Bấm F12 để xem chi tiết.');
 
 }
 
@@ -10148,17 +9935,7 @@ function debugSignatureSystem() {
 
 function testHvlSignature() {
 
-    console.log('🧪 TEST: submitHvlSignature called');
 
-    console.log('Current state:', {
-
-        userRole: currentUserRole,
-
-        userName: currentUserName,
-
-        hlvInfo: hlvInfo
-
-    });
 
 
 
@@ -10190,7 +9967,6 @@ async function checkSystemHealth() {
 
     // Kiểm tra signature database - now using database
     // Signatures are stored in database, no need to check localStorage
-    console.log('✅ Signature system now uses database storage');
 
 
 
@@ -10268,15 +10044,6 @@ async function updateJournalSubMenuForManager() {
                     allJournals++;
                     const data = convertDatabaseToFrontendFormat(journal);
 
-                    console.log('📄 Journal:', journal.id, {
-
-                        hasHvlSignature: !!data.approval?.hvlSignature,
-
-                        hasLeaderSignature: !!data.approval?.leaderSignature,
-
-                        status: data.approval?.status
-
-                    });
 
 
 
@@ -10312,7 +10079,6 @@ async function updateJournalSubMenuForManager() {
             }
         }
     } catch (e) {
-        console.error('Error loading journals from database:', e);
     }
 
 
