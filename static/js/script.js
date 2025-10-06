@@ -1467,6 +1467,13 @@ function addOperationBlock(data = {}) {
             <input type="text" class="operation-other-input-2 hidden" id="opKhacText2-${currentBlockId}" placeholder="Ghi nội dung khác" value="${data.otherOperation2 || ''}">
         </div>
 
+        <div class="operation-result-block">
+            <label>Kết quả tác nghiệp:</label>
+            <div class="operation-no-violation-block">
+                <label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-${currentBlockId}" ${data.noViolation ? 'checked' : ''}> Không phát hiện vi phạm</label>
+            </div>
+        </div>
+
         <div class="textarea-block operation-issues-block">
             <label for="operation_other_issues_${currentBlockId}">Vấn đề khác:</label>
             <textarea id="operation_other_issues_${currentBlockId}" rows="3">${data.otherIssues || ''}</textarea>
@@ -1595,6 +1602,7 @@ async function saveJournalData() {
         const patrol = document.getElementById(`patrol-${blockId}`).checked;
         const otherOperation2 = document.getElementById(`opKhacText2-${blockId}`).value;
         const otherIssues = document.getElementById(`operation_other_issues_${blockId}`).value;
+        const noViolation = document.getElementById(`noViolation-${blockId}`).checked;
 
         operationBlocksData.push({
             fromTime,
@@ -1608,7 +1616,8 @@ async function saveJournalData() {
             fieldTraining,
             patrol,
             otherOperation2,
-            otherIssues
+            otherIssues,
+            noViolation
         });
     });
 
@@ -2387,6 +2396,7 @@ async function showA4JournalView(dogName, journalDate) {
                     block.patrol ? 'Tuần tra kiểm soát' : '',
                     block.otherOperation2 || ''
                 ].filter(Boolean).join(', ') || 'N/A'}</strong></p>
+                    ${block.noViolation ? '<p><strong>Kết quả tác nghiệp:</strong> Không phát hiện vi phạm</p>' : ''}
                     <p>Vấn đề khác: <strong>${block.otherIssues || 'Không'}</strong></p>
                 </div>
             `;

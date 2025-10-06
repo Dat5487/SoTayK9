@@ -622,6 +622,7 @@ class JournalDatabaseManager {
 
             // Get other issues (textarea)
             const otherIssues = document.getElementById(`operation_other_issues_${blockId}`)?.value || '';
+            const noViolation = document.getElementById(`noViolation-${blockId}`)?.checked || false;
 
             operationBlocksData.push({
                 blockId: blockId,
@@ -638,7 +639,8 @@ class JournalDatabaseManager {
                 otherOperation2: otherOperation2,
                 otherOperation1Checked: otherOperation1Checked,
                 otherOperation2Checked: otherOperation2Checked,
-                otherIssues: otherIssues
+                otherIssues: otherIssues,
+                noViolation: noViolation
             });
         });
 

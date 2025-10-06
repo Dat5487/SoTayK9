@@ -2228,9 +2228,9 @@ async function showDogProfileForm(dogName) {
 
 
 
-    // READ-ONLY cho Trainer
+    // READ-ONLY cho tất cả role ngoại trừ Admin
 
-    const isReadOnly = currentUserRole === 'TRAINER';
+    const isReadOnly = currentUserRole !== 'ADMIN';
 
     const readOnlyAttr = isReadOnly ? 'readonly' : '';
 
@@ -2244,7 +2244,7 @@ async function showDogProfileForm(dogName) {
 
         <div class="dog-profile-container">
 
-            ${isReadOnly ? '<div class="read-only-banner">CHẾ ĐỘ XEM - Không thể chỉnh sửa</div>' : ''}
+            ${isReadOnly ? '<div class="read-only-banner">CHẾ ĐỘ XEM - Chỉ Admin mới có thể chỉnh sửa</div>' : ''}
 
             
 
@@ -2492,9 +2492,9 @@ async function showDogProfileForm(dogName) {
 
 async function saveDogProfile(dogName) {
 
-    if (currentUserRole === 'TRAINER') {
+    if (currentUserRole !== 'ADMIN') {
 
-        alert('Bạn không có quyền chỉnh sửa hồ sơ!');
+        alert('Chỉ Admin mới có quyền chỉnh sửa hồ sơ!');
 
         return;
 
@@ -3735,7 +3735,7 @@ function showJournalEditForm(dogName, date = null) {
 
     // Kiểm tra role để hiển thị form tương ứng
 
-    const roleInfo = currentUserRole === 'TRAINER' ? '<p style="color: blue; font-weight: bold;">🎯 TRAINER MODE - Chỉ viết nhật ký cho ' + dogName + '</p>' : '';
+    const roleInfo = currentUserRole === 'TRAINER' ? '<p style="color: blue; font-weight: bold;"></p>' : '';
 
 
 
@@ -5989,7 +5989,7 @@ function addOperationBlock(data = {}) {
 
 
 
-    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
+    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="operation-result-block"><label>Kết quả tác nghiệp:</label><div class="operation-no-violation-block"><label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-' + currentBlockId + '" ' + (data.noViolation ? 'checked' : '') + '> Không phát hiện vi phạm</label></div></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
 
 
 
@@ -6036,6 +6036,12 @@ function addOperationBlock(data = {}) {
         const otherIssuesTextarea = document.getElementById(`operation_other_issues_${currentBlockId}`);
         if (otherIssuesTextarea && data.otherIssues) {
             otherIssuesTextarea.value = data.otherIssues;
+        }
+
+        // Initialize no violation checkbox
+        const noViolationCheckbox = document.getElementById(`noViolation-${currentBlockId}`);
+        if (noViolationCheckbox) {
+            noViolationCheckbox.checked = data.noViolation || false;
         }
 
         // Update visibility of "other" inputs based on checkbox states
@@ -6931,6 +6937,7 @@ function renderOperationBlocks(blocks) {
                 <p><strong>Ca ${index + 1}:</strong> ${timeRange}</p>
                 <p><strong>Địa điểm:</strong> ${locations}</p>
                 <p><strong>Nội dung:</strong> ${renderOperationContent(block)}</p>
+                ${block.noViolation ? '<p><strong>Kết quả tác nghiệp:</strong> Không phát hiện vi phạm</p>' : ''}
                 ${block.otherIssues ? '<p><strong>Vấn đề khác:</strong> ' + block.otherIssues + '</p>' : ''}
             </div>
         `;
