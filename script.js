@@ -6607,12 +6607,33 @@ function hasCareData(journalData) {
     const care = journalData.care || {};
     const health = journalData.health || {};
     
-    const hasMealData = (meals.lunch && (meals.lunch.time || meals.lunch.amount || meals.lunch.food)) ||
-                       (meals.dinner && (meals.dinner.time || meals.dinner.amount || meals.dinner.food));
+    // Check for meaningful meal data (not just default values)
+    const hasMealData = (meals.lunch && (
+        (meals.lunch.time && meals.lunch.time !== '11:00') || 
+        (meals.lunch.amount && meals.lunch.amount !== 'Ăn hết') ||
+        (meals.lunch.food && meals.lunch.food.length > 0) ||
+        (meals.lunch.otherFood && meals.lunch.otherFood.trim() !== '')
+    )) || (meals.dinner && (
+        (meals.dinner.time && meals.dinner.time !== '17:00') || 
+        (meals.dinner.amount && meals.dinner.amount !== 'Ăn hết') ||
+        (meals.dinner.food && meals.dinner.food.length > 0) ||
+        (meals.dinner.otherFood && meals.dinner.otherFood.trim() !== '')
+    ));
     
     const hasCareData = care && Object.values(care).some(value => value && value.trim() !== '');
     
-    const hasHealthData = health.status && health.status !== 'Tốt' || health.other && health.other.trim() !== '';
+    const hasHealthData = (health.status && health.status !== 'Tốt') || (health.other && health.other.trim() !== '');
+    
+    // Debug logging
+    console.log('🔍 hasCareData debug:', {
+        meals,
+        care,
+        health,
+        hasMealData,
+        hasCareData,
+        hasHealthData,
+        result: hasMealData || hasCareData || hasHealthData
+    });
     
     return hasMealData || hasCareData || hasHealthData;
 }

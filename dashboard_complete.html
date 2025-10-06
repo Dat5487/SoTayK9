@@ -2826,10 +2826,21 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 index === self.findIndex(j => j.id === journal.id)
             );
             
+            // Filter out journals with empty training data (training_activities, care_activities, operation_activities)
+            const journalsWithData = uniqueJournals.filter(journal => {
+                const hasTrainingData = journal.training_activities && journal.training_activities.trim() !== '';
+                const hasCareData = journal.care_activities && journal.care_activities.trim() !== '';
+                const hasOperationData = journal.operation_activities && journal.operation_activities.trim() !== '';
+                
+                // Only include journals that have at least one type of data
+                return hasTrainingData || hasCareData || hasOperationData;
+            });
+            
             console.log('🔍 DEBUG - Original journals count:', journals.length);
             console.log('🔍 DEBUG - Unique journals count:', uniqueJournals.length);
+            console.log('🔍 DEBUG - Journals with data count:', journalsWithData.length);
             
-            uniqueJournals.forEach(journal => {
+            journalsWithData.forEach(journal => {
                 const dogName = journal.dog_name;
                 const journalDate = new Date(journal.journal_date);
                 const month = journalDate.getMonth() + 1; // 1-12
@@ -2963,6 +2974,11 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                         </tbody>
                     </table>
                 </div>
+            `;
+
+            // Only show summary if there's actual data to display
+            if (journalsWithData.length > 0) {
+                html += `
                 <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
                     <h4>📈 Tổng kết:</h4>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
@@ -2975,16 +2991,24 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                             <p>Tháng có dữ liệu</p>
                         </div>
                         <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                            <h3 style="color: #2196F3;">${journals.length}</h3>
-                            <p>Tổng nhật ký</p>
+                            <h3 style="color: #2196F3;">${journalsWithData.length}</h3>
+                            <p>Tổng nhật ký có dữ liệu</p>
                         </div>
                         <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                            <h3 style="color: #9C27B0;">${Math.round(journals.reduce((sum, j) => sum + calculateTrainingHoursFromActivities(j.operation_activities), 0) * 10) / 10}h</h3>
+                            <h3 style="color: #9C27B0;">${Math.round(journalsWithData.reduce((sum, j) => sum + calculateTrainingHoursFromActivities(j.operation_activities), 0) * 10) / 10}h</h3>
                             <p>Tổng giờ huấn luyện</p>
                         </div>
                     </div>
                 </div>
-            `;
+                `;
+            } else {
+                html += `
+                <div style="margin-top: 15px; padding: 20px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; text-align: center;">
+                    <h4 style="color: #856404; margin: 0;">⚠️ Không có dữ liệu huấn luyện</h4>
+                    <p style="color: #856404; margin: 10px 0 0 0;">Chưa có nhật ký nào với dữ liệu huấn luyện, chăm sóc hoặc tác nghiệp trong tháng hiện tại.</p>
+                </div>
+                `;
+            }
 
             container.innerHTML = html;
             console.log('✅ Dog-month summary table generated successfully');
