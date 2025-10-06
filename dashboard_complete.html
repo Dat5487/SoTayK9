@@ -2705,33 +2705,33 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
         }, 5000);
 
         // Training Data Management Functions
-        function calculateTrainingHoursFromActivities(trainingActivities) {
-            if (!trainingActivities || !trainingActivities.trim()) {
+        function calculateTrainingHoursFromActivities(operationActivities) {
+            if (!operationActivities || !operationActivities.trim()) {
                 return 0;
             }
             
             let totalHours = 0;
             
             try {
-                // Parse training activities - could be JSON or text format
+                // Parse operation activities - could be JSON or text format
                 let activities = [];
                 
                 // Try to parse as JSON first
                 try {
-                    activities = JSON.parse(trainingActivities);
+                    activities = JSON.parse(operationActivities);
                 } catch (e) {
                     // If not JSON, try to parse as semicolon-separated text
-                    activities = trainingActivities.split(';').map(activity => activity.trim()).filter(activity => activity);
+                    activities = operationActivities.split(';').map(activity => activity.trim()).filter(activity => activity);
                 }
                 
                 // Process each activity
                 activities.forEach(activity => {
                     if (typeof activity === 'string') {
-                        // Look for time patterns in the text
+                        // Look for time patterns in the text - use matchAll to avoid regex state issues
                         const timePattern = /(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/g;
-                        let match;
+                        const matches = [...activity.matchAll(timePattern)];
                         
-                        while ((match = timePattern.exec(activity)) !== null) {
+                        matches.forEach(match => {
                             const fromHour = parseInt(match[1]);
                             const fromMinute = parseInt(match[2]);
                             const toHour = parseInt(match[3]);
@@ -2745,7 +2745,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                             if (duration > 0) {
                                 totalHours += duration;
                             }
-                        }
+                        });
                     } else if (typeof activity === 'object' && activity !== null) {
                         // Handle object format with fromTime and toTime properties
                         if (activity.fromTime && activity.toTime) {
@@ -2761,7 +2761,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 });
                 
             } catch (error) {
-                console.error('Error parsing training activities:', error);
+                console.error('Error parsing operation activities:', error);
             }
             
             return totalHours;
@@ -2821,7 +2821,15 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             // Group journals by dog and month
             const dogMonthData = {};
             
-            journals.forEach(journal => {
+            // Remove duplicate journals (same id) to prevent double counting
+            const uniqueJournals = journals.filter((journal, index, self) => 
+                index === self.findIndex(j => j.id === journal.id)
+            );
+            
+            console.log('🔍 DEBUG - Original journals count:', journals.length);
+            console.log('🔍 DEBUG - Unique journals count:', uniqueJournals.length);
+            
+            uniqueJournals.forEach(journal => {
                 const dogName = journal.dog_name;
                 const journalDate = new Date(journal.journal_date);
                 const month = journalDate.getMonth() + 1; // 1-12
@@ -2850,12 +2858,12 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 // Add journal date to unique dates
                 data.journalDates.add(journal.journal_date);
                 
-                // Count training days and hours
-                if (journal.training_activities && journal.training_activities.trim()) {
-                    data.trainingDays.add(journal.journal_date);
-                    
-                    // Calculate training hours from fromTime to toTime in training_activities
-                    const trainingHours = calculateTrainingHoursFromActivities(journal.training_activities);
+                // Count training days - each journal entry counts as a training day
+                data.trainingDays.add(journal.journal_date);
+                
+                // Calculate training hours from fromTime to toTime in operation_activities
+                if (journal.operation_activities && journal.operation_activities.trim()) {
+                    const trainingHours = calculateTrainingHoursFromActivities(journal.operation_activities);
                     data.trainingHours += trainingHours;
                 }
                 
@@ -2875,22 +2883,13 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 }
             });
 
-            // Get all unique months from all dogs
-            const allMonths = new Set();
-            Object.values(dogMonthData).forEach(dogData => {
-                Object.keys(dogData).forEach(month => allMonths.add(month));
-            });
+            // Only show current month data
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth() + 1;
+            const currentYear = currentDate.getFullYear();
+            const currentMonthKey = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
             
-            // If no months have data, show current month
-            if (allMonths.size === 0) {
-                const currentDate = new Date();
-                const currentMonth = currentDate.getMonth() + 1;
-                const currentYear = currentDate.getFullYear();
-                const currentMonthKey = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
-                allMonths.add(currentMonthKey);
-            }
-            
-            const sortedMonths = Array.from(allMonths).sort();
+            const sortedMonths = [currentMonthKey];
 
             // Generate HTML table
             let html = `
@@ -2980,7 +2979,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                             <p>Tổng nhật ký</p>
                         </div>
                         <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                            <h3 style="color: #9C27B0;">${Math.round(journals.reduce((sum, j) => sum + calculateTrainingHoursFromActivities(j.training_activities), 0) * 10) / 10}h</h3>
+                            <h3 style="color: #9C27B0;">${Math.round(journals.reduce((sum, j) => sum + calculateTrainingHoursFromActivities(j.operation_activities), 0) * 10) / 10}h</h3>
                             <p>Tổng giờ huấn luyện</p>
                         </div>
                     </div>
