@@ -3620,7 +3620,7 @@ function showJournalEditForm(dogName, date = null) {
 
 
 
-    content.innerHTML = roleInfo + '<div class="journal-header-actions"><button class="btn-create-new-journal" onclick="createNewJournal()">Nhật ký mới +</button><button class="btn-view-old-journals" onclick="viewOldJournals()">Xem nhật ký cũ</button></div><div class="journal-section info-general"><h2>I. THÔNG TIN CHUNG</h2><div class="info-general-grid"><div class="info-item-group journal-date-field"><label for="journal_date">Ngày ghi:</label><input type="date" id="journal_date" value="' + (date || defaultDate) + '" required></div><div class="info-item-group"><label for="journal_hlv">Huấn luyện viên:</label><input type="text" id="journal_hlv" value="' + (currentUserName || hlvInfo.name) + ' (Số hiệu: ' + hlvInfo.id + ')" readonly></div><div class="info-item-group"><label for="journal_dog_name">Tên CNV:</label><input type="text" id="journal_dog_name" value="' + dogName + '" readonly></div></div></div><div class="journal-section training-activity"><h2>II. HOẠT ĐỘNG HUẤN LUYỆN</h2><div id="training-blocks-container"><!-- Training blocks will be dynamically added here --></div><div class="training-activity-buttons"><button class="add-block add-training-block" onclick="addTrainingBlock()">Thêm Ca +</button><button class="remove-block remove-training-block" onclick="removeLastTrainingBlock()">Xóa Ca HL</button></div><div class="textarea-block"><label for="journal_hlv_comment">Đánh giá chung của Huấn luyện viên:</label><textarea id="journal_hlv_comment" rows="4"></textarea></div></div><div class="journal-section care-block"><h2>III. CHĂM SÓC & NUÔI DƯỠNG</h2><!-- Care and feeding section content --><div class="meal-row"><div class="meal-part"><div class="meal-header-time"><h3>Bữa trưa:</h3><label for="lunchTime">Thời gian:</label><input type="time" id="lunchTime" value="11:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="lunchAmount">Sức ăn:</label><select id="lunchAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'lunchFoodOptions\')"><span class="selected-text" id="lunchFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="lunchFoodOptions">' + foodTypesOptions1 + '</div></div><span class="food-selected-display-box" id="lunchFoodDisplayBox">Chưa chọn</span><input type="text" id="lunchFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'lunchFoodDisplayBox\', \'lunchFoodOptions\', \'lunchFoodOther\')"></div></div></div><div class="meal-part"><div class="meal-header-time"><h3>Bữa chiều:</h3><label for="dinnerTime">Thời gian:</label><input type="time" id="dinnerTime" value="17:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="dinnerAmount">Sức ăn:</label><select id="dinnerAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'dinnerFoodOptions\')"><span class="selected-text" id="dinnerFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="dinnerFoodOptions">' + foodTypesOptions2 + '</div></div><span class="food-selected-display-box" id="dinnerFoodDisplayBox">Chưa chọn</span><input type="text" id="dinnerFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'dinnerFoodDisplayBox\', \'dinnerFoodOptions\', \'dinnerFoodOther\')"></div></div></div></div><div class="care-checks"><label><input type="checkbox" id="care_bath"> Tắm rửa</label><label><input type="checkbox" id="care_brush"> Chải lông</label><label><input type="checkbox" id="care_wipe"> Lau lông</label></div><div class="health-status"><label><input type="radio" name="health_status" value="Tốt" checked> Tốt</label><label><input type="radio" name="health_status" value="Khá" data-health-type="abnormal"> Khá</label><label><input type="radio" name="health_status" value="Trung bình" data-health-type="sick"> Trung bình</label><label><input type="radio" name="health_status" value="Kém" data-health-type="sick"> Kém</label><input type="text" id="health_other_text" class="health-other-input hidden" placeholder="Ghi rõ tình trạng"></div><div class="textarea-block"><label for="journal_other_issues" class="other-issues-label">Vấn đề khác (nếu có):</label><textarea id="journal_other_issues" rows="3"></textarea></div></div><div class="journal-section operation-activity"><h2>IV. HOẠT ĐỘNG TÁC NGHIỆP</h2><div id="operation-blocks-container"><!-- Operation blocks will be dynamically added here --></div><div class="operation-activity-buttons"><button class="add-block add-operation-block" onclick="addOperationBlock()">Thêm Ca Tác Nghiệp</button><button class="remove-block remove-operation-block" onclick="removeLastOperationBlock()">Xóa Ca Tác Nghiệp</button></div></div><div class="journal-section approval-section"><h2>DUYỆT & KÝ</h2><div class="approval-flex-container">' + leaderApprovalSection + '<div class="approval-box hvl-submission"><h3>Huấn luyện viên xác nhận</h3><div class="signature-area"><p>Họ và tên: <span id="hvl_name_display">' + (currentUserName || hlvInfo.name) + '</span></p><p>Trạng thái: <span class="submission-status">(Chưa gửi duyệt)</span></p><div id="hvl-signature-display"></div><button class="btn-submit-hvl" onclick="submitHvlSignature()">Ký</button></div></div><div class="approval-box substitute-hvl-section"><h3>HLV trực thay (nếu có)</h3><div class="signature-area"><label for="substitute_hvl_name">Họ và tên:</label><input type="text" id="substitute_hvl_name"><label for="substitute_hvl_comment">Ý kiến:</label><textarea id="substitute_hvl_comment" rows="3"></textarea><p>Trạng thái: <span class="substitute-hvl-status">[Chưa ký]</span></p><div id="substitute-signature-display"></div><button class="btn-substitute-hvl-approve" onclick="substituteHvlApprove()">Ký</button></div></div></div></div><div class="journal-action-buttons"><button class="save-journal" onclick="saveJournalData()">Lưu Nhật Ký</button><button class="export-pdf" onclick="exportJournalToPDF(\'' + dogName + '\', document.getElementById(\'journal_date\').value)">Xuất PDF</button></div>';
+    content.innerHTML = roleInfo + '<div class="journal-header-actions"><button class="btn-create-new-journal" onclick="createNewJournal()">Nhật ký mới +</button><button class="btn-view-old-journals" onclick="viewOldJournals()">Xem nhật ký cũ</button></div><div class="journal-section info-general"><h2>I. THÔNG TIN CHUNG</h2><div class="info-general-grid"><div class="info-item-group journal-date-field"><label for="journal_date">Ngày ghi:</label><input type="date" id="journal_date" value="' + (date || defaultDate) + '" required></div><div class="info-item-group"><label for="journal_hlv">Huấn luyện viên:</label><input type="text" id="journal_hlv" value="' + (currentUserName || hlvInfo.name) + ' (Số hiệu: ' + hlvInfo.id + ')" readonly></div><div class="info-item-group"><label for="journal_dog_name">Tên CNV:</label><input type="text" id="journal_dog_name" value="' + dogName + '" readonly></div></div></div><div class="section-toggle-controls"><h3>Chọn các phần cần ghi nhật ký:</h3><div class="toggle-buttons"><label class="toggle-button"><input type="checkbox" id="toggle_training" checked onchange="toggleSection(\'training\')"> II. Hoạt động huấn luyện</label><label class="toggle-button"><input type="checkbox" id="toggle_care" checked onchange="toggleSection(\'care\')"> III. Chăm sóc & nuôi dưỡng</label><label class="toggle-button"><input type="checkbox" id="toggle_operation" checked onchange="toggleSection(\'operation\')"> IV. Hoạt động tác nghiệp</label></div></div><div class="journal-section training-activity" id="training-section"><h2>II. HOẠT ĐỘNG HUẤN LUYỆN</h2><div id="training-blocks-container"><!-- Training blocks will be dynamically added here --></div><div class="training-activity-buttons"><button class="add-block add-training-block" onclick="addTrainingBlock()">Thêm Ca +</button><button class="remove-block remove-training-block" onclick="removeLastTrainingBlock()">Xóa Ca HL</button></div><div class="textarea-block"><label for="journal_hlv_comment">Đánh giá chung của Huấn luyện viên:</label><textarea id="journal_hlv_comment" rows="4"></textarea></div></div><div class="journal-section care-block" id="care-section"><h2>III. CHĂM SÓC & NUÔI DƯỠNG</h2><!-- Care and feeding section content --><div class="meal-row"><div class="meal-part"><div class="meal-header-time"><h3>Bữa trưa:</h3><label for="lunchTime">Thời gian:</label><input type="time" id="lunchTime" value="11:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="lunchAmount">Sức ăn:</label><select id="lunchAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'lunchFoodOptions\')"><span class="selected-text" id="lunchFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="lunchFoodOptions">' + foodTypesOptions1 + '</div></div><span class="food-selected-display-box" id="lunchFoodDisplayBox">Chưa chọn</span><input type="text" id="lunchFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'lunchFoodDisplayBox\', \'lunchFoodOptions\', \'lunchFoodOther\')"></div></div></div><div class="meal-part"><div class="meal-header-time"><h3>Bữa chiều:</h3><label for="dinnerTime">Thời gian:</label><input type="time" id="dinnerTime" value="17:00"></div><div class="meal-food-details-row"><div class="meal-item"><label for="dinnerAmount">Sức ăn:</label><select id="dinnerAmount" class="appetite-select"><option value="Ăn hết">Ăn hết</option><option value="Ăn ít">Ăn ít</option><option value="Không ăn">Không ăn</option></select></div><div class="meal-item food-selection-group"><label>Thức ăn:</label><div class="custom-food-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleFoodDropdown(\'dinnerFoodOptions\')"><span class="selected-text" id="dinnerFoodTriggerText">Chọn thức ăn</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="dinnerFoodOptions">' + foodTypesOptions2 + '</div></div><span class="food-selected-display-box" id="dinnerFoodDisplayBox">Chưa chọn</span><input type="text" id="dinnerFoodOther" class="hidden" placeholder="Thức ăn khác" onchange="updateFoodDisplay(\'dinnerFoodDisplayBox\', \'dinnerFoodOptions\', \'dinnerFoodOther\')"></div></div></div></div><div class="care-checks"><label><input type="checkbox" id="care_bath"> Tắm rửa</label><label><input type="checkbox" id="care_brush"> Chải lông</label><label><input type="checkbox" id="care_wipe"> Lau lông</label></div><div class="health-status"><label><input type="radio" name="health_status" value="Tốt" checked> Tốt</label><label><input type="radio" name="health_status" value="Khá" data-health-type="abnormal"> Khá</label><label><input type="radio" name="health_status" value="Trung bình" data-health-type="sick"> Trung bình</label><label><input type="radio" name="health_status" value="Kém" data-health-type="sick"> Kém</label><input type="text" id="health_other_text" class="health-other-input hidden" placeholder="Ghi rõ tình trạng"></div><div class="textarea-block"><label for="journal_other_issues" class="other-issues-label">Vấn đề khác (nếu có):</label><textarea id="journal_other_issues" rows="3"></textarea></div></div><div class="journal-section operation-activity" id="operation-section"><h2>IV. HOẠT ĐỘNG TÁC NGHIỆP</h2><div id="operation-blocks-container"><!-- Operation blocks will be dynamically added here --></div><div class="operation-activity-buttons"><button class="add-block add-operation-block" onclick="addOperationBlock()">Thêm Ca Tác Nghiệp</button><button class="remove-block remove-operation-block" onclick="removeLastOperationBlock()">Xóa Ca Tác Nghiệp</button></div></div><div class="journal-section approval-section"><h2>DUYỆT & KÝ</h2><div class="approval-flex-container">' + leaderApprovalSection + '<div class="approval-box hvl-submission"><h3>Huấn luyện viên xác nhận</h3><div class="signature-area"><p>Họ và tên: <span id="hvl_name_display">' + (currentUserName || hlvInfo.name) + '</span></p><p>Trạng thái: <span class="submission-status">(Chưa gửi duyệt)</span></p><div id="hvl-signature-display"></div><button class="btn-submit-hvl" onclick="submitHvlSignature()">Ký</button></div></div><div class="approval-box substitute-hvl-section"><h3>HLV trực thay (nếu có)</h3><div class="signature-area"><label for="substitute_hvl_name">Họ và tên:</label><input type="text" id="substitute_hvl_name"><label for="substitute_hvl_comment">Ý kiến:</label><textarea id="substitute_hvl_comment" rows="3"></textarea><p>Trạng thái: <span class="substitute-hvl-status">[Chưa ký]</span></p><div id="substitute-signature-display"></div><button class="btn-substitute-hvl-approve" onclick="substituteHvlApprove()">Ký</button></div></div></div></div><div class="journal-action-buttons"><button class="save-journal" onclick="saveJournalData()">Lưu Nhật Ký</button><button class="export-pdf" onclick="exportJournalToPDF(\'' + dogName + '\', document.getElementById(\'journal_date\').value)">Xuất PDF</button></div>';
 
 
 
@@ -5810,7 +5810,7 @@ function addOperationBlock(data = {}) {
 
 
 
-    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="operation-result-block"><label>Kết quả tác nghiệp:</label><div class="operation-no-violation-block"><label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-' + currentBlockId + '" ' + (data.noViolation ? 'checked' : '') + '> Không phát hiện vi phạm</label></div></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
+    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="operation-result-block"><label>Kết quả tác nghiệp:</label><div class="operation-result-checkboxes"><label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-' + currentBlockId + '" ' + (data.noViolation ? 'checked' : '') + '> Không phát hiện vi phạm</label><label><input type="checkbox" class="operation-checkbox-violation" id="violationDetected-' + currentBlockId + '" ' + (data.violationDetected ? 'checked' : '') + '> Phát hiện dấu hiệu vi phạm</label></div></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
 
 
 
@@ -5863,6 +5863,12 @@ function addOperationBlock(data = {}) {
         const noViolationCheckbox = document.getElementById(`noViolation-${currentBlockId}`);
         if (noViolationCheckbox) {
             noViolationCheckbox.checked = data.noViolation || false;
+        }
+
+        // Initialize violation detected checkbox
+        const violationDetectedCheckbox = document.getElementById(`violationDetected-${currentBlockId}`);
+        if (violationDetectedCheckbox) {
+            violationDetectedCheckbox.checked = data.violationDetected || false;
         }
 
         // Update visibility of "other" inputs based on checkbox states
@@ -6322,6 +6328,7 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
                 <div style="margin-top: 10px;"><strong>Huấn luyện viên:</strong> ${generalInfo.hlv || 'N/A'}</div>
             </div>
             
+            ${hasTrainingData(journalData) ? `
             <div class="a4-section" style="margin-bottom: 30px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">I. HOẠT ĐỘNG HUẤN LUYỆN</h3>
                 ${renderTrainingBlocks(journalData.trainingBlocks || [])}
@@ -6332,7 +6339,9 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
                     </div>
                 </div>
             </div>
+            ` : ''}
             
+            ${hasCareData(journalData) ? `
             <div class="a4-section" style="margin-bottom: 30px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">II. CHĂM SÓC & NUÔI DƯỠNG</h3>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -6363,11 +6372,14 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
                 </table>
                 ${health.other ? `<p><strong>Ghi chú sức khỏe:</strong> ${health.other}</p>` : ''}
             </div>
+            ` : ''}
             
+            ${hasOperationData(journalData) ? `
             <div class="a4-section" style="margin-bottom: 30px;">
                 <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">III. HOẠT ĐỘNG TÁC NGHIỆP</h3>
                 ${renderOperationBlocks(journalData.operationBlocks || [])}
             </div>
+            ` : ''}
             
             <div class="a4-section" style="margin-bottom: 30px; page-break-inside: avoid;">
                 <h3 style="font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">IV. DUYỆT & KÝ</h3>
@@ -6582,16 +6594,44 @@ async function renderSignatureImageForA4(signatureData, signatureType) {
 
 // Helper functions for rendering journal sections
 
+// Helper function to check if training section has data
+function hasTrainingData(journalData) {
+    const hasBlocks = journalData.trainingBlocks && journalData.trainingBlocks.length > 0;
+    const hasComment = journalData.hlvComment && journalData.hlvComment.trim() !== '';
+    return hasBlocks || hasComment;
+}
+
+// Helper function to check if care section has data
+function hasCareData(journalData) {
+    const meals = journalData.meals || {};
+    const care = journalData.care || {};
+    const health = journalData.health || {};
+    
+    const hasMealData = (meals.lunch && (meals.lunch.time || meals.lunch.amount || meals.lunch.food)) ||
+                       (meals.dinner && (meals.dinner.time || meals.dinner.amount || meals.dinner.food));
+    
+    const hasCareData = care && Object.values(care).some(value => value && value.trim() !== '');
+    
+    const hasHealthData = health.status && health.status !== 'Tốt' || health.other && health.other.trim() !== '';
+    
+    return hasMealData || hasCareData || hasHealthData;
+}
+
+// Helper function to check if operation section has data
+function hasOperationData(journalData) {
+    return journalData.operationBlocks && journalData.operationBlocks.length > 0;
+}
+
 function renderTrainingBlocks(blocks) {
     if (!blocks || blocks.length === 0) return '<p>Không có hoạt động huấn luyện.</p>';
 
     return blocks.map((block, index) => {
         const location = block.locationType === 'Khác' ? block.locationOther : (block.locationType || 'Sân tập');
-        const timeRange = (block.fromTime || '08:00') + ' - ' + (block.toTime || '09:00');
+        const timeRange = (block.fromTime && block.toTime) ? block.fromTime + ' - ' + block.toTime : '';
 
         return `
             <div class="training-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
-                <p><strong>Ca ${index + 1}:</strong> ${timeRange}</p>
+                <p><strong>Ca ${index + 1}:</strong> ${timeRange || 'Chưa ghi giờ'}</p>
                 <p><strong>Địa điểm:</strong> ${location}</p>
                 <p><strong>Nội dung:</strong> ${renderTrainingContent(block)}</p>
                 ${block.drugDetection && block.drugDetection.length > 0 ?
@@ -6736,15 +6776,15 @@ function renderOperationBlocks(blocks) {
     if (!blocks || blocks.length === 0) return '<p>Không có hoạt động tác nghiệp.</p>';
 
     return blocks.map((block, index) => {
-        const timeRange = (block.fromTime || '08:00') + ' - ' + (block.toTime || '09:00');
+        const timeRange = (block.fromTime && block.toTime) ? block.fromTime + ' - ' + block.toTime : '';
         const locations = block.selectedLocations?.join(', ') || 'Chưa ghi';
 
         return `
             <div class="operation-block-display" style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
-                <p><strong>Ca ${index + 1}:</strong> ${timeRange}</p>
+                <p><strong>Ca ${index + 1}:</strong> ${timeRange || 'Chưa ghi giờ'}</p>
                 <p><strong>Địa điểm:</strong> ${locations}</p>
                 <p><strong>Nội dung:</strong> ${renderOperationContent(block)}</p>
-                ${block.noViolation ? '<p><strong>Kết quả tác nghiệp:</strong> Không phát hiện vi phạm</p>' : ''}
+                <p><strong>Kết quả tác nghiệp:</strong> ${block.noViolation ? 'Không phát hiện vi phạm' : block.violationDetected ? 'Phát hiện dấu hiệu vi phạm' : 'Chưa ghi'}</p>
                 ${block.otherIssues ? '<p><strong>Vấn đề khác:</strong> ' + block.otherIssues + '</p>' : ''}
             </div>
         `;
@@ -7217,8 +7257,6 @@ function populateJournalForm(data) {
 
         });
 
-    } else {
-        addTrainingBlock();
     }
 
 
@@ -7230,9 +7268,6 @@ function populateJournalForm(data) {
         data.operationBlocks.forEach(blockData => {
             addOperationBlock(blockData);
         });
-    } else {
-        console.log('❌ No operation blocks found, creating default "Ca 1"');
-        addOperationBlock(); // Add default operation block "Ca 1"
     }
 
     // Populate meals, care, health data
@@ -7267,6 +7302,33 @@ function populateJournalForm(data) {
 
     }
 
+    // Restore toggle states based on existing data
+    restoreToggleStates(data);
+
+}
+
+// Function to restore toggle states when loading existing journal data
+function restoreToggleStates(data) {
+    // Enable training section if there are training blocks
+    const trainingToggle = document.getElementById('toggle_training');
+    if (trainingToggle && data.trainingBlocks && data.trainingBlocks.length > 0) {
+        trainingToggle.checked = true;
+        toggleSection('training');
+    }
+
+    // Enable care section if there is care data
+    const careToggle = document.getElementById('toggle_care');
+    if (careToggle && data.care && Object.keys(data.care).some(key => data.care[key])) {
+        careToggle.checked = true;
+        toggleSection('care');
+    }
+
+    // Enable operation section if there are operation blocks
+    const operationToggle = document.getElementById('toggle_operation');
+    if (operationToggle && data.operationBlocks && data.operationBlocks.length > 0) {
+        operationToggle.checked = true;
+        toggleSection('operation');
+    }
 }
 
 
@@ -8561,18 +8623,28 @@ function removeLastTrainingBlock() {
 
 
 
-    if (blocks.length > 1) {
+    if (blocks.length > 0) {
 
         container.removeChild(blocks[blocks.length - 1]);
 
         trainingSessionCounter--;
 
-    } else {
-
-        alert('Phải có ít nhất 1 ca huấn luyện!');
-
     }
 
+}
+
+// Function to toggle section visibility
+function toggleSection(sectionType) {
+    const checkbox = document.getElementById('toggle_' + sectionType);
+    const section = document.getElementById(sectionType + '-section');
+    
+    if (checkbox && section) {
+        if (checkbox.checked) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
+        }
+    }
 }
 
 
@@ -8634,9 +8706,9 @@ async function saveJournalData() {
 
             health: collectHealthData(),
 
-            hlvComment: document.getElementById('journal_hlv_comment').value,
+            hlvComment: collectHLVComment(),
 
-            otherIssues: document.getElementById('journal_other_issues').value,
+            otherIssues: collectOtherIssues(),
 
             lastModified: new Date().toISOString()
 
@@ -8704,8 +8776,8 @@ async function saveJournalData() {
             meals: collectMealsData(),
             care: collectCareData(),
             health: collectHealthData(),
-            hlvComment: document.getElementById('journal_hlv_comment').value,
-            otherIssues: document.getElementById('journal_other_issues').value,
+            hlvComment: collectHLVComment(),
+            otherIssues: collectOtherIssues(),
             lastModified: new Date().toISOString()
         };
 
@@ -8735,6 +8807,12 @@ async function saveJournalData() {
 function collectTrainingBlocksData() {
 
     const blocks = [];
+
+    // Check if training section is enabled
+    const trainingToggle = document.getElementById('toggle_training');
+    if (!trainingToggle || !trainingToggle.checked) {
+        return blocks; // Return empty array if training section is disabled
+    }
 
     const trainingBlocks = document.querySelectorAll('.training-block');
 
@@ -8818,6 +8896,12 @@ function collectOperationBlocksData() {
 
     const blocks = [];
 
+    // Check if operation section is enabled
+    const operationToggle = document.getElementById('toggle_operation');
+    if (!operationToggle || !operationToggle.checked) {
+        return blocks; // Return empty array if operation section is disabled
+    }
+
     const operationBlocks = document.querySelectorAll('.operation-block');
 
     operationBlocks.forEach((block, index) => {
@@ -8854,6 +8938,10 @@ function collectOperationBlocksData() {
 
                 document.getElementById('opKhacText2-' + blockId).value : null,
 
+            noViolation: document.getElementById('noViolation-' + blockId).checked,
+
+            violationDetected: document.getElementById('violationDetected-' + blockId).checked,
+
             otherIssues: document.getElementById('operation_other_issues_' + blockId).value
 
         };
@@ -8873,6 +8961,12 @@ function collectOperationBlocksData() {
 
 
 function collectMealsData() {
+
+    // Check if care section is enabled
+    const careToggle = document.getElementById('toggle_care');
+    if (!careToggle || !careToggle.checked) {
+        return {}; // Return empty object if care section is disabled
+    }
 
     return {
 
@@ -8908,6 +9002,12 @@ function collectMealsData() {
 
 function collectCareData() {
 
+    // Check if care section is enabled
+    const careToggle = document.getElementById('toggle_care');
+    if (!careToggle || !careToggle.checked) {
+        return {}; // Return empty object if care section is disabled
+    }
+
     return {
 
         bath: document.getElementById('care_bath').checked,
@@ -8924,6 +9024,12 @@ function collectCareData() {
 
 function collectHealthData() {
 
+    // Check if care section is enabled
+    const careToggle = document.getElementById('toggle_care');
+    if (!careToggle || !careToggle.checked) {
+        return {}; // Return empty object if care section is disabled
+    }
+
     return {
 
         status: getSelectedRadioValue('health_status'),
@@ -8932,6 +9038,24 @@ function collectHealthData() {
 
     };
 
+}
+
+// Helper function to conditionally collect HLV comment
+function collectHLVComment() {
+    const trainingToggle = document.getElementById('toggle_training');
+    if (!trainingToggle || !trainingToggle.checked) {
+        return ''; // Return empty string if training section is disabled
+    }
+    return document.getElementById('journal_hlv_comment').value;
+}
+
+// Helper function to conditionally collect other issues
+function collectOtherIssues() {
+    const careToggle = document.getElementById('toggle_care');
+    if (!careToggle || !careToggle.checked) {
+        return ''; // Return empty string if care section is disabled
+    }
+    return document.getElementById('journal_other_issues').value;
 }
 
 
@@ -9549,8 +9673,8 @@ function collectJournalFormData() {
             meals: meals,
             care: care,
             health: health,
-            hlvComment: document.getElementById('journal_hlv_comment').value,
-            otherIssues: document.getElementById('journal_other_issues').value
+            hlvComment: collectHLVComment(),
+            otherIssues: collectOtherIssues()
         };
     } catch (error) {
         console.error('Error collecting journal form data:', error);

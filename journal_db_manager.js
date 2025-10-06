@@ -451,13 +451,13 @@ class JournalDatabaseManager {
             dog_id: this.currentDogId,
             trainer_id: this.currentTrainerId,
             journal_date: date,
-            training_activities: this.collectTrainingActivities(),
-            care_activities: this.collectCareActivities(),
-            operation_activities: this.collectOperationActivities(),
-            health_status: this.getHealthStatus(),
-            behavior_notes: this.collectBehaviorNotes(),
+            training_activities: this.collectTrainingActivitiesConditionally(),
+            care_activities: this.collectCareActivitiesConditionally(),
+            operation_activities: this.collectOperationActivitiesConditionally(),
+            health_status: this.getHealthStatusConditionally(),
+            behavior_notes: this.collectBehaviorNotesConditionally(),
             weather_conditions: this.getWeatherConditions(),
-            challenges: document.getElementById('journal_other_issues').value || '',
+            challenges: this.collectOtherIssuesConditionally(),
             next_goals: this.getNextGoals(),
             training_duration: this.calculateTrainingDuration(),
             success_rate: this.calculateSuccessRate(),
@@ -1184,6 +1184,64 @@ class JournalDatabaseManager {
     // =============================================================================
 
     // Migration function removed - database only mode
+
+    // =============================================================================
+    // CONDITIONAL DATA COLLECTION METHODS
+    // =============================================================================
+
+    collectTrainingActivitiesConditionally() {
+        // Check if training section is enabled
+        const trainingToggle = document.getElementById('toggle_training');
+        if (!trainingToggle || !trainingToggle.checked) {
+            return JSON.stringify([]); // Return empty array as JSON string if training section is disabled
+        }
+        return this.collectTrainingActivities();
+    }
+
+    collectCareActivitiesConditionally() {
+        // Check if care section is enabled
+        const careToggle = document.getElementById('toggle_care');
+        if (!careToggle || !careToggle.checked) {
+            return JSON.stringify({}); // Return empty object as JSON string if care section is disabled
+        }
+        return this.collectCareActivities();
+    }
+
+    collectOperationActivitiesConditionally() {
+        // Check if operation section is enabled
+        const operationToggle = document.getElementById('toggle_operation');
+        if (!operationToggle || !operationToggle.checked) {
+            return JSON.stringify([]); // Return empty array as JSON string if operation section is disabled
+        }
+        return this.collectOperationActivities();
+    }
+
+    collectOtherIssuesConditionally() {
+        // Check if care section is enabled
+        const careToggle = document.getElementById('toggle_care');
+        if (!careToggle || !careToggle.checked) {
+            return ''; // Return empty string if care section is disabled
+        }
+        return document.getElementById('journal_other_issues').value || '';
+    }
+
+    getHealthStatusConditionally() {
+        // Check if care section is enabled
+        const careToggle = document.getElementById('toggle_care');
+        if (!careToggle || !careToggle.checked) {
+            return 'Tốt'; // Return default health status if care section is disabled
+        }
+        return this.getHealthStatus();
+    }
+
+    collectBehaviorNotesConditionally() {
+        // Check if care section is enabled
+        const careToggle = document.getElementById('toggle_care');
+        if (!careToggle || !careToggle.checked) {
+            return ''; // Return empty string if care section is disabled
+        }
+        return this.collectBehaviorNotes();
+    }
 }
 
 // Create global instance
