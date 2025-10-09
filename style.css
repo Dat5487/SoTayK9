@@ -71,6 +71,7 @@ html, body {
     gap: 15px;
     max-width: 400px;
     flex: 1;
+    margin-left: 15%;
 }
 
 .grid-item {
