@@ -3439,6 +3439,7 @@ function backToMainContent() {
 
 
 let isSpeaking = false;
+let ttsPlaybackSpeed = 1.5; // Default speed: 1.5x faster
 let currentUtterance = null;
 let currentAudio = null;
 let audioCache = new Map(); // Cache for audio file mappings
@@ -3548,6 +3549,20 @@ async function checkAudioFileExists(filename) {
     }
 }
 
+// Function to change TTS playback speed
+function changeTTSSpeed() {
+    const speedControl = document.getElementById('ttsSpeedControl');
+    const newSpeed = parseFloat(speedControl.value);
+    ttsPlaybackSpeed = newSpeed;
+    
+    // Apply new speed to currently playing audio if any
+    if (currentAudio && !currentAudio.paused) {
+        currentAudio.playbackRate = ttsPlaybackSpeed;
+    }
+    
+    console.log(`🎵 TTS speed changed to ${ttsPlaybackSpeed}x`);
+}
+
 // Function to toggle speech using cached audio or generate new
 function toggleSpeech() {
     const contentElement = document.getElementById('content');
@@ -3606,6 +3621,7 @@ function toggleSpeech() {
                 // Play the cached audio file immediately
                 const audioUrl = `/api/tts/get/${expectedFilename}`;
                 currentAudio = new Audio(audioUrl);
+                currentAudio.playbackRate = ttsPlaybackSpeed;
 
             } else {
 
@@ -3640,6 +3656,7 @@ function toggleSpeech() {
                 // Play the newly generated audio file
                 const audioUrl = `/api/tts/get/${data.filename}`;
                 currentAudio = new Audio(audioUrl);
+                currentAudio.playbackRate = ttsPlaybackSpeed;
             }
 
             currentAudio.onloadstart = () => {

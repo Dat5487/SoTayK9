@@ -501,6 +501,34 @@ html, body {
 
 #toggleReadButton:hover { 
     background-color: #0056b3; 
+}
+
+/* TTS Controls Styling */
+.tts-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+#ttsSpeedControl {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+#ttsSpeedControl:hover {
+    border-color: #007bff;
+}
+
+#ttsSpeedControl:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 } 
 
 /* FIX: Content wrapper với scroll riêng */

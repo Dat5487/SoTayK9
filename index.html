@@ -1056,7 +1056,18 @@
     <div class="main-content-area">
       <div class="title-bar">
         <h1 id="title">TỔNG QUAN</h1>
-        <button id="toggleReadButton" onclick="toggleSpeech()">🔊 Đọc nội dung</button>
+        <div class="tts-controls">
+          <button id="toggleReadButton" onclick="toggleSpeech()">🔊 Đọc nội dung</button>
+          <select id="ttsSpeedControl" onchange="changeTTSSpeed()">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1">1x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5" selected>1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2x</option>
+          </select>
+        </div>
       </div>
       <div class="content-wrapper">
         <div id="content"></div>
