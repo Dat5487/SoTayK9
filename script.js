@@ -1220,6 +1220,9 @@ function hideAllContentSections() {
 
 function showLoginPage() {
 
+    // Stop TTS when showing login page
+    stopTTS();
+
     document.getElementById('loginPage').classList.remove('hidden');
 
     document.getElementById('mainApp').classList.add('hidden');
@@ -1386,6 +1389,9 @@ async function showMainApp() {
 // SỬA LỖI LOGOUT: Function to handle logout - ĐÓNG TẤT CẢ DROPDOWN VÀ RESET HOÀN TOÀN
 
 function logout() {
+
+    // Stop TTS when logging out
+    stopTTS();
 
     // Logout initiated
 
@@ -1738,6 +1744,9 @@ function hideDashboardButtonFromNavigation() {
 // SỬA Z-INDEX: Function to display main content với z-index thấp hơn navigation
 
 function showContent(type) {
+
+    // Stop TTS when switching content
+    stopTTS();
 
     hideAllContentSections();
 
@@ -2418,6 +2427,9 @@ async function loadDogProfilesFromDatabase() {
 // Function hiển thị dog profile từ DASHBOARD DATA với tên đúng HLV
 
 async function showDogProfileForm(dogName) {
+
+    // Stop TTS when switching to dog profile
+    stopTTS();
 
     // Kiểm tra quyền của Trainer
 
@@ -3560,6 +3572,23 @@ function changeTTSSpeed() {
     console.log(`🎵 TTS speed changed to ${ttsPlaybackSpeed}x`);
 }
 
+// Function to stop TTS speech
+function stopTTS() {
+    if (isSpeaking && currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        isSpeaking = false;
+        
+        const toggleButton = document.getElementById('toggleReadButton');
+        if (toggleButton) {
+            toggleButton.innerText = '🔊 Đọc nội dung';
+            toggleButton.style.background = '#007bff';
+        }
+        
+        console.log('🔇 TTS stopped due to menu navigation');
+    }
+}
+
 // Function to toggle speech using cached audio or generate new
 function toggleSpeech() {
     const contentElement = document.getElementById('content');
@@ -3833,6 +3862,9 @@ function toggleJournalMenu() {
 
 function showJournalEditForm(dogName, date = null) {
 
+    // Stop TTS when switching to journal form
+    stopTTS();
+
     // SỬA: Manager tự động chuyển sang chế độ duyệt nhật ký
 
     if (currentUserRole === 'MANAGER') {
@@ -3949,6 +3981,9 @@ function showJournalEditForm(dogName, date = null) {
 // SỬA: Function showAllPendingJournalsForManager - TÌM TẤT CẢ JOURNAL ĐÃ KÝ CHƯA DUYỆT - FIX MANAGER WORKFLOW
 
 async function showAllPendingJournalsForManager() {
+
+    // Stop TTS when switching to pending journals
+    stopTTS();
 
     hideAllContentSections();
 
@@ -4212,6 +4247,9 @@ async function showAllPendingJournalsForManager() {
 
 // SỬA: Function MANAGER JOURNAL VIEW - XEM SỔ NHẬT KÝ HUẤN LUYỆN
 async function showManagerJournalView() {
+    // Stop TTS when switching to manager journal view
+    stopTTS();
+    
     hideAllContentSections();
 
     const content = document.getElementById('content');
@@ -4388,6 +4426,9 @@ async function showManagerJournalView() {
 
 // Helper functions for Manager Journal View
 async function viewJournalFromManagerView(journalKey) {
+    // Stop TTS when viewing journal
+    stopTTS();
+    
     try {
         // Extract dog name, date, and ID from journal key
         const keyParts = journalKey.replace('journal_', '').split('_');
@@ -4624,6 +4665,9 @@ function refreshManagerView() {
 
 
 async function showManagerStatistics() {
+    // Stop TTS when switching to statistics
+    stopTTS();
+    
     // Show loading modal first
     showStatisticsModal();
 
@@ -6747,6 +6791,9 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
 // SỬA: Helper function để quay lại journal list
 
 function returnToJournalList() {
+
+    // Stop TTS when returning to journal list
+    stopTTS();
 
 
 
@@ -9427,6 +9474,9 @@ function getSelectedCheckboxValues(containerId, attribute) {
 
 function createNewJournal() {
 
+    // Stop TTS when creating new journal
+    stopTTS();
+
     if (confirm('Tạo nhật ký mới? Dữ liệu hiện tại sẽ bị xóa.')) {
 
         showJournalEditForm(currentDogForJournal);
@@ -9440,6 +9490,9 @@ function createNewJournal() {
 // SỬA: Function viewOldJournals - CHUYỂN SANG DATABASE API
 
 async function viewOldJournals() {
+
+    // Stop TTS when viewing old journals
+    stopTTS();
 
     // Load journals from database
     const dogJournals = [];
