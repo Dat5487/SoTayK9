@@ -9,6 +9,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- jQuery and Select2 CSS and JS for enhanced dropdowns -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
   <script src="journal_db_manager.js"></script>
   <script src="pdf_export.js"></script>
 
@@ -885,13 +891,13 @@
       .toggle-buttons {
         gap: 12px;
       }
-      
+
       .toggle-button {
         min-width: 300px;
         padding: 12px 20px;
         font-size: 16px;
       }
-      
+
       .toggle-button input[type="checkbox"] {
         width: 20px;
         height: 20px;
@@ -1002,7 +1008,7 @@
               <!-- Tên user sẽ được JavaScript điền -->
             </span>
           </div>
-          
+
           <!-- SỬA: Dropdown menu -->
           <div id="userDropdown" class="user-dropdown hidden">
             <div class="user-dropdown-header">
@@ -1033,6 +1039,7 @@
           </ul>
         </li>
         <li onclick="showContent('QUY TRÌNH CHĂM SÓC')">QUY TRÌNH CHĂM SÓC</li>
+        <li onclick="showContent('QUY TRÌNH HUẤN LUYỆN')">QUY TRÌNH HUẤN LUYỆN</li>
         <li onclick="showContent('QUY TRÌNH SỬ DỤNG')">QUY TRÌNH SỬ DỤNG</li>
         <li>
           <span onclick="toggleJournalMenu()" style="cursor: pointer;">SỔ NHẬT KÝ HUẤN LUYỆN</span>
@@ -1040,8 +1047,8 @@
             <!-- Dogs will be populated dynamically based on user assignments -->
           </ul>
         </li>
-        <li onclick="showContent('QUY TRÌNH HUẤN LUYỆN')">QUY TRÌNH HUẤN LUYỆN</li>
-        <li onclick="showContent('KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN')" id="care-plan-menu" style="display: none;">KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN</li>
+        <li onclick="showContent('KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN')" id="care-plan-menu" style="display: none;">KẾ HOẠCH
+          CHĂM SÓC, HUẤN LUYỆN</li>
         <li onclick="showContent('VIDEO HƯỚNG DẪN')">VIDEO HƯỚNG DẪN</li>
       </ul>
     </div>
@@ -1104,27 +1111,27 @@
     // console.log('✅ Database-only mode initialized');
 
     // Handle URL parameters for journal viewing from dashboard
-    document.addEventListener('DOMContentLoaded', function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const dogName = urlParams.get('dogName');
-        const date = urlParams.get('date');
-        const journalId = urlParams.get('journalId');
-        const view = urlParams.get('view');
-        
-        console.log('🔍 URL Parameters:', { dogName, date, journalId, view });
-        
-        // If we have journal parameters, automatically show the journal
-        if (dogName && date && journalId && view === 'journal') {
-            console.log('📋 Auto-opening journal from dashboard:', journalId);
-            // Wait a bit for the page to fully load, then show the journal
-            setTimeout(() => {
-                if (typeof showPureA4JournalView === 'function') {
-                    showPureA4JournalView(dogName, date, parseInt(journalId));
-                } else {
-                    console.error('❌ showPureA4JournalView function not found');
-                }
-            }, 1000);
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dogName = urlParams.get('dogName');
+      const date = urlParams.get('date');
+      const journalId = urlParams.get('journalId');
+      const view = urlParams.get('view');
+
+      console.log('🔍 URL Parameters:', { dogName, date, journalId, view });
+
+      // If we have journal parameters, automatically show the journal
+      if (dogName && date && journalId && view === 'journal') {
+        console.log('📋 Auto-opening journal from dashboard:', journalId);
+        // Wait a bit for the page to fully load, then show the journal
+        setTimeout(() => {
+          if (typeof showPureA4JournalView === 'function') {
+            showPureA4JournalView(dogName, date, parseInt(journalId));
+          } else {
+            console.error('❌ showPureA4JournalView function not found');
+          }
+        }, 1000);
+      }
     });
 
   </script>

@@ -14,22 +14,22 @@
  */
 function formatDateToDDMMYYYY(date, includeTime = false) {
     if (!date) return 'N/A';
-    
+
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    
+
     if (isNaN(dateObj.getTime())) return 'N/A';
-    
+
     const day = String(dateObj.getDate()).padStart(2, '0');
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
     const year = dateObj.getFullYear();
-    
+
     if (includeTime) {
         const hours = String(dateObj.getHours()).padStart(2, '0');
         const minutes = String(dateObj.getMinutes()).padStart(2, '0');
         const seconds = String(dateObj.getSeconds()).padStart(2, '0');
         return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
-    
+
     return `${day}/${month}/${year}`;
 }
 
@@ -203,9 +203,9 @@ async function generateSignatureHTML(signatureData, timestamp) {
 
             <img src="${signatureImage}" alt="Chữ ký ${userName}" 
 
-                 style="max-width: 300px; max-height: 120px; border: 2px solid #2196F3; padding: 10px;
+                 style="max-width: 300px; max-height: 120px; padding: 10px;
 
-                        background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block; margin: 0 auto;"
+                        background: white; display: block; margin: 0 auto;"
 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
 
@@ -787,7 +787,7 @@ function applyRoleBasedRestrictions() {
         setupManagerView();
 
         restrictManagerAccess();
-        
+
         // Show care plan menu for Manager
         const carePlanMenu = document.getElementById('care-plan-menu');
         if (carePlanMenu) {
@@ -795,23 +795,23 @@ function applyRoleBasedRestrictions() {
         }
 
     } else if (currentUserRole === 'ADMIN') {
-        
+
         // Show care plan menu for Admin as well
         const carePlanMenu = document.getElementById('care-plan-menu');
         if (carePlanMenu) {
             carePlanMenu.style.display = 'block';
         }
-        
+
     } else if (currentUserRole === 'TRAINER') {
-        
+
         // Show care plan menu for Trainer (read-only access)
         const carePlanMenu = document.getElementById('care-plan-menu');
         if (carePlanMenu) {
             carePlanMenu.style.display = 'block';
         }
-        
+
     } else {
-        
+
         // Hide care plan menu for other roles (Guest, etc.)
         const carePlanMenu = document.getElementById('care-plan-menu');
         if (carePlanMenu) {
@@ -825,7 +825,7 @@ function applyRoleBasedRestrictions() {
 
 // Fallback function to ensure care plan menu is shown for authorized roles
 function ensureCarePlanMenuVisibility() {
-    
+
     if (currentUserRole === 'TRAINER' || currentUserRole === 'MANAGER' || currentUserRole === 'ADMIN') {
         const carePlanMenu = document.getElementById('care-plan-menu');
         if (carePlanMenu) {
@@ -868,7 +868,7 @@ function restrictManagerAccess() {
 
 async function refreshDynamicMenus() {
     let userDogs = [];
-    
+
     // Try to fetch assigned dogs from database if user ID is available
     if (currentUserId) {
         try {
@@ -1359,7 +1359,7 @@ async function showMainApp() {
         refreshDynamicMenus();
 
         await updateUserDisplay();
-        
+
         // Ensure care plan menu visibility as fallback
         ensureCarePlanMenuVisibility();
 
@@ -1492,7 +1492,7 @@ function logout() {
     // Logout completed
 
     showLoginPage();
-    
+
     // Reload the page to ensure complete reset
     location.reload();
 
@@ -1542,7 +1542,7 @@ async function showA4JournalViewFromKey(journalKey) {
         // Extract dog name, date, and ID from journal key
         const keyParts = journalKey.replace('journal_', '').split('_');
         const dogName = keyParts[0];
-        
+
         // Handle both old format (dogName_date) and new format (dogName_date_id)
         let date, journalId = null;
         if (keyParts.length >= 3) {
@@ -1557,7 +1557,7 @@ async function showA4JournalViewFromKey(journalKey) {
 
         // Try to get journal by ID first if available, otherwise by dog+date
         let journalData = null;
-        
+
         if (journalId) {
             // Try to get journal by ID first - this should be the specific journal
             try {
@@ -1572,7 +1572,7 @@ async function showA4JournalViewFromKey(journalKey) {
             } catch (error) {
             }
         }
-        
+
         // Only try by dog+date if we couldn't get the specific journal by ID
         if (!journalData) {
             const response = await fetch(`/api/journals/by-dog-date/${encodeURIComponent(dogName)}/${date}`);
@@ -1691,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // K9 Management System initialized
-    
+
     // Ensure care plan menu visibility on page load
     setTimeout(() => {
         ensureCarePlanMenuVisibility();
@@ -1798,7 +1798,7 @@ function showContent(type) {
                 <div class="loading">Đang tải danh sách chó nghiệp vụ...</div>
             </div>
         `;
-        
+
         // Load dogs from database only
         loadDogProfilesFromDatabase();
 
@@ -1807,195 +1807,484 @@ function showContent(type) {
         title.innerText = 'QUY TRÌNH CHĂM SÓC';
 
         content.innerHTML = `
-        <h3>1. Nguyên tắc và Trách nhiệm trong Chăm sóc</h3>
-        <p>Việc chăm sóc, nuôi dưỡng CNV (chó nghiệp vụ) là công việc phải được thực hiện hàng ngày và liên tục trong suốt quá trình sử dụng. Trách nhiệm được phân công rõ ràng:</p>
-        <ul>
-          <li><strong>Huấn luyện viên (HLV):</strong> Chịu trách nhiệm toàn diện về sức khỏe của CNV do mình quản lý.</li>
-          <li><strong>Nhân viên thú y:</strong> Tham mưu cho lãnh đạo về công tác chăn nuôi, theo dõi sức khỏe, xây dựng khẩu phần ăn, và trực tiếp thực hiện tiêm phòng, chẩn đoán, điều trị bệnh cho CNV.</li>
-          <li><strong>Nhân viên chăn nuôi, nhân giống:</strong> Chịu trách nhiệm đảm bảo khẩu phần ăn, vệ sinh chuồng trại, chăm sóc chó bố mẹ và chó con đến 60 ngày tuổi.</li>
-        </ul>
-      
-        <h3>2. Quy trình Chăm sóc Hàng ngày</h3>
-        <h4>a. Lịch trình hàng ngày:</h4>
-        <ul>
-          <li>07h20 - 07h45: Cho chó dạo chơi, vệ sinh chuồng trại và kiểm tra sức khỏe ban đầu.</li>
-          <li>07h45 - 08h00: Chuẩn bị trang bị, dụng cụ cho buổi huấn luyện.</li>
-          <li>08h00 - 14h00 &amp; 14h00 - 15h00: Huấn luyện CNV.</li>
-          <li>10h30 - 11h00: Cho chó ăn bữa trưa.</li>
-          <li>16h30 - 17h00: Cho chó ăn bữa chiều.</li>
-          <li>Vận động: Ngoài giờ huấn luyện, CNV cần được vận động vào buổi sáng và buổi chiều, mỗi lần 30 phút, để tăng cường mối quan hệ với HLV và giải trí.</li>
-        </ul>
-      
-        <h4>b. Vệ sinh và Chăm sóc cá nhân:</h4>
-        <ul>
-          <li><strong>Vệ sinh chuồng trại:</strong> Hàng ngày phải dọn dẹp sạch sẽ chuồng và khu vực xung quanh, đảm bảo khô, thoáng, sạch. Kiểm tra, diệt ve, bọ chét, ký sinh trùng trong chuồng (nếu có).</li>
-          <li><strong>Chải lông:</strong> HLV phải chải lông cho CNV hàng ngày để loại bỏ lông rụng, các dị vật và ký sinh trùng.</li>
-          <li><strong>Tắm chó:</strong> Việc tắm được thực hiện tùy theo mùa. Mùa hè tắm 10-15 ngày/lần, mùa đông 5-7 ngày/lần, và nên chọn ngày ấm để tắm.</li>
-        </ul>
-      
-        <h4>c. Kiểm tra sức khỏe:</h4>
-        <ul>
-          <li><strong>Kiểm tra hàng ngày:</strong> HLV phải kiểm tra khả năng vận động, da, lông, mắt, mũi, răng, miệng và các giác quan của chó (khứu giác, thính giác, thị giác, phản xạ). Việc này giúp phát hiện kịp thời các biểu hiện bất thường như ốm, bỏ ăn, suy giảm sức khỏe.</li>
-          <li><strong>Theo dõi:</strong> Mọi thông tin về ăn uống, vệ sinh, tình hình sức khỏe của CNV phải được ghi chép vào sổ theo dõi hàng ngày.</li>
-        </ul>
-      
-        <h3>3. Chế độ Dinh dưỡng</h3>
-        <p>Chế độ dinh dưỡng được xây dựng chi tiết cho từng giai đoạn phát triển và tình trạng công tác của CNV.</p>
-      
-        <h4>a. Nguyên tắc chế biến:</h4>
-        <ul>
-          <li>Thực phẩm phải đảm bảo chất lượng, không thiu thối, không dùng động vật chết do bệnh.</li>
-          <li>Ngũ cốc phải được bảo vệ khỏi sâu mọt, ẩm mốc.</li>
-          <li>Thức ăn được nấu chín, không cho ăn quá nóng hoặc quá lạnh. Thức ăn thừa phải được đổ bỏ, không cho ăn lại vào bữa sau.</li>
-          <li>Nước uống phải là nước sạch và được thay 2 lần mỗi ngày.</li>
-        </ul>
-      
-        <h4>b. Định lượng khẩu phần ăn (mỗi tháng cho 01 chó):</h4>
-        <ul>
-          <li><strong>Chó đã tốt nghiệp và đang huấn luyện:</strong>
+            <main>
+            <h2>Điều 12. Nguyên tắc chăm sóc, huấn luyện chó nghiệp vụ</h2>
+            <ol>
+                <li>Việc chăm sóc, huấn luyện chó nghiệp vụ là công việc phải thực hiện hằng ngày. Huấn luyện viên chịu trách nhiệm hoàn toàn việc chăm sóc sức khỏe và huấn luyện chó nghiệp vụ do mình quản lý.</li>
+                <li>Huấn luyện thường xuyên, liên tục trong suốt quá trình sử dụng CNV.</li>
+                <li>Coi trọng cả ba nội dung: huấn luyện thể lực - kỷ luật, huấn luyện củng cố và huấn luyện nâng cao năng lực.</li>
+                <li>Huấn luyện sát thực tế địa bàn nơi công tác của huấn luyện viên và môi trường tác nghiệp của CNV.</li>
+                <li>Quy định này không áp dụng đối với huấn luyện viên, CNV đang tập huấn tại các cơ sở huấn luyện CNV.</li>
+                <li>Mọi trường hợp CNV bị bệnh, suy giảm sức khỏe, hoặc bị chết bởi yếu tố chủ quan, thiếu trách nhiệm; CNV bị suy giảm năng lực tác nghiệp, hoặc không được huấn luyện và sử dụng theo quy định đều phải kiểm điểm, xem xét trách nhiệm huấn luyện viên, các đơn vị liên quan và đơn vị quản lý. Nếu có vi phạm các quy định do lỗi chủ quan thì hạ bậc thi đua, xem xét kỷ luật.</li>
+            </ol>
+
+            <h2>Điều 13. Quy trình công tác chăm sóc, huấn luyện chó nghiệp vụ hằng ngày của huấn luyện viên và nhân viên chăn nuôi, nhân giống</h2>
+
+            <h3>Nội dung công việc</h3>
+
+            <p><strong>1.1.</strong> Từ khi nhận chó nghiệp vụ đến khi thải loại, huấn luyện viên, nhân viên nhân giống, chăn nuôi đảm nhiệm hoàn toàn và có trách nhiệm thực hiện đúng, đủ mọi quy định về chăm sóc, nuôi dưỡng, huấn luyện, sử dụng CNV. Nếu có vi phạm các quy định do lỗi chủ quan thì phải bị hạ bậc thi đua và xem xét kỷ luật. Kết quả nuôi dưỡng, huấn luyện, sử dụng CNV là căn cứ quan trọng nhất đánh giá kết quả công tác, bình xét thi đua khen thưởng và kỷ luật đối với huấn luyện viên.</p>
+
+            <p>Huấn luyện viên và nhân viên chăn nuôi, nhân giống có nhiệm vụ đảm bảo khẩu phần ăn và đủ nước sạch cho chó uống; đủ thuốc phòng chữa bệnh thông thường. Dọn dẹp vệ sinh chuồng trại và môi trường xung quanh, đảm bảo khô, thoáng, sạch. Môi trường xung quanh đảm bảo vệ sinh. Đảm bảo CNV luôn khỏe mạnh để huấn luyện, tác nghiệp hoặc sinh sản làm giống, cụ thể:</p>
+
             <ul>
-              <li><strong>Giống chó lớn (trên 20kg):</strong> 15kg gạo, 9kg thịt lợn, 6kg thịt gia cầm, 30 quả trứng, 5kg rau xanh, 0.3kg muối, 20kg (hoặc 5kg) chất đốt.</li>
-              <li><strong>Giống chó nhỏ (dưới 20kg):</strong> 10kg gạo, 6kg thịt lợn, 4kg thịt gia cầm, 20 quả trứng, 3kg rau xanh, 0.2kg muối, 15kg (hoặc 4kg) chất đốt.</li>
+                <li><strong>a. Vệ sinh chuồng nuôi:</strong>
+                <ul>
+                    <li>Dọn vệ sinh nền chuồng, tường, hàng rào bên trong chuồng nuôi CNV;</li>
+                    <li>Kiểm tra, diệt ve, bọ, ký sinh trùng trong chuồng (nếu có);</li>
+                    <li>Quét dọn vệ sinh khu vực xung quanh chuồng chó;</li>
+                </ul>
+                </li>
+
+                <li><strong>b. Cho chó dạo chơi, vận động:</strong>
+                <ul>
+                    <li>Thả chó đi vệ sinh;</li>
+                    <li>Cho chó vận động: đi lại, chạy.</li>
+                </ul>
+                </li>
+
+                <li><strong>c. Kiểm tra sức khỏe:</strong>
+                <ul>
+                    <li>Kiểm tra khả năng vận động của chó;</li>
+                    <li>Chải lông, kiểm tra da, lông, mắt, mũi, răng, miệng của chó;</li>
+                    <li>Kiểm tra các giác quan và thần kinh chó: khứu giác, thính giác, thị giác; phản xạ, khả năng nhận biết;</li>
+                    <li>Phát hiện kịp thời các biểu hiện chó bị ốm, suy giảm sức khỏe.</li>
+                </ul>
+                </li>
+
+                <li><strong>d. Cho chó ăn:</strong>
+                <ul>
+                    <li>Quan sát - kiểm tra sức ăn.</li>
+                    <li>Vệ sinh chậu ăn, nền chuồng và bổ sung nước uống khi chó ăn xong.</li>
+                </ul>
+                </li>
             </ul>
-          </li>
-      
-          <li><strong>Chó con (tính theo từng giai đoạn):</strong>
+
+            <p><strong>1.2.</strong> Huấn luyện viên phải chấp hành nghiêm chỉnh quy định về huấn luyện, sử dụng CNV bao gồm:</p>
+
             <ul>
-              <li><strong>Từ 15-60 ngày tuổi:</strong> 4kg gạo, 3kg thịt lợn, 2kg sữa, 0.5kg đường, 0kg rau, 15 quả trứng.</li>
-              <li><strong>Từ tháng thứ 3 đến hết tháng 4:</strong> 8kg gạo, 7kg thịt lợn, 1.5kg sữa, 0.3kg đường, 3kg rau, 0.5kg bột xương, 0.3kg muối.</li>
-              <li><strong>Từ tháng thứ 5 đến hết tháng 10:</strong> 14kg gạo, 6kg thịt lợn, 1.5kg thịt gia cầm, 4kg rau, 1kg bột xương, 0.3kg muối, 20 quả trứng.</li>
+                <li>Lập kế hoạch huấn luyện: Cụ thể nội dung huấn luyện về thể lực, kỷ luật và nghiệp vụ; thời gian và địa điểm huấn luyện. Tổng thời gian huấn luyện hằng ngày không dưới 90 phút. Ghi chép tiến độ, nội dung và kết quả, đề xuất kiến nghị.</li>
+                <li>Xây dựng và thực hiện kế hoạch huấn luyện củng cố năng lực cho CNV khi kiểm tra không đạt yêu cầu.</li>
+                <li>Thực hiện kế hoạch huấn luyện: do huấn luyện viên chủ động thực hiện phù hợp với thời tiết, sức khỏe và môi trường luyện tập.</li>
+                <li>Huấn luyện thường xuyên, củng cố năng lực cho CNV. Yêu cầu CNV không suy giảm thể lực, có tiến bộ về năng lực so với khi tốt nghiệp.</li>
+                <li>Huấn luyện nâng cao tại môi trường công tác. Yêu cầu CNV thích nghi môi trường tác nghiệp, hưng phấn khi hoạt động, phát hiện các mẫu ma túy giấu chỗ khó tìm, có mùi ngụy trang, có độ khuyếch tán thấp.</li>
+                <li>Huấn luyện chó phát hiện ma túy (huấn luyện củng cố và huấn luyện nâng cao): mỗi CNV phải được tập luyện tối thiểu 03 lần, mỗi lần tối thiểu 10 phút trong một buổi tập.</li>
+                <li>Huấn luyện các động tác cơ bản: thực hiện 02 lượt các động tác cơ bản và thể lực như: đi, đứng, nằm, ngồi, về chỗ, cắp vật...</li>
+                <li>Cập nhật, ghi chép đầy đủ vào Sổ nhật ký, cấm hồi ký. (có xác nhận của lãnh đạo phụ trách).</li>
+                <li>Đối với CNV không đạt yêu cầu huấn luyện viên không đạt danh hiệu hoàn thành nhiệm vụ được phân công.</li>
+                <li>Khi sử dụng CNV: Huấn luyện viên và CNV có mặt đúng giờ, với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường, sử dụng CNV theo các quy trình do Tổng cục ban hành.</li>
+                <li>Chuẩn bị đầy đủ dụng cụ, trang thiết bị huấn luyện: Mẫu tập; Trang thiết bị chuyên dụng: panh tập, găng tay, dây cương, rọ mõm, cổ dề, vật thưởng; Các vật dụng khác tùy theo nội dung tập luyện: va ly, thùng carton...</li>
             </ul>
-          </li>
-      
-          <li><strong>Chế độ bồi dưỡng:</strong> Trong những ngày huấn luyện, tác nghiệp, khẩu phần thức ăn tổng hợp được tăng thêm 40%. Chó ốm được ăn theo chỉ định của thú y và được bồi dưỡng thêm sữa, đường.</li>
-        </ul>
-      
-        <h3>4. Y tế và Phòng bệnh</h3>
-        <p>Công tác phòng bệnh là ưu tiên hàng đầu, bao gồm tiêm chủng, tẩy ký sinh trùng và vệ sinh môi trường.</p>
-      
-        <h4>a. Tiêm phòng và tẩy giun:</h4>
-        <ul>
-          <li><strong>Vaccine:</strong>
+
+            <p><strong>1.3.</strong> Huấn luyện viên phải lập và thực hiện thời gian biểu công việc hằng ngày, ghi chép nội dung, kết quả công tác và kiến nghị nếu có vào Sổ nhật ký:</p>
             <ul>
-              <li>43 – 45 ngày tuổi: Tiêm vaccine 5 bệnh.</li>
-              <li>63 – 65 ngày tuổi: Tiêm vaccine 7 bệnh.</li>
-              <li>Sau 12 tháng: Tiêm nhắc lại vaccine 7 bệnh và vaccine dại.</li>
+                <li>Công việc chăm sóc nuôi dưỡng.</li>
+                <li>Nội dung, phương pháp, thời gian, địa điểm huấn luyện về thể lực và nghiệp vụ cho CNV.</li>
+                <li>Diễn biến và kết quả sử dụng CNV tác nghiệp.</li>
             </ul>
-          </li>
-          <li><strong>Tẩy giun:</strong> Định kỳ 2 tháng/lần.</li>
-          <li><strong>Phòng trừ ký sinh trùng ngoài da (ve, bọ chét):</strong> Dùng thuốc xịt hoặc tiêm định kỳ. Thuốc xịt (Frontline) có hiệu quả trong 1-2 tháng, trong khi thuốc tiêm (Dectomac) có hiệu quả 20-30 ngày.</li>
-        </ul>
-      
-        <h4>b. Vệ sinh phòng dịch:</h4>
-        <ul>
-          <li><strong>Tẩy uế chuồng trại:</strong>
+
+            <h3>2. Thời gian biểu thực hiện:</h3>
             <ul>
-              <li>Tổng tẩy uế: 6 tháng/lần, bao gồm việc phun thuốc sát trùng và đặt bả diệt chuột.</li>
-              <li>Tẩy uế định kỳ: 2 tháng/lần, bao gồm dọn dẹp và phun thuốc sát trùng.</li>
+                <li>Vệ sinh chuồng trại: vào đầu giờ sáng trước khi làm việc và cuối buổi chiều khi kết thúc ngày làm việc, cụ thể: 07h00’ - 07h20’ và 16h45’ - 17h00’;</li>
+                <li>Cho chó dạo chơi, vận động và kiểm tra sức khỏe chó: 07h20’ - 07h45’;</li>
+                <li>Chuẩn bị dụng cụ, trang bị huấn luyện: 07h45’ - 08h00’, 13h45’ - 14h00’;</li>
+                <li>Huấn luyện CNV: từ 08h00’ đến 09h00’; 14h00’ - 15h00’;</li>
+                <li>Cho chó ăn: 10h30’ - 11h00’ và 16h30’ - 17h00’.</li>
             </ul>
-          </li>
-          <li>Khi có dịch bệnh: Phải tẩy uế ngay lập tức, cách ly CNV bệnh, và xử lý chất thải đúng quy trình để ngăn ngừa lây lan. Định kỳ hai tháng một lần phải phun thuốc diệt trùng chuồng trại và môi trường xung quanh.</li>
-        </ul>
-      
-        <h4>c. Chữa bệnh:</h4>
-        <ul>
-          <li>Mỗi đơn vị có một tủ thuốc cấp cứu với các loại thuốc và dụng cụ y tế cơ bản theo tiêu chuẩn.</li>
-          <li>Khi CNV bị bệnh nặng, đơn vị phải đưa đến các cơ sở thú y để điều trị kịp thời.</li>
-        </ul>
-      
-        <h3>5. Điều kiện Cơ sở vật chất</h3>
-        <h4>a. Chuồng nuôi:</h4>
-        <ul>
-          <li><strong>Thiết kế:</strong> Chuồng phải được xây dựng ở nơi thoáng mát, dễ thoát nước, xa khu dân cư. Thiết kế đảm bảo mát về mùa hè, ấm về mùa đông. Diện tích mỗi chuồng là 8m², có khu nghỉ và sân chơi riêng.</li>
-          <li><strong>Vật liệu:</strong> Tường gạch, mái tôn chống nóng, sàn bê tông chống trơn trượt. Có bệ nằm cao 10cm để tránh bệnh ngoài da.</li>
-          <li><strong>Chuồng cách ly:</strong> Các đơn vị có từ 6 CNV trở lên phải xây dựng khu cách ly riêng cho chó bị bệnh.</li>
-        </ul>
-      
-        <h4>b. Dụng cụ chăn nuôi:</h4>
-        <ul>
-          <li>Mỗi CNV được cấp các vật dụng cần thiết như chậu đựng thức ăn, nước uống bằng inox; lược chải lông; khăn tắm; xà phòng. Các vật dụng này được cấp mới hàng năm hoặc theo niên hạn sử dụng.</li>
-        </ul>
-      
-        <p><em>Quy trình trên thể hiện sự đầu tư bài bản và chuyên nghiệp trong việc nuôi dưỡng, chăm sóc chó nghiệp vụ, là nền tảng vững chắc để xây dựng lực lượng CNV tinh nhuệ, đáp ứng yêu cầu nhiệm vụ của ngành.</em></p>
-      `;
+
+            <p>Nếu do công việc hoặc thời tiết bất thường không thể thực hiện các công việc theo đúng lịch trên thì huấn luyện viên báo cáo với lãnh đạo để điều chỉnh lịch cho phù hợp vào thời gian khác trong cùng ngày làm việc; tuy nhiên, phải đảm bảo đúng, đủ nội dung và thời lượng của từng công việc nêu trên.</p>
+
+            <p><strong>3.</strong> Đối với nhân viên chăn nuôi, nhân giống không thực hiện các nội dung liên quan đến công tác huấn luyện và sử dụng CNV.</p>
+
+            <h2>Điều 14. Đánh giá kết quả nuôi dưỡng và phòng chữa bệnh</h2>
+            <ul>
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Giỏi:</strong> Là huấn luyện viên thực hiện đúng mọi công việc trong quy trình và trách nhiệm chăm sóc nuôi dưỡng; CNV khỏe mạnh đáp ứng yêu cầu huấn luyện và sử dụng.</li>
+
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Khá:</strong> Là huấn luyện viên thực hiện đúng theo quy định về trách nhiệm của huấn luyện viên, không để CNV bị bệnh nhưng thể lực CNV còn hạn chế (ví dụ: sức bền làm việc của CNV ngắn dưới 10 phút, chó quá béo hoặc gầy yếu thiếu cân) hoặc do một số điều kiện khách quan chưa khắc phục được (chuồng nuôi, môi trường không đảm bảo).</li>
+
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Trung bình:</strong> Là huấn luyện viên thực hiện không đầy đủ theo quy định hoặc để CNV bị bệnh.</li>
+
+                <li><strong>Công tác nuôi dưỡng, chăm sóc không đạt yêu cầu:</strong> Là huấn luyện viên thực hiện không theo quy định và để CNV bị ốm bệnh, phát hiện muộn phải thải loại hoặc CNV bị chết.</li>
+            </ul>
+            </main>
+            `;
+
+
 
     } else if (type === 'QUY TRÌNH HUẤN LUYỆN') {
 
         title.innerText = 'QUY TRÌNH HUẤN LUYỆN';
 
         content.innerHTML = `
-  <h2>Quy Trình Huấn Luyện</h2>
+            <main>
+            <h2>Điều 15. Huấn luyện thể lực và kỷ luật</h2>
 
-  <h3>2. Quy Trình Chăm Sóc và Huấn Luyện Hằng Ngày</h3>
-  <p>Việc chăm sóc và huấn luyện là công việc phải được thực hiện hàng ngày, liên tục và khoa học, là trách nhiệm của huấn luyện viên và nhân viên chăn nuôi.</p>
+            <p><strong>1. Nội dung động tác cơ bản và kỷ luật:</strong></p>
+            <p>Huấn luyện CNV thực hiện các động tác: Đi, đứng, nằm, ngồi bên cạnh chủ; điều khiển ngửi, sủa, gọi lại, cắp vật, vượt chướng ngại vật.</p>
 
-  <h4>a. Chế độ Chăm sóc và Vệ sinh</h4>
-  <ul>
-    <li><strong>Vệ sinh chuồng trại:</strong> Dọn dẹp vệ sinh chuồng và khu vực xung quanh hàng ngày để đảm bảo sạch sẽ, khô thoáng.</li>
-    <li><strong>Kiểm tra sức khỏe:</strong> Mỗi ngày, huấn luyện viên phải kiểm tra sức khỏe tổng thể của chó, bao gồm khả năng vận động, da, lông, mắt, mũi, miệng và các giác quan như khứu giác, thính giác, thị giác. Kịp thời phát hiện các biểu hiện bất thường để xử lý.</li>
-    <li><strong>Chế độ ăn uống:</strong> Quan sát kỹ khả năng ăn uống và bổ sung nước đầy đủ sau khi cho ăn. Chế độ dinh dưỡng được quy định cụ thể cho từng giống chó, độ tuổi và trọng lượng khác nhau.</li>
-  </ul>
+            <p><strong>2. Nội dung tập thể lực:</strong></p>
+            <ul>
+                <li>Hằng ngày huấn luyện viên tập thể lực cho CNV: bơi, chui ống, chạy trên cầu độc mộc, nhảy vượt chướng ngại vật, nhảy qua vòng.</li>
+                <li>Hằng tuần huấn luyện viên phải cho CNV dã ngoại vận động hai lần, mỗi lần (hành quân và chạy bộ) từ 2km đến 5km.</li>
+                <li>Việc tập cơ bản, thể lực phải thực hiện sau khi đã tập chuyên khoa. Sau khi hoàn thành huấn luyện thể lực, huấn luyện viên kiểm tra hệ vận động, cho CNV uống nước, chải lông và cho CNV nghỉ ngơi xong mới chuẩn bị công tác tác nghiệp.</li>
+            </ul>
 
-  <h4>Lịch làm việc hàng ngày</h4>
-  <ul>
-    <li>07h20 - 07h45: Cho chó dạo, vệ sinh và kiểm tra sức khỏe.</li>
-    <li>07h45 - 09h00: Chuẩn bị và huấn luyện buổi sáng.</li>
-    <li>10h30 - 11h00: Cho chó ăn.</li>
-    <li>13h45 - 15h00: Chuẩn bị và huấn luyện buổi chiều.</li>
-    <li>16h30 - 17h00: Cho chó ăn.</li>
-  </ul>
+            <p><strong>3. Yêu cầu đối với chó nghiệp vụ:</strong></p>
+            <p>Hoàn thành các nội dung, khối lượng huấn luyện; CNV duy trì vững chắc các phản xạ có điều kiện và thực hiện chính xác, thuần thục từng động tác dựa trên khẩu lệnh, điệu bộ của huấn luyện viên; có sức bền, sự dẻo dai trong quá trình tác nghiệp liên tục tối thiểu 5 phút ngoài trời mùa nóng, 10-15 phút trên phương tiện, 15-20 phút trong bóng râm.</p>
 
-  <h4>b. Nội Dung Huấn Luyện</h4>
-  <p>Quá trình huấn luyện bao gồm 3 nội dung cốt lõi: huấn luyện thể lực, huấn luyện kỷ luật và huấn luyện nghiệp vụ nâng cao. Tổng thời gian huấn luyện mỗi ngày là 90 phút.</p>
+            <p><strong>4. Yêu cầu đối với huấn luyện viên:</strong></p>
+            <ul>
+                <li>Thực hiện hết khối lượng huấn luyện, có động tác, cử chỉ dứt khoát, khẩu lệnh to rõ ràng, tác phong nhanh nhẹn.</li>
+                <li>Điều khiển được CNV hoạt động theo khẩu lệnh; CNV hưng phấn, quấn chủ không có biểu hiện tự do hay sợ hãi.</li>
+                <li>Xử lý kịp thời những tình huống phát sinh trong quá trình huấn luyện.</li>
+            </ul>
 
-  <h5>1. Huấn luyện Thể lực và Kỷ luật</h5>
-  <ul>
-    <li><strong>Động tác cơ bản:</strong> Huấn luyện chó thực hiện các động tác như đi, đứng, nằm, ngồi bên cạnh huấn luyện viên; bò, trườn; sửa các thói quen xấu.</li>
-    <li><strong>Rèn luyện thể lực:</strong> Hàng ngày cho chó tập các bài tập như bơi, chui ống, chạy trên cầu độc mộc, vượt chướng ngại vật. Hàng tuần, huấn luyện viên phải cho chó chạy bộ ngoài dã ngoại 2 lần, mỗi lần từ 2-5km.</li>
-    <li><strong>Yêu cầu:</strong> Chó phải duy trì vững chắc các phản xạ có điều kiện, tuân thủ mệnh lệnh của huấn luyện viên một cách chính xác, bền bỉ và dẻo dai.</li>
-  </ul>
+            <h2>Điều 16. Huấn luyện củng cố phản xạ với các mẫu tập</h2>
 
-  <h5>2. Huấn luyện Nghiệp vụ (Phát hiện ma túy)</h5>
-  <ul>
-    <li><strong>Huấn luyện cơ bản:</strong> Huấn luyện viên sử dụng các mẫu ma túy để chó làm quen và hình thành phản xạ tìm kiếm. Các mẫu này được giấu ở nhiều vị trí khác nhau:
-      <ul>
-        <li>Trong hành lý, vali, băng chuyền, container.</li>
-        <li>Trên các phương tiện vận tải như tàu thủy, máy bay.</li>
-        <li>Trên tường vách với độ cao tối thiểu 01 mét.</li>
-        <li>Giấu trên người: trong túi quần, túi áo, thắt lưng.</li>
-      </ul>
-    </li>
+            <p><strong>1. Huấn luyện viên:</strong></p>
+            <p>Có nhiệm vụ thực hiện huấn luyện củng cố hằng ngày duy trì khả năng tìm kiếm, lùng sục và phát hiện các nguồn hơi, mẫu tập. Yêu cầu huấn luyện viên phải thường xuyên thay đổi đa dạng các mẫu nguồn hơi, các tình huống huấn luyện như sau:</p>
+            <ul>
+                <li>Giấu mẫu tập trong va ly, hành lý, băng chuyền.</li>
+                <li>Giấu mẫu tại sân bãi, kho hàng, trong container.</li>
+                <li>Giấu trên phương tiện vận tải, trên tàu thuyền, trên máy bay.</li>
+                <li>Giấu mẫu trên vách tường, độ cao tối thiểu từ 01 mét trở lên.</li>
+                <li>Giấu mẫu nguồn hơi trên người: trong giày, tất, túi quần, lên thắt lưng và túi áo ngực hoặc kẹp vào nách.</li>
+            </ul>
 
-    <li><strong>Huấn luyện nâng cao:</strong>
-      <ul>
-        <li>Khi chó đã thành thục, huấn luyện viên sẽ không cần phải điều khiển mà chó có thể tự tìm kiếm trong khu vực được chỉ định.</li>
-        <li>Huấn luyện chó tìm kiếm trên người để đánh giá khả năng phát hiện hơi người có ma túy.</li>
-      </ul>
-    </li>
+            <p><strong>2. Chó nghiệp vụ:</strong></p>
+            <p>Có khả năng tìm kiếm, ngửi thời gian đạt 20 phút, phát hiện chính xác các mẫu tập đã được huấn luyện. Có biểu hiện phản ứng (cào, sủa, ngồi, nằm) rõ ràng với tất cả các mẫu tập được cất giấu.</p>
 
-    <li><strong>Yêu cầu:</strong> Chó phải có khả năng tìm kiếm liên tục trong 20 phút, khi phát hiện phải có biểu hiện rõ ràng (cào, sủa, ngồi, nằm). Đặc biệt, chó làm việc tại sân bay phải có sức bền tốt, còn chó làm việc ở cảng biển phải nhanh nhẹn và chịu được thời tiết khắc nghiệt.</li>
-  </ul>
+            <h2>Điều 17. Huấn luyện nâng cao năng lực cho chó nghiệp vụ</h2>
 
-  <hr>
+            <p>Huấn luyện nâng cao năng lực của CNV thực hiện theo phương châm huấn luyện củng cố rồi nâng cao và củng cố rồi tiếp tục nâng cao. Huấn luyện theo các tình huống tại cửa khẩu như sau:</p>
+            <ul>
+                <li>Trực tiếp giấu mẫu tập vào kho hàng, hàng hóa, hành lý, phương tiện vận chuyển qua lại tại khu cửa khẩu. Hướng dẫn CNV tìm từ thấp lên cao, từ ngoài vào trong.</li>
+                <li>Khi CNV thành thục phản xạ tìm kiếm, hướng tới không cần phải điều khiển, chỉ dẫn CNV tìm kiếm vào khu vực cần kiểm tra, để CNV sẽ tự tìm kiếm theo phản xạ đã được huấn luyện.</li>
+                <li>Trực tiếp giấu mẫu tập trên người theo dõi đánh giá khả năng phát hiện nguồn hơi của CNV. Từ biểu hiện tìm kiếm ngửi đến khả năng phát hiện nguồn hơi và phản ứng của CNV với mẫu tập cụ thể.</li>
+                <li>Yêu cầu: CNV hưng phấn khi tác nghiệp phát hiện ra các mẫu ma túy được cất giấu tinh vi, độ khuyếch tán thấp hoặc có mùi ngụy trang; chó có biểu hiện chính xác (cào, sủa, ngồi), phản ứng rõ ràng với các nguồn hơi ma túy.</li>
+                <li>Đối với CNV được giao tại cửa khẩu sân bay quốc tế CNV phải có khả năng lùng sục tìm kiếm thời gian kéo dài trên băng chuyền, có khả năng ngửi người tốt.</li>
+                <li>Đối với CNV được giao tại các cảng biển, cảng sông quốc tế thời gian tác nghiệp đạt tối thiểu 10 phút ngoài trời mùa nóng, từ 10–15 phút trên phương tiện, từ 15–20 phút trong bóng râm. CNV có khả năng nhảy cao, sục tìm trong tàu thuyền, ca nô, container, phương tiện xe ô tô, chịu khó ngửi trong điều kiện thời tiết nóng.</li>
+            </ul>
 
-  <h3>3. Đánh Giá Kết Quả Huấn Luyện</h3>
-  <p>Việc đánh giá được thực hiện định kỳ để xác định năng lực của chó nghiệp vụ.</p>
+            <h2>Điều 18. Đánh giá kết quả huấn luyện chó nghiệp vụ</h2>
 
-  <ul>
-    <li><strong>Phương pháp đánh giá:</strong> Dựa trên số lượng mẫu ma túy mà chó phát hiện được ngay tại khu vực huấn luyện và làm việc hàng ngày (ít nhất 3 mẫu). Đồng thời đánh giá tinh thần độc lập, sự tập trung, tính bền bỉ và sự hợp tác với huấn luyện viên.</li>
+            <p><strong>1. Phương pháp đánh giá:</strong></p>
+            <ul>
+                <li>Đánh giá bằng kiểm tra trực tiếp việc thực hiện các động tác cơ bản và hoạt động thể lực của CNV.</li>
+                <li>Đánh giá kết quả huấn luyện bằng số lượng mẫu tập do CNV lùng sục, phát hiện ngay tại khu vực huấn luyện, làm việc hằng ngày (khi kiểm tra không giấu quá 3 mẫu).</li>
+                <li>Đánh giá định tính về tính độc lập, sự tập trung và hưng phấn, dẻo dai và tuân lệnh huấn luyện viên trong quá trình làm việc của CNV.</li>
+            </ul>
 
-    <li><strong>Tiêu chuẩn phân loại:</strong>
-      <ul>
-        <li><strong>Loại Giỏi:</strong> Phản xạ tìm kiếm vững chắc, bền bỉ, tập trung, không bỏ sót khu vực, phát hiện được tất cả các mẫu thử và có biểu hiện rõ ràng.</li>
-        <li><strong>Loại Khá:</strong> Tương tự loại Giỏi nhưng phát hiện được từ 02/03 mẫu thử trở lên.</li>
-        <li><strong>Loại Trung bình:</strong> Có phản xạ tìm kiếm nhưng đôi khi mất tập trung, có thể bỏ sót mục tiêu. Phát hiện từ 02 mẫu trở lên nhưng biểu hiện có thể không rõ ràng.</li>
-        <li><strong>Không đạt yêu cầu:</strong> Phản xạ tìm kiếm yếu, không tập trung, bỏ sót nhiều khu vực, phát hiện dưới 02/03 mẫu và biểu hiện không rõ ràng.</li>
-      </ul>
-    </li>
+            <p><strong>2. Tiêu chuẩn đánh giá:</strong></p>
 
-    <li>Những con chó không đáp ứng được yêu cầu huấn luyện sẽ bị thải loại theo quy trình.</li>
-  </ul>
-`;
+            <h3>2.1. Chó nghiệp vụ giỏi</h3>
+            <ul>
+                <li>Phản xạ tìm kiếm vững chắc, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra.</li>
+                <li>Chó nghiệp vụ không bỏ sót khu vực, phương tiện... được yêu cầu kiểm tra.</li>
+                <li>Chó nghiệp vụ phát hiện được tất cả các mẫu.</li>
+                <li>Biểu hiện rõ ràng: cào hoặc sủa hoặc ngồi.</li>
+            </ul>
+
+            <h3>2.2. Chó nghiệp vụ khá</h3>
+            <ul>
+                <li>Phản xạ tìm kiếm vững chắc, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra.</li>
+                <li>Chó nghiệp vụ không bỏ sót khu vực, phương tiện... được yêu cầu kiểm tra.</li>
+                <li>Chó nghiệp vụ phát hiện được 02/03 mẫu.</li>
+                <li>Chó nghiệp vụ biểu hiện rõ ràng: cào, sủa hoặc ngồi.</li>
+            </ul>
+
+            <h3>2.3. Chó nghiệp vụ trung bình</h3>
+            <p>Chó nghiệp vụ có phản xạ tìm kiếm vững chắc, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra, CNV phát hiện từ 02 mẫu trở lên và mắc một trong các lỗi dưới đây:</p>
+            <ul>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra nhưng khi được định hướng CNV kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
+            </ul>
+
+            <h3>2.4. Chó nghiệp vụ không đạt yêu cầu</h3>
+            <p><strong>a.</strong> Chó nghiệp vụ có phản xạ tìm kiếm, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra nhưng mắc 02/03 lỗi dưới đây:</p>
+            <ul>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra. Nhưng khi được định hướng CNV kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ phát hiện dưới 02 mẫu.</li>
+                <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
+            </ul>
+
+            <p><strong>b.</strong> Chó nghiệp vụ mắc 03 lỗi trở lên dưới đây:</p>
+            <ul>
+                <li>Phản xạ tìm kiếm không vững chắc, chóng chán, không tập trung, có biểu hiện ức chế, không chịu ngửi.</li>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra, khi được định hướng CNV không kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ phát hiện dưới 02 mẫu.</li>
+                <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
+            </ul>
+            </main>
+            `;
+
+    } else if (type === 'QUY TRÌNH SỬ DỤNG') {
+
+        title.innerText = 'QUY TRÌNH SỬ DỤNG';
+
+        content.innerHTML = `
+            <main>
+            <h2>Điều 22. Nhiệm vụ của đơn vị được giao trực tiếp quản lý sử dụng chó nghiệp vụ</h2>
+
+            <p><strong>1.</strong> Đối với Cục Điều tra chống buôn lậu: Thực hiện theo điều động của cấp có thẩm quyền, theo chuyên án hoặc tăng cường đột xuất, có thời hạn cho các đơn vị khi có yêu cầu.</p>
+
+            <p><strong>2.</strong> Đối với các Cục Hải quan tỉnh, thành phố được giao CNV:</p>
+            <ol>
+                <li>
+                <p><strong>2.1.</strong> Tổ chức nắm tình hình về hoạt động buôn bán, vận chuyển trái phép các chất ma túy, chất nổ qua biên giới; xác định mức độ rủi ro, khả năng tội phạm lợi dụng hoạt động xuất nhập khẩu, xuất nhập cảnh để buôn bán, vận chuyển trái phép các loại hàng cấm qua địa bàn đơn vị quản lý.</p>
+                </li>
+
+                <li>
+                <p><strong>2.2.</strong> Chỉ đạo xây dựng, phê duyệt và tổ chức thực hiện kế hoạch sử dụng CNV vào công tác kiểm tra phát hiện. Nội dung kế hoạch phải cụ thể về:</p>
+                <ul>
+                    <li>Loại mục tiêu, đối tượng lựa chọn kiểm tra;</li>
+                    <li>Nội dung kiểm tra, việc phối hợp giữa sử dụng CNV với các biện pháp nghiệp vụ hải quan khác;</li>
+                    <li>Thời gian, địa điểm, số lượng CNV được sử dụng;</li>
+                    <li>Công tác đảm bảo và phương án xử lý khi phát hiện ra ma túy, chất nổ;</li>
+                    <li>Đảm bảo mỗi CNV phải được tác nghiệp tại hiện trường tối thiểu 2 lần (30-40 phút/lần) trong một ngày làm việc.</li>
+                </ul>
+                </li>
+
+                <li>
+                <p><strong>2.3.</strong> Sử dụng CNV theo quyết định của cấp có thẩm quyền.</p>
+                </li>
+
+                <li>
+                <p><strong>2.4.</strong> Chấp hành chỉ đạo về nghiệp vụ quản lý, sử dụng và điều động CNV của Cục trưởng Cục Điều tra chống buôn lậu, Cục trưởng Cục Hải quan tỉnh, liên tỉnh, thành phố trực tiếp quản lý.</p>
+                </li>
+            </ol>
+
+            <h2>Điều 23. Nhiệm vụ của huấn luyện viên trong quá trình sử dụng chó nghiệp vụ</h2>
+
+            <p>Có mặt đúng giờ cùng CNV với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường. Huấn luyện viên sử dụng CNV theo các quy trình do Tổng cục Hải quan ban hành; sử dụng CNV đúng việc, đúng chỗ, đúng thời điểm, phát huy năng lực phòng ngừa tội phạm và phát hiện hàng cấm của CNV.</p>
+
+            <ol>
+                <li>
+                <p> Sử dụng CNV để tuần tra, kiểm tra, khám xét theo kế hoạch, quyết định của cấp có thẩm quyền quy định tại Điều 24 của quy định này.</p>
+                </li>
+                <li>
+                <p> Thực hiện đúng quy trình, thao tác nghiệp vụ đã được huấn luyện; có thái độ văn minh lịch sự, tôn trọng và có ý thức bảo vệ tài sản của khách hàng.</p>
+                </li>
+                <li>
+                <p> Khi CNV phát hiện có nguồn hơi các loại hàng cấm phải thông báo ngay cho công chức hải quan phối hợp kiểm tra biết và thực hiện các biện pháp bảo vệ, khẩn trương lục soát thu giữ tang vật, truy bắt đối tượng. Báo cáo ngay cho lãnh đạo để xin ý kiến chỉ đạo.</p>
+                </li>
+            </ol>
+
+            <h2>Điều 24. Thẩm quyền quyết định sử dụng chó nghiệp vụ</h2>
+
+            <p><strong>1.</strong> Những người sau đây có quyền quyết định sử dụng chó nghiệp vụ:</p>
+            <ul>
+                <li>Tổng cục trưởng Tổng cục Hải quan.</li>
+                <li>Cục trưởng Cục Điều tra chống buôn lậu; Cục trưởng Cục Hải quan tỉnh, liên tỉnh, thành phố.</li>
+                <li>Đội trưởng Đội Quản lý, huấn luyện và sử dụng CNV, Đội trưởng Đội Kiểm soát ma túy thuộc Cục Điều tra chống buôn lậu, Chi cục trưởng Chi cục Hải quan, Đội trưởng Đội Kiểm soát phòng, chống ma túy, Đội kiểm soát Hải quan thuộc Cục Hải quan tỉnh, thành phố.</li>
+                <li>Hoặc người được uỷ quyền theo quy định của pháp luật.</li>
+            </ul>
+
+            <p><strong>2.</strong> Thẩm quyền điều động CNV:</p>
+            <ul>
+                <li>Tổng cục trưởng Tổng cục Hải quan có quyền điều động CNV kèm huấn luyện viên trong toàn ngành.</li>
+                <li>Cục trưởng Cục Điều tra chống buôn lậu có quyền điều động CNV kèm huấn luyện viên trong toàn ngành để sử dụng trong những trường hợp cấp thiết (theo vụ việc/ chuyên án).</li>
+                <li>Cục trưởng Cục Hải quan các tỉnh, liên tỉnh, thành phố có quyền điều động CNV trong đơn vị trực thuộc.</li>
+            </ul>
+
+            <p><strong>3.</strong> Khi quyết định sử dụng CNV, những người được quy định tại khoản 1 Điều này thông báo cho đơn vị quản lý CNV để kịp thời đưa CNV đến địa điểm kiểm tra theo yêu cầu. Trong trường hợp bất khả kháng không thể điều động phải báo cáo ngay cho người quyết định sử dụng CNV biết.</p>
+
+            <p><strong>4.</strong> Việc quyết định, đề xuất sử dụng CNV được thực hiện bằng văn bản. Trường hợp khẩn cấp thì báo cáo bằng điện thoại trước và gửi văn bản sau.</p>
+
+            <p><strong>5.</strong> Mọi trường hợp quyết định sử dụng CNV tại các Chi cục Hải quan đều phải thông báo cho Chi cục trưởng biết để phối hợp thực hiện.</p>
+
+            <h2>Điều 25. Trách nhiệm phối hợp sử dụng chó nghiệp vụ trong ngành Hải quan</h2>
+
+            <ol>
+                <li>
+                <p> Chi cục trưởng, Đội trưởng Đội Kiểm soát, Đội trưởng Đội ma tuý thuộc Chi cục Hải quan cửa khẩu phải thường xuyên có kế hoạch chỉ đạo huấn luyện viên sử dụng cơ sở, phương tiện sẵn có phục vụ việc chăm sóc, sử dụng CNV; cử cán bộ làm việc với chủ hàng, đơn vị quản lý kho bãi xuất trình hàng hóa, tạo hiện trường cho CNV tác nghiệp và phối hợp với huấn luyện viên sử dụng CNV thực hiện việc kiểm tra phát hiện ma túy, chất nổ, hàng cấm tại địa hoạt động hải quan.</p>
+                </li>
+
+                <li>
+                <p> Công chức làm nhiệm vụ thu nhập thông tin nghiệp vụ hải quan, tiếp nhận đăng ký tờ khai, kiểm tra thực tế hàng hóa, giám sát, kiểm soát hải quan, kiểm soát ma túy khi có thông tin nghi vấn về các loại hàng cấm được cất giấu trong hàng hóa xuất nhập khẩu, phương tiện vận tải và trong đối tượng xuất nhập cảnh phải báo cáo ngay lãnh đạo phụ trách trực tiếp và đề nghị sử dụng CNV để kiểm tra phát hiện.</p>
+                </li>
+
+                <li>
+                <p> Công chức được phân công kiểm tra cần trao đổi những thông tin nghi vấn về vị trí cất giấu các loại hàng cấm với huấn luyện viên CNV; yêu cầu chủ hàng hoặc người đại diện hợp pháp của chủ hàng xếp dỡ hàng hóa để CNV tác nghiệp thuận lợi.</p>
+                </li>
+            </ol>
+
+            <h2>Điều 26. Quy trình sử dụng chó nghiệp vụ</h2>
+
+            <p>Chó nghiệp vụ được sử dụng để thực hiện kiểm tra những đối tượng (hành khách, hàng hóa, phương tiện vận tải) do hệ thống quản lý rủi ro phân luồng (kiểm tra thực tế hàng hóa) khi thực hiện thủ tục hải quan hoặc khi cơ quan hải quan có thông tin nghi vấn đối tượng cất giấu, vận chuyển hàng hóa bị cấm xuất khẩu, nhập khẩu qua địa bàn hoạt động hải quan.</p>
+
+            <p><strong>Các trường hợp sử dụng chó nghiệp vụ:</strong></p>
+            <ol>
+                <li><p><strong>1.1.</strong> Sử dụng CNV để kiểm tra hải quan đối với: hàng hóa, hành lý xuất nhập cảnh, phương tiện vận tải xuất cảnh – nhập cảnh – quá cảnh nghi vấn có cất giấu ma túy hoặc các mặt hàng cấm khác theo phân luồng của hệ thống quản lý rủi ro.</p></li>
+                <li><p><strong>1.2.</strong> Sử dụng CNV thường xuyên theo kế hoạch được phê duyệt để răn đe phòng ngừa và phát hiện tội phạm tại các địa bàn trọng điểm.</p></li>
+                <li><p><strong>1.3.</strong> Sử dụng CNV đột xuất theo quyết định của cấp có thẩm quyền phục vụ đấu tranh chuyên án hoặc kiểm tra, khám xét các đối tượng trọng điểm.</p></li>
+                <li><p><strong>1.4.</strong> Sử dụng CNV theo quyết định của cấp có thẩm quyền để phối hợp với các lực lượng chức năng ngoài địa bàn hoạt động hải quan.</p></li>
+            </ol>
+
+            <p><strong>2. Căn cứ xác định đối tượng để sử dụng chó nghiệp vụ kiểm tra:</strong></p>
+            <ul>
+                <li>Thông qua Hệ thống quản lý rủi ro (Phiếu xác định thông tin trọng điểm đối với chuyến bay, phương tiện vận tải, lô hàng, đối tượng trọng điểm);</li>
+                <li>Căn cứ thông tin nghiệp vụ trên các Hệ thống Emanifest, Hệ thống thông tin nghiệp vụ hải quan, Hệ thống VNACCS/VCIS…để đưa ra danh sách lô hàng đề nghị sử dụng CNV kiểm tra.</li>
+                <li>Thông tin từ các lực lượng chức năng liên quan cung cấp;</li>
+                <li>Qua thực tế giám sát của công chức;</li>
+                <li>Người xuất cảnh, nhập cảnh có hành lý phải khai báo theo quy định;</li>
+                <li>Kiểm tra đối tượng ngẫu nhiên;</li>
+                <li>Nguồn thông tin khác (nếu có).</li>
+            </ul>
+
+            <p><strong>2.1. Thời gian, địa điểm sử dụng chó nghiệp vụ:</strong></p>
+            <p>Trong mỗi ca làm việc cần có tối thiểu 02 huấn luyện viên và 02 CNV để kiểm tra chéo, đảm bảo kết quả khách quan (trừ trường hợp bất khả kháng chỉ còn 01 CNV do CNV bị chết hoặc thải loại hoặc huấn luyện viên vắng mặt vì lý do khách quan).</p>
+
+            <p><strong>2.2. Sử dụng chó nghiệp vụ kiểm tra hành lý, hành khách, phương tiện tại cửa khẩu sân bay quốc tế:</strong></p>
+            <p><strong>a. Địa điểm kiểm tra:</strong></p>
+            <ul>
+                <li>Khu vực ống lồng và hành lang đi ra tàu bay hoặc vào nhà ga làm thủ tục;</li>
+                <li>Khu vực làm thủ tục hải quan;</li>
+                <li>Khu vực cách ly; khu vực hạn chế;</li>
+                <li>Khu vực đậu tại sân đỗ đối với tàu bay trọng điểm;</li>
+            </ul>
+
+            <p><strong>b. Thời điểm kiểm tra.</strong></p>
+            <ul>
+                <li>Đối với phương tiện: Từ khi nhập cảnh, lưu đỗ tại vị trí đậu tại khu vực sân đỗ đến khi xuất cảnh;</li>
+                <li>Người xuất cảnh, nhập cảnh, quá cảnh và hành lý xách tay: Từ khi rời phương tiện nhập cảnh vào đến khu vực nhà ga nhập cảnh; từ nhà ga xuất cảnh lên phương tiện xuất cảnh;</li>
+                <li>Hành lý ký gửi của người xuất cảnh, nhập cảnh, quá cảnh: Từ khi xếp dỡ từ tàu bay đến đảo trả hành lý của nhà ga nhập; từ đảo hành lý xuất đưa lên tàu bay xuất cảnh;</li>
+            </ul>
+
+            <p><strong>2.3. Sử dụng chó nghiệp vụ kiểm tra hành lý, hành khách, phương tiện tại các cửa khẩu đường bộ, đường sắt và đường biển:</strong></p>
+
+            <p><strong>a. Địa điểm sử dụng chó kiểm tra:</strong></p>
+            <ul>
+                <li>Khu vực kiểm tra hải quan tại cửa khẩu.</li>
+                <li>Khu vực tuần tra tại địa bàn kiểm soát hải quan theo phân công của Chi cục trưởng Chi cục Hải quan cửa khẩu.</li>
+                <li>Khu vực khác theo quyết định của Chi cục trưởng tùy theo từng thời điểm và tình hình thực tế;</li>
+            </ul>
+
+            <p><strong>b. Thời điểm kiểm tra:</strong></p>
+            <ul>
+                <li>Đối với phương tiện: từ khi nhập cảnh, lưu đỗ tại vị trí dừng phương tiện đến khi xuất cảnh;</li>
+                <li>Người xuất cảnh, nhập cảnh, quá cảnh và hành lý xách tay: Từ khi rời phương tiện nhập cảnh vào đến khu vực kiểm tra hải quan nhập cảnh; từ nhà ga xuất cảnh lên phương tiện xuất cảnh;</li>
+                <li>Hành lý ký gửi của người xuất cảnh, nhập cảnh, quá cảnh: Từ khi xếp dỡ hành lý khỏi phương tiện qua khu vực kiểm tra hải quan đến khi lên phương tiện xuất nhập cảnh.</li>
+            </ul>
+
+            <p><strong>2.4. Sử dụng chó kiểm tra hàng hóa xuất nhập khẩu:</strong></p>
+
+            <p><strong>a. Địa điểm kiểm tra:</strong></p>
+            <ul>
+                <li>Kiểm tra tại khu vực cửa khẩu đường bộ, ga đường sắt liên vận quốc tế, cảng hàng không dân dụng quốc tế; bưu điện quốc tế; cảng biển, cảng thủy nội địa có hoạt động xuất khẩu, nhập khẩu, xuất cảnh, nhập cảnh, quá cảnh; cảng xuất khẩu, nhập khẩu hàng hóa được thành lập trong nội địa;</li>
+                <li>Địa điểm kiểm tra tập trung theo quyết định của Tổng cục trưởng Tổng cục Hải quan;</li>
+                <li>Kiểm tra tại khu vực kho ngoại quan, kho bảo thuế, địa điểm rac hu hàng lẻ;</li>
+                <li>Địa điểm kiểm rac hung giữa Hải quan Việt Nam với Hải quan nước láng giềng tại khu vực cửa khẩu đường bộ;</li>
+                <li>Địa điểm khác do Tổng cục trưởng Tổng cục Hải quan quyết định trong trường hợp cần thiết.</li>
+            </ul>
+
+            <p><strong>b. Thời điểm kiểm tra:</strong></p>
+            <p><em>Đối với hàng hóa nhập khẩu:</em></p>
+            <ul>
+                <li>Hàng hóa nhập khẩu trong quá trình dỡ từ phương tiện vận tải nhập cảnh xuống kho, bãi, cảng; hàng hóa nhập khẩu tập kết tại kho, bãi, cảng;</li>
+                <li>Hàng hóa nhập khẩu trong quá trình làm thủ tục hải quan;</li>
+                <li>Hàng nhập khẩu đã thông quan nhưng chưa đưa ra khu vực giám sát hải quan.</li>
+            </ul>
+
+            <p><em>Đối với hàng hóa xuất khẩu:</em></p>
+            <ul>
+                <li>Hàng hóa xuất khẩu trong quá trình làm thủ tục hải quan;</li>
+                <li>Hàng hóa xuất khẩu đã thông quan nhưng chưa đưa ra khu vực giám sát hải quan.</li>
+            </ul>
+
+            <h3>Quy trình sử dụng:</h3>
+
+            <p><strong>Trường hợp 1:</strong> Kiểm tra phát hiện các loại hàng cấm cất giấu trong hành lý, hàng hóa, phương tiện đang chịu sự giám sát hải quan.</p>
+            <ol>
+                <li>
+                <p>Huấn luyện viên phối hợp với cán bộ giám sát, kiểm soát hải quan đưa CNV vào khu vực tập kết hàng hóa xuất nhập khẩu, phương tiện xuất cảnh, nhập cảnh chưa làm thủ tục hải quan hoặc hàng hóa phương tiện đã hoàn thành thủ tục hải quan nhưng chưa xuất khẩu, xuất cảnh đang để trong kho, bến, bãi, trên băng chuyền tại các cảng biển, ga hàng không, ga xe lửa liên vận quốc tế và các điểm thông quan trong nội địa để ngửi phát hiện ma túy, chất nổ và các hàng cấm khác.</p>
+                </li>
+
+                <li>
+                <p>Huấn luyện viên sử dụng CNV để kiểm tra hàng hóa, phương tiện theo chiến thuật chia khu vực để kiểm tra trọng điểm. Công chức hải quan làm nhiệm vụ giám sát kho, bãi yêu cầu chủ kho mở cửa kho, hỗ trợ đảm bảo an toàn cho huấn luyện viên trong suốt quá trình làm việc của CNV. Trong quá trình kiểm tra, huấn luyện viên gặp khó khăn cần hỗ trợ để bốc dỡ hàng hóa nhằm tạo điều kiện thuận lợi cho CNV tác nghiệp thì yêu cầu công chức hải quan trao đổi với đơn vị quản lý kho, bãi bố trí phương tiện, nhân lực bốc dỡ để tạo điều kiện cho CNV làm việc. Nếu CNV phát hiện có hơi ma túy, chất nổ hàng cấm khác trong hàng hóa thì đánh giấu vị trí phát hiện, thông báo ngay cho công chức hải quan phối hợp bí mật giám sát và báo cáo lãnh đạo để kiểm tra chi tiết theo hướng dẫn tại trường hợp 2.</p>
+
+                <p>Việc kiểm tra hàng hóa trong kho, bãi chỉ thực hiện trong giờ làm việc của doanh nghiệp kinh doanh kho bãi.</p>
+                </li>
+
+                <li>
+                <p>Trường hợp CNV phát hiện có hơi ma túy, chất nổ, hàng cấm khác trong hành lý nhập khẩu của khách nhập cảnh đang chờ nhận thì bí mật theo dõi xác định chủ hành lý, áp giải đối tượng và hành lý vào phòng làm việc để kiểm tra chi tiết theo hướng dẫn tại Trường hợp 2.</p>
+                </li>
+
+                <li>
+                <p>Trường hợp sử dụng CNV kiểm tra hàng hóa, bưu phẩm, bưu kiện tại địa bàn chuyển phát nhanh, CNV sẽ kiểm tra tại khu vực khai thác hàng hóa, phân loại hàng hóa, khu vực máy soi. Ngoài ra CNV sẽ được tác nghiệp trong kho, kệ tạm giữ (trình tự như kiểm tra trong kho hàng hóa thông thường).</p>
+                </li>
+            </ol>
+
+            <p><strong>Trường hợp 2:</strong> Kiểm tra phát hiện các loại hàng cấm cất giấu trong hàng hóa xuất nhập khẩu, phương tiện vận tải, hành khách xuất nhập cảnh trong quá trình kiểm tra hải quan.</p>
+
+            <ol>
+                <li>
+                <p>Huấn luyện viên, công chức hải quan tham gia kiểm tra phải thực hiện các bước sau:</p>
+                <ul>
+                    <li>Bố trí đủ cán bộ, nhân viên để chủ động thực hiện các biện pháp đề phòng đối tượng chống cự, cướp, tẩu tán tang vật, chạy trốn.</li>
+                    <li>Trực tiếp thông báo cho chủ hàng, người đại diện hợp pháp của chủ hàng hoặc người điều khiển phương tiện biết mục đích, nội dung và yêu cầu họ, chứng kiến quá trình kiểm tra.</li>
+                    <li>Quan sát toàn diện bên ngoài, bên trong phương tiện và hàng hóa sẽ kiểm tra, phỏng vấn và quan sát hành vi, thái độ của chủ hàng hoặc người điều khiển phương tiện để phát hiện các vị trí nghi vấn giấu ma túy, chất nổ...</li>
+                    <li>Yêu cầu chủ hàng xuất trình toàn bộ hàng hóa để CNV tác nghiệp được thuận lợi.</li>
+                    <li>Sử dụng CNV kiểm tra lần lượt bên ngoài, bên trong phương tiện vận tải, hàng hóa; tập trung kiểm tra kỹ lưỡng những vị trí nghi vấn.</li>
+                    <li>Ngoài hàng hóa, huấn luyện viên phải sử dụng CNV ngửi các loại bao bì đóng gói, các loại container, pallet (kệ, giá đỡ) các vật dụng khác đã và đang chứa hàng hóa được kiểm tra.</li>
+                    <li>Khi CNV phát hiện có hơi ma túy, chất nổ hàng cấm trên phương tiện, hàng hóa, hành lý phải mở và kiểm tra chi tiết, xác định có hay không có ma túy, chất nổ.</li>
+                    <li>Nếu phát hiện có hàng cấm được cất giấu thì thực hiện theo quy định của Tổng cục về quy trình phát hiện ngăn chặn, xử lý các vụ việc mua bán, vận chuyển trái phép các chất ma tuý của ngành Hải quan và theo Điều 27 của quy định này.</li>
+                    <li>Nếu không phát hiện ra hàng cấm thì làm thủ tục thông quan theo quy định.</li>
+                </ul>
+                </li>
+            </ol>
+
+            <p><strong>Trường hợp 3:</strong> Kiểm tra phát hiện các loại hàng cấm trong hoạt động tuần tra hải quan.</p>
+            <ol>
+                <li>Huấn luyện viên sử dụng CNV kiểm tra các địa điểm, đối tượng theo mệnh lệnh của tổ trưởng tổ tuần tra.</li>
+                <li>Trường hợp phát hiện có hơi ma túy, chất nổ thì báo cáo tổ trưởng tổ tuần tra, tổ chức bảo vệ khu vực, vị trí phát hiện ma túy và lục soát để xác định và thu giữ tang vật.</li>
+                <li>Trường hợp kiểm tra phát hiện có hơi ma túy, chất nổ trên người, hành lý của đối tượng thì áp tải đối tượng về trụ sở cơ quan để kiểm tra làm rõ.</li>
+                <li>Kết thúc tuần tra, tổ trưởng tuần tra xác nhận kết quả làm việc của huấn luyện viên và CNV. Báo cáo cấp có thẩm quyền, đề xuất biện pháp xử lý vụ việc, tang vật và đối tượng đã phát hiện, cất giữ.</li>
+            </ol>
+
+            <p><strong>Trường hợp 4:</strong> Sử dụng CNV trong khám xét theo thủ tục hành chính, tố tụng hình sự.</p>
+            <ol>
+                <li>Khi có lệnh khám xét của cấp có thẩm quyền và phân công của thủ trưởng đơn vị, huấn luyện viên sử dụng CNV tham gia khám xét.</li>
+                <li>Người chỉ huy khám xét phải đảm bảo an toàn và tạo điều kiện để huấn luyện viên sử dụng CNV hoạt động thuận lợi.</li>
+                <li>Trong quá trình khám xét huấn luyện viên sử dụng CNV theo trình tự, thao tác nghiệp vụ đã được huấn luyện (chia khu vực và kiểm tra lần lượt hết các khu vực cần khám xét) và theo lệnh của người chỉ huy khám xét.</li>
+                <li>Khi CNV phát hiện có hơi ma túy, chất nổ, hàng cấm huấn luyện viên phải báo cáo ngay với người chỉ huy khám xét để lục soát, tìm kiếm và thu giữ tang vật.</li>
+            </ol>
+
+            <h2>Điều 27. Xử lý tình huống</h2>
+
+            <ol>
+                <li>
+                <p>Trong khi kiểm tra nếu CNV phát hiện nguồn hơi các loại hàng cấm trong hàng hóa, hành lý, phương tiện vận tải của đối tượng được hưởng chế độ ưu đãi miễn trừ thì Tổng cục trưởng Tổng cục Hải quan quyết định việc xử lý theo quy định.</p>
+                </li>
+
+                <li>
+                <p>Trường hợp chủ hàng hóa, người đại diện hợp pháp của chủ hàng, người điều khiển phương tiện bỏ trốn hoặc không chấp hành thì báo cáo lãnh đạo trực tiếp để tổ chức giám sát, bảo vệ đồng thời mời người chứng kiến rồi mới tiếp tục thực hiện kiểm tra hàng hóa, phương tiện. Kết thúc quá trình kiểm tra phải lập biên bản kiểm tra hàng hoá, phương tiện, ký và ghi rõ họ tên của người chứng kiến.</p>
+                </li>
+
+                <li>
+                <p>Trường hợp đối tượng sử dụng vũ lực, vũ khí chống người thi hành công vụ, chạy trốn khi bị kiểm tra thì sử dụng các biện pháp trấn áp, truy đuổi để bắt giữ đối tượng và báo cáo lãnh đạo giải quyết tiếp.</p>
+                </li>
+
+                <li>
+                <p>Trường hợp phát hiện, bắt giữ tội phạm, thu giữ ma túy, chất nổ, hàng cấm khác thì đơn vị chủ trì bắt giữ báo cáo về Tổng cục qua Cục Điều tra chống buôn lậu, Cục Hải quan tỉnh, liên tỉnh, thành phố và bàn giao hồ sơ, tang vật, đối tượng cho cơ quan Công an theo quy định.</p>
+                </li>
+
+                <li>
+                <p>Đối với trường hợp CNV chủ động phát hiện thấy các chất ma túy, chất cấm trong khi kiểm tra hành lý, hành khách xuất nhập cảnh, quá cảnh, hàng hóa xuất nhập khẩu, hàng hóa quá cảnh, phương tiện xuất nhập cảnh, quá cảnh…qua địa bàn hải quan, theo kế hoạch đã được các cấp lãnh đạo phê duyệt phân công thường xuyên hằng ngày, hằng tuần thì huấn luyện viên báo cáo lãnh đạo đơn vị và phối hợp với công chức hải quan tại địa bàn lập biên bản bàn giao tang vật cho các Đội nghiệp vụ nơi tác nghiệp để tiếp tục thực hiện theo quy trình, quy định của pháp luật.</p>
+                </li>
+
+                <li>
+                <p><strong>Hồ sơ, báo cáo:</strong></p>
+                <ul>
+                    <li>Huấn luyện viên viết nhật ký kết quả tác nghiệp, kiểm tra, khám xét sau mỗi buổi làm việc. Trường hợp CNV phát hiện ra ma túy, chất nổ thì tham gia lập và ký biên bản kiểm tra, thu giữ tang vật, biên bản bắt giữ đối tượng nếu có.</li>
+                    <li>Công chức Hải quan kiểm tra thực tế hàng hóa là người chủ trì việc viết ấn chỉ.</li>
+                    <li>Trường hợp phát hiện ra ma túy, chất nổ thì lập biên bản kiểm tra, thu giữ tang vật và biên bản bắt giữ đối tượng vi phạm nếu có.</li>
+                    <li>Nếu không phát hiện ra ma túy, chất nổ thì báo cáo lãnh đạo và làm thủ tục hải quan theo quy định.</li>
+                </ul>
+                </li>
+            </ol>
+            </main>
+            `;
+
 
 
     } else if (type === 'KẾ HOẠCH CHĂM SÓC, HUẤN LUYỆN') {
@@ -2004,7 +2293,7 @@ function showContent(type) {
 
         // Check if user can upload (Admin only)
         const canUpload = currentUserRole === 'ADMIN';
-        
+
         content.innerHTML = `
             <div class="care-plan-container">
                 
@@ -2065,11 +2354,11 @@ function showContent(type) {
 // Function to load dog profiles from database only
 async function loadDogProfilesFromDatabase() {
     const container = document.getElementById('dogProfilesList');
-    
+
     if (!container) {
         return;
     }
-    
+
     try {
         // Fetch dogs from database API
         const response = await fetch('/api/dogs', {
@@ -2078,22 +2367,22 @@ async function loadDogProfilesFromDatabase() {
                 'Content-Type': 'application/json'
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             const dogs = data.data || [];
-            
+
             if (dogs.length === 0) {
                 container.innerHTML = '<div class="no-data">Chưa có chó nghiệp vụ nào trong cơ sở dữ liệu.</div>';
                 return;
             }
-            
+
             // Display dogs from database only
             let html = '<div class="dog-profiles-grid">';
             dogs.forEach(dog => {
                 const trainerName = dog.trainer_name || 'Chưa phân công';
                 const statusClass = dog.status ? dog.status.toLowerCase().replace(' ', '-') : 'unknown';
-                
+
                 html += `
                     <div class="dog-profile-card">
                         <div class="dog-profile-header">
@@ -2116,7 +2405,7 @@ async function loadDogProfilesFromDatabase() {
                 `;
             });
             html += '</div>';
-            
+
             container.innerHTML = html;
         } else {
             container.innerHTML = '<div class="error">Lỗi khi tải dữ liệu từ cơ sở dữ liệu.</div>';
@@ -2384,9 +2673,9 @@ async function showDogProfileForm(dogName) {
 
                 <div class="profile-field">
 
-                    <label>3. Cấp bậc:</label>
+                    <label>3. Số hiệu:</label>
 
-                    <input type="text" id="hlv_capbac" ${readOnlyAttr}>
+                    <input type="text" id="hlv_sohieu" ${readOnlyAttr}>
 
                 </div>
 
@@ -2592,14 +2881,14 @@ async function loadDogProfile(dogName) {
                 document.getElementById('hlv_donvi').value = dogData.hlv_donvi || '';
 
                 document.getElementById('hlv_daotao').value = dogData.hlv_daotao || '';
-                
+
                 // Update status indicator
                 const statusIndicator = document.querySelector('.status-indicator');
                 if (statusIndicator && dogData.status) {
                     statusIndicator.textContent = dogData.status;
                     statusIndicator.className = `status-indicator status-${dogData.status.toLowerCase()}`;
                 }
-                
+
 
             } else {
 
@@ -3159,13 +3448,13 @@ let audioPreloaded = false;
 function createContentHash(text) {
     // Convert string to UTF-8 bytes
     const utf8Bytes = new TextEncoder().encode(text);
-    
+
     // Convert bytes to hex string
     let hexString = '';
     for (let i = 0; i < utf8Bytes.length; i++) {
         hexString += utf8Bytes[i].toString(16).padStart(2, '0');
     }
-    
+
     // Take first 16 characters as hash
     return hexString.substring(0, 16);
 }
@@ -3176,7 +3465,7 @@ async function preloadAllAudio() {
         return;
     }
 
-    
+
     const contentSections = [
         {
             title: 'TỔNG QUAN',
@@ -3213,19 +3502,19 @@ async function preloadAllAudio() {
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
-            
+
             // Store audio file mappings in cache for instant access
             data.generated.forEach(item => {
                 audioCache.set(item.title, item.filename);
             });
-            
+
             audioPreloaded = true;
         } else {
             throw new Error(data.error || 'Unknown error');
         }
-        
+
     } catch (error) {
         // Don't show alert for preload errors, just log them
     }
@@ -3235,16 +3524,16 @@ async function preloadAllAudio() {
 function getCachedAudioFilename() {
     const contentElement = document.getElementById('content');
     if (!contentElement) return null;
-    
+
     const contentText = contentElement.innerText || contentElement.textContent || '';
     if (!contentText.trim()) return null;
-    
+
     // Create hash from actual content (UTF-8 safe)
     const cleanedText = cleanTextForTTS(contentText);
     const contentHash = createContentHash(cleanedText);
     const expectedFilename = `${contentHash}.mp3`;
-    
-    
+
+
     // Check if this file exists in our cache or server
     return expectedFilename;
 }
@@ -3263,14 +3552,14 @@ async function checkAudioFileExists(filename) {
 function toggleSpeech() {
     const contentElement = document.getElementById('content');
     const toggleButton = document.getElementById('toggleReadButton');
-    
+
     if (!contentElement) {
         alert('Không tìm thấy nội dung để đọc');
         return;
     }
 
     const contentText = contentElement.innerText || contentElement.textContent || '';
-    
+
     if (!contentText.trim()) {
         alert('Không có nội dung để đọc');
         return;
@@ -3299,32 +3588,32 @@ function toggleSpeech() {
     async function startVietnameseTTS() {
         try {
             const cleanedText = cleanTextForTTS(contentText);
-            
+
             // Get expected filename based on content hash (UTF-8 safe)
             const contentHash = createContentHash(cleanedText);
             const expectedFilename = `${contentHash}.mp3`;
-            
+
             // Check if audio file exists on server
             const fileExists = await checkAudioFileExists(expectedFilename);
-            
+
             if (fileExists) {
-                
+
                 // Update button state
                 toggleButton.innerText = '🔄 Đang tải âm thanh...';
                 toggleButton.style.background = '#ffc107';
                 toggleButton.disabled = true;
-                
+
                 // Play the cached audio file immediately
                 const audioUrl = `/api/tts/get/${expectedFilename}`;
                 currentAudio = new Audio(audioUrl);
-                
+
             } else {
-                
+
                 // Update button state
                 toggleButton.innerText = '🔄 Đang tạo âm thanh...';
                 toggleButton.style.background = '#ffc107';
                 toggleButton.disabled = true;
-                
+
                 // Use file-based TTS endpoint
                 const response = await fetch('/api/tts/speak/file', {
                     method: 'POST',
@@ -3342,65 +3631,65 @@ function toggleSpeech() {
                 }
 
                 const data = await response.json();
-                
+
                 if (!data.success) {
                     throw new Error(data.error || 'Unknown error');
                 }
 
-                
+
                 // Play the newly generated audio file
                 const audioUrl = `/api/tts/get/${data.filename}`;
                 currentAudio = new Audio(audioUrl);
             }
-            
+
             currentAudio.onloadstart = () => {
                 toggleButton.innerText = '⏸️ Dừng đọc';
                 toggleButton.style.background = '#dc3545';
                 toggleButton.disabled = false;
             };
-            
+
             currentAudio.oncanplaythrough = () => {
             };
-            
+
             currentAudio.onplay = () => {
                 isSpeaking = true;
                 toggleButton.innerText = '⏹️ Dừng đọc';
                 toggleButton.style.background = '#dc3545';
             };
-            
+
             currentAudio.onended = () => {
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
                 currentAudio = null;
             };
-            
+
             currentAudio.onerror = (event) => {
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
                 toggleButton.disabled = false;
-                
+
                 alert('Lỗi khi phát âm thanh. Vui lòng thử lại.');
                 currentAudio = null;
             };
-            
+
             currentAudio.onpause = () => {
                 isSpeaking = false;
                 toggleButton.innerText = '🔊 Đọc nội dung';
                 toggleButton.style.background = '#007bff';
             };
-            
+
             // Start playing
             await currentAudio.play();
-            
+
         } catch (error) {
-            
+
             isSpeaking = false;
             toggleButton.innerText = '🔊 Đọc nội dung';
             toggleButton.style.background = '#007bff';
             toggleButton.disabled = false;
-            
+
             let errorMessage = 'Lỗi khi tạo âm thanh. ';
             if (error.message.includes('gTTS not installed')) {
                 errorMessage += 'Vui lòng cài đặt gTTS: pip install gTTS';
@@ -3409,7 +3698,7 @@ function toggleSpeech() {
             } else {
                 errorMessage += error.message;
             }
-            
+
             alert(errorMessage);
         }
     }
@@ -3420,7 +3709,7 @@ function toggleSpeech() {
 
 // Initialize audio preloading when page loads
 async function initializeAudioSystem() {
-    
+
     // Preload audio in background (don't wait for it)
     preloadAllAudio().then(() => {
     }).catch(error => {
@@ -3432,7 +3721,7 @@ async function checkAudioCacheStatus() {
     try {
         const response = await fetch('/api/tts/cache/status');
         const data = await response.json();
-        
+
         if (data.success) {
             console.log('📊 Audio cache status:', {
                 files: data.file_count,
@@ -3452,7 +3741,7 @@ async function clearAudioCache() {
             method: 'POST'
         });
         const data = await response.json();
-        
+
         if (data.success) {
             audioCache.clear();
             audioPreloaded = false;
@@ -3687,7 +3976,7 @@ async function showAllPendingJournalsForManager() {
             // Convert database format to frontend format for compatibility
             for (const journal of dbJournals) {
                 const journalKey = `journal_${journal.dog_name}_${journal.journal_date}_${journal.id}`;
-                
+
                 allPendingJournals.push({
                     key: journalKey, // Include journal ID for uniqueness
                     dogName: journal.dog_name,
@@ -3910,29 +4199,29 @@ async function showAllPendingJournalsForManager() {
 // SỬA: Function MANAGER JOURNAL VIEW - XEM SỔ NHẬT KÝ HUẤN LUYỆN
 async function showManagerJournalView() {
     hideAllContentSections();
-    
+
     const content = document.getElementById('content');
     const title = document.getElementById('title');
-    
+
     content.style.display = 'block';
     content.style.justifyContent = 'flex-start';
     content.style.alignItems = 'flex-start';
     content.style.height = 'auto';
     content.style.position = 'relative';
     content.style.zIndex = '1';
-    
+
     title.innerText = 'SỔ NHẬT KÝ HUẤN LUYỆN - CHẾ ĐỘ MANAGER';
-    
+
     // Load all journals from database
     let allJournals = [];
-    
+
     try {
-        
+
         const response = await fetch('/api/journals');
-        
+
         if (response.ok) {
             const data = await response.json();
-            
+
             if (data.success && data.data) {
                 allJournals = data.data.map(journal => ({
                     id: journal.id,
@@ -3961,7 +4250,7 @@ async function showManagerJournalView() {
         `;
         return;
     }
-    
+
     if (allJournals.length === 0) {
         content.innerHTML = `
             <div style="text-align: center; padding: 50px; background: white; border-radius: 10px; margin: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -3975,10 +4264,10 @@ async function showManagerJournalView() {
         `;
         return;
     }
-    
+
     // Sort by date (newest first)
     allJournals.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
+
     // Group by dog
     const journalsByDog = {};
     allJournals.forEach(journal => {
@@ -3987,7 +4276,7 @@ async function showManagerJournalView() {
         }
         journalsByDog[journal.dogName].push(journal);
     });
-    
+
     // Create HTML for journal view
     let html = `
         <div style="background: white; border-radius: 10px; margin: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -4005,14 +4294,14 @@ async function showManagerJournalView() {
             <div class="manager-journals-list">
                 <h4 style="color: #333; border-bottom: 2px solid #2196f3; padding-bottom: 10px;">📋 Danh sách nhật ký theo chó nghiệp vụ:</h4>
     `;
-    
+
     // Create journal list by dog
     Object.keys(journalsByDog).sort().forEach(dogName => {
         const dogJournals = journalsByDog[dogName];
         const approvedCount = dogJournals.filter(j => j.status === 'APPROVED').length;
         const pendingCount = dogJournals.filter(j => j.status === 'PENDING').length;
         const rejectedCount = dogJournals.filter(j => j.status === 'REJECTED').length;
-        
+
         html += `
             <div style="background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; margin: 15px 0; overflow: hidden;">
                 <div style="background: #007bff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
@@ -4025,15 +4314,15 @@ async function showManagerJournalView() {
                 </div>
                 <div style="padding: 15px;">
         `;
-        
+
         dogJournals.forEach(journal => {
-            const statusColor = journal.status === 'APPROVED' ? '#28a745' : 
-                               journal.status === 'PENDING' ? '#ffc107' : '#dc3545';
-            const statusText = journal.status === 'APPROVED' ? 'Đã duyệt' : 
-                              journal.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối';
-            const statusIcon = journal.status === 'APPROVED' ? '✅' : 
-                              journal.status === 'PENDING' ? '⏳' : '❌';
-            
+            const statusColor = journal.status === 'APPROVED' ? '#28a745' :
+                journal.status === 'PENDING' ? '#ffc107' : '#dc3545';
+            const statusText = journal.status === 'APPROVED' ? 'Đã duyệt' :
+                journal.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối';
+            const statusIcon = journal.status === 'APPROVED' ? '✅' :
+                journal.status === 'PENDING' ? '⏳' : '❌';
+
             html += `
                 <div style="background: white; border: 1px solid #dee2e6; border-radius: 6px; padding: 12px; margin: 8px 0; display: flex; justify-content: space-between; align-items: center;">
                     <div style="flex: 1;">
@@ -4062,13 +4351,13 @@ async function showManagerJournalView() {
                 </div>
             `;
         });
-        
+
         html += `
                 </div>
             </div>
         `;
     });
-    
+
     html += `
             </div>
             
@@ -4079,7 +4368,7 @@ async function showManagerJournalView() {
             </div>
         </div>
     `;
-    
+
     content.innerHTML = html;
 }
 
@@ -4089,7 +4378,7 @@ async function viewJournalFromManagerView(journalKey) {
         // Extract dog name, date, and ID from journal key
         const keyParts = journalKey.replace('journal_', '').split('_');
         const dogName = keyParts[0];
-        
+
         // Handle both old format (dogName_date) and new format (dogName_date_id)
         let date, journalId = null;
         if (keyParts.length >= 3) {
@@ -4100,8 +4389,8 @@ async function viewJournalFromManagerView(journalKey) {
             // Old format: dogName_date
             date = keyParts.slice(1).join('_');
         }
-        
-        
+
+
         // Use existing function to show A4 view
         await showPureA4JournalView(dogName, date);
     } catch (error) {
@@ -4114,7 +4403,7 @@ async function exportJournalFromManagerView(journalKey) {
         // Extract dog name, date, and ID from journal key
         const keyParts = journalKey.replace('journal_', '').split('_');
         const dogName = keyParts[0];
-        
+
         // Handle both old format (dogName_date) and new format (dogName_date_id)
         let date, journalId = null;
         if (keyParts.length >= 3) {
@@ -4125,8 +4414,8 @@ async function exportJournalFromManagerView(journalKey) {
             // Old format: dogName_date
             date = keyParts.slice(1).join('_');
         }
-        
-        
+
+
         // Use existing PDF export functionality
         if (window.pdfExportSystem) {
             await window.pdfExportSystem.exportJournalToPDF(dogName, date);
@@ -4154,31 +4443,31 @@ async function showManagerPastJournalsModal() {
         if (!response.ok) {
             throw new Error('Database request failed');
         }
-        
+
         const result = await response.json();
         if (!result.success || !result.data) {
             throw new Error('No journals found');
         }
-        
+
         const allJournals = result.data;
-        
+
         if (allJournals.length === 0) {
             alert('Không có nhật ký nào trong hệ thống.');
             return;
         }
-        
+
         // Sort by date (newest first)
         allJournals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
-        
+
         // Create dropdown options
         let dateOptions = '<option value="">Chọn ngày xem nhật ký</option>';
-        
+
         allJournals.forEach(journal => {
             const dateStr = formatDateToDDMMYYYY(journal.journal_date);
-            
+
             // Get status badge
             let statusBadge = '';
-            switch(journal.approval_status) {
+            switch (journal.approval_status) {
                 case 'APPROVED':
                     statusBadge = '✅ Đã duyệt';
                     break;
@@ -4191,22 +4480,22 @@ async function showManagerPastJournalsModal() {
                 default:
                     statusBadge = '❓ ' + journal.approval_status;
             }
-            
+
             // Get trainer info
             const trainerInfo = journal.trainer_name || 'Chưa xác định';
-            
+
             // Get approver info if approved
             let approverInfo = '';
             if (journal.approval_status === 'APPROVED' && journal.approver_name) {
                 approverInfo = ` | Duyệt bởi: ${journal.approver_name}`;
             }
-            
+
             // Create comprehensive option text
             const optionText = `${dateStr} - CNV ${journal.dog_name} | HLV: ${trainerInfo} | ${statusBadge}${approverInfo}`;
             dateOptions += `<option value="${journal.journal_date}|${journal.dog_name}|${journal.id}">${optionText}</option>`;
         });
-        
-        
+
+
         // Create modal HTML
         const modalHtml = `
             <div id="managerPastJournalsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
@@ -4231,10 +4520,10 @@ async function showManagerPastJournalsModal() {
                 </div>
             </div>
         `;
-        
+
         // Add modal to DOM
         document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
+
     } catch (error) {
         alert('Có lỗi khi tải danh sách nhật ký: ' + error.message);
     }
@@ -4251,22 +4540,22 @@ function closeManagerPastJournalsModal() {
 // View Selected Manager Past Journal
 function viewSelectedManagerPastJournal() {
     const selectedValue = document.getElementById('managerPastJournalSelect').value;
-    
+
     if (!selectedValue) {
         alert('Vui lòng chọn ngày để xem nhật ký!');
         return;
     }
-    
+
     try {
         const [date, dogName, journalId] = selectedValue.split('|');
-        
-        
+
+
         // Use existing function to show A4 view with specific journal ID
         showPureA4JournalView(dogName, date, journalId);
-        
+
         // Close modal
         closeManagerPastJournalsModal();
-        
+
     } catch (error) {
         alert('Có lỗi khi xem nhật ký: ' + error.message);
     }
@@ -4323,17 +4612,17 @@ function refreshManagerView() {
 async function showManagerStatistics() {
     // Show loading modal first
     showStatisticsModal();
-    
+
     try {
         // Get all journals from database
         const response = await fetch('/api/journals');
         if (response.ok) {
             const data = await response.json();
             const journals = data.data || [];
-            
+
             // Calculate comprehensive statistics
             const stats = calculateDetailedStatistics(journals);
-            
+
             // Update modal with statistics
             updateStatisticsModal(stats);
         } else {
@@ -4363,7 +4652,7 @@ function calculateDetailedStatistics(journals) {
     // Process each journal
     journals.forEach(journal => {
         // Status counts
-        switch(journal.approval_status) {
+        switch (journal.approval_status) {
             case 'APPROVED':
                 stats.approved++;
                 break;
@@ -4533,7 +4822,7 @@ function showStatisticsModal() {
 
 function updateStatisticsModal(stats) {
     const content = document.getElementById('statisticsContent');
-    
+
     // Calculate percentages
     const approvedPercent = stats.total > 0 ? ((stats.approved / stats.total) * 100).toFixed(1) : 0;
     const pendingPercent = stats.total > 0 ? ((stats.pending / stats.total) * 100).toFixed(1) : 0;
@@ -4647,12 +4936,12 @@ function updateStatisticsModal(stats) {
             <h3 style="color: #495057; margin: 0 0 15px 0; font-size: 18px; border-bottom: 2px solid #e9ecef; padding-bottom: 10px;">🕒 Hoạt động gần đây</h3>
             <div style="max-height: 300px; overflow-y: auto;">
                 ${stats.recentActivity.map(activity => {
-                    const statusColor = activity.status === 'APPROVED' ? '#28a745' : 
-                                      activity.status === 'PENDING' ? '#ffc107' : '#dc3545';
-                    const statusText = activity.status === 'APPROVED' ? 'Đã duyệt' : 
-                                     activity.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối/Chưa hoàn thành';
-                    
-                    return `
+        const statusColor = activity.status === 'APPROVED' ? '#28a745' :
+            activity.status === 'PENDING' ? '#ffc107' : '#dc3545';
+        const statusText = activity.status === 'APPROVED' ? 'Đã duyệt' :
+            activity.status === 'PENDING' ? 'Chờ duyệt' : 'Từ chối/Chưa hoàn thành';
+
+        return `
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f8f9fa; margin-bottom: 5px;">
                             <div>
                                 <div style="font-weight: bold; color: #495057;">${activity.dog}</div>
@@ -4672,7 +4961,7 @@ function updateStatisticsModal(stats) {
                             </div>
                         </div>
                     `;
-                }).join('')}
+    }).join('')}
             </div>
         </div>
     `;
@@ -4709,7 +4998,7 @@ function exportStatistics() {
     // Get current statistics data
     const content = document.getElementById('statisticsContent');
     const statsText = content.innerText;
-    
+
     // Create and download file
     const blob = new Blob([statsText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -4720,7 +5009,7 @@ function exportStatistics() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     showNotification('Báo cáo thống kê đã được xuất thành công!', 'success');
 }
 
@@ -4996,19 +5285,19 @@ async function searchDatabase(query) {
             });
         }
 
-        // Search journals
+        // Search training journals
         const journalsResponse = await fetch('http://localhost:5000/api/journals');
         if (journalsResponse.ok) {
             const journals = await journalsResponse.json();
             journals.forEach(journal => {
                 if (matchesQuery(journal, query)) {
                     results.push({
-                        type: 'journal',
+                        type: 'training_journal',
                         icon: '📝',
-                        title: `Nhật ký ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.date)}`,
-                        content: `Huấn luyện viên: ${journal.trainer_name}, Trạng thái: ${journal.approval_status}`,
+                        title: `Nhật ký ${journal.dog_name} - ${formatDateToDDMMYYYY(journal.journal_date)}`,
+                        content: `Huấn luyện viên: ${journal.trainer_name || 'N/A'}, Trạng thái: ${journal.approval_status}, Hoạt động: ${journal.training_activities || 'N/A'}`,
                         relevance: calculateRelevance(journal, query),
-                        action: () => showJournalEditForm(journal.dog_name)
+                        action: () => showTrainingJournalModal(journal)
                     });
                 }
             });
@@ -5810,7 +6099,7 @@ function addOperationBlock(data = {}) {
 
 
 
-    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="operation-result-block"><label>Kết quả tác nghiệp:</label><div class="operation-result-checkboxes"><label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-' + currentBlockId + '" ' + (data.noViolation ? 'checked' : '') + '> Không phát hiện vi phạm</label><label><input type="checkbox" class="operation-checkbox-violation" id="violationDetected-' + currentBlockId + '" ' + (data.violationDetected ? 'checked' : '') + '> Phát hiện dấu hiệu vi phạm</label></div></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
+    newBlock.innerHTML = '<div class="operation-header-line" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 10px;"><h3 style="margin: 0;">Ca ' + operationNumber + '</h3><div style="display: flex; align-items: center; gap: 8px;"><label for="operationFromTime-' + currentBlockId + '">Thời gian:</label><input type="time" id="operationFromTime-' + currentBlockId + '" value="' + (data.fromTime || '09:00') + '"></div><div style="display: flex; align-items: center; gap: 8px;"><span>Đến:</span><input type="time" id="operationToTime-' + currentBlockId + '" value="' + (data.toTime || '10:00') + '"></div></div><div class="operation-location-line"><label>Địa điểm:</label><div class="custom-location-select-wrapper"><div class="custom-dropdown-trigger" onclick="toggleOperationLocationDropdown(\'operationLocationOptions-' + currentBlockId + '\')"><span class="selected-text" id="operationLocationTriggerText-' + currentBlockId + '">Chọn địa điểm</span><span class="dropdown-arrow">▼</span></div><div class="custom-dropdown-options hidden" id="operationLocationOptions-' + currentBlockId + '">' + locationOptionsHtml + '<label><input type="checkbox" data-location-value="KHO NGOẠI QUAN" ' + (data.selectedLocations?.includes('KHO NGOẠI QUAN') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> KHO NGOẠI QUAN</label><label><input type="checkbox" data-location-value="Khac" ' + (data.selectedLocations?.includes('Khac') ? 'checked' : '') + ' onchange="updateOperationLocationDisplay(' + currentBlockId + ')"> Khác</label></div></div><span class="location-selected-display-box" id="operationLocationDisplayBox-' + currentBlockId + '">Chưa chọn</span><input type="text" class="location-kho-input hidden" id="operationLocationKho-' + currentBlockId + '" placeholder="Ghi số Kho" value="' + (data.locationKhoText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"><input type="text" class="location-other-input hidden" id="operationLocationOther-' + currentBlockId + '" placeholder="Ghi địa điểm khác" value="' + (data.locationOtherText || '') + '" onchange="updateOperationLocationDisplay(' + currentBlockId + ')"></div><div class="operation-activity-row-1"><label>Nội dung:</label><label><input type="checkbox" class="operation-checkbox-1" id="checkGoods-' + currentBlockId + '" value="Kiểm tra hàng hóa XNK" ' + (data.checkGoods ? 'checked' : '') + '> Kiểm tra hàng hóa XNK</label><label><input type="checkbox" class="operation-checkbox-1" id="checkLuggage-' + currentBlockId + '" value="Kiểm tra hành lý, phương tiện XNC" ' + (data.checkLuggage ? 'checked' : '') + '> Kiểm tra hành lý, phương tiện XNC</label><label><input type="checkbox" class="operation-checkbox-1" id="opKhacCheckbox1-' + currentBlockId + '" value="Khác" ' + (data.otherOperation1 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 1)"> Khác</label><input type="text" class="operation-other-input-1 ' + (!data.otherOperation1 ? 'hidden' : '') + '" id="opKhacText1-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation1 || '') + '"></div><div class="operation-activity-row-2"><label><input type="checkbox" class="operation-checkbox-2" id="fieldTraining-' + currentBlockId + '" value="HL nâng cao tại hiện trường" ' + (data.fieldTraining ? 'checked' : '') + '> HL nâng cao tại hiện trường</label><label><input type="checkbox" class="operation-checkbox-2" id="patrol-' + currentBlockId + '" value="Tuần tra kiểm soát" ' + (data.patrol ? 'checked' : '') + '> Tuần tra kiểm soát</label><label><input type="checkbox" class="operation-checkbox-2" id="opKhacCheckbox2-' + currentBlockId + '" value="Khác" ' + (data.otherOperation2 ? 'checked' : '') + ' onchange="toggleOperationOtherInput(' + currentBlockId + ', 2)"> Khác</label><input type="text" class="operation-other-input-2 ' + (!data.otherOperation2 ? 'hidden' : '') + '" id="opKhacText2-' + currentBlockId + '" placeholder="Ghi nội dung khác" value="' + (data.otherOperation2 || '') + '"></div><div class="operation-result-block"><label>Kết quả tác nghiệp:</label><div class="operation-result-checkboxes"><label><input type="checkbox" class="operation-checkbox-no-violation" id="noViolation-' + currentBlockId + '" ' + (data.noViolation ? 'checked' : '') + '> Không phát hiện vi phạm</label><label><input type="checkbox" class="operation-checkbox-violation" id="violationDetected-' + currentBlockId + '" ' + (data.violationDetected ? 'checked' : '') + '> Phát hiện dấu hiệu vi phạm</label><label><input type="checkbox" class="operation-checkbox-performance" id="dogPerformance-' + currentBlockId + '" ' + (data.dogPerformance ? 'checked' : '') + '> Chó làm việc nhanh nhẹn, hưng phấn</label></div></div><div class="textarea-block operation-issues-block"><label for="operation_other_issues_' + currentBlockId + '">Vấn đề khác:</label><textarea id="operation_other_issues_' + currentBlockId + '" rows="3">' + (data.otherIssues || '') + '</textarea></div>';
 
 
 
@@ -5836,7 +6125,7 @@ function addOperationBlock(data = {}) {
         const checkLuggageCheckbox = document.getElementById(`checkLuggage-${currentBlockId}`);
         const fieldTrainingCheckbox = document.getElementById(`fieldTraining-${currentBlockId}`);
         const patrolCheckbox = document.getElementById(`patrol-${currentBlockId}`);
-        
+
         if (checkGoodsCheckbox) checkGoodsCheckbox.checked = data.checkGoods || false;
         if (checkLuggageCheckbox) checkLuggageCheckbox.checked = data.checkLuggage || false;
         if (fieldTrainingCheckbox) fieldTrainingCheckbox.checked = data.fieldTraining || false;
@@ -5847,7 +6136,7 @@ function addOperationBlock(data = {}) {
         const otherOp1Text = document.getElementById(`opKhacText1-${currentBlockId}`);
         const otherOp2Checkbox = document.getElementById(`opKhacCheckbox2-${currentBlockId}`);
         const otherOp2Text = document.getElementById(`opKhacText2-${currentBlockId}`);
-        
+
         if (otherOp1Checkbox) otherOp1Checkbox.checked = data.otherOperation1Checked || false;
         if (otherOp1Text && data.otherOperation1) otherOp1Text.value = data.otherOperation1;
         if (otherOp2Checkbox) otherOp2Checkbox.checked = data.otherOperation2Checked || false;
@@ -5869,6 +6158,12 @@ function addOperationBlock(data = {}) {
         const violationDetectedCheckbox = document.getElementById(`violationDetected-${currentBlockId}`);
         if (violationDetectedCheckbox) {
             violationDetectedCheckbox.checked = data.violationDetected || false;
+        }
+
+        // Initialize dog performance checkbox
+        const dogPerformanceCheckbox = document.getElementById(`dogPerformance-${currentBlockId}`);
+        if (dogPerformanceCheckbox) {
+            dogPerformanceCheckbox.checked = data.dogPerformance || false;
         }
 
         // Update visibility of "other" inputs based on checkbox states
@@ -6278,10 +6573,10 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
 
 
     if (!journalData) {
-        const errorMessage = journalId 
+        const errorMessage = journalId
             ? `Không tìm thấy nhật ký với ID ${journalId}`
             : `Không có nhật ký cho CNV ${dogName} ngày ${date}`;
-        
+
         content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>❌ KHÔNG TÌM THẤY NHẬT KÝ</h3><p>' + errorMessage + '</p></div>';
         return;
     }
@@ -6289,7 +6584,7 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
 
 
     // SỬA: Hiển thị pure A4 PDF view hoàn chỉnh
-    
+
     try {
         // Safe access to journal data with proper null checks
         const generalInfo = journalData.generalInfo || {};
@@ -6300,8 +6595,8 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
         const meals = journalData.meals || {};
         const health = journalData.health || {};
         const care = journalData.care || {};
-        
-        
+
+
         // Simple fallback HTML if data is missing
         if (!generalInfo.dogName) {
             // Use provided parameters as fallback
@@ -6391,24 +6686,24 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
                     <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
                         <strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>
                         ${leaderSignatureHTML}
-                        ${leaderSignature.name && approval.leaderComment ? 
-                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        ${leaderSignature.name && approval.leaderComment ?
+                `<div style="margin-top: 10px; font-size: 12px; color: #666;">
                                 <strong>Nhận xét:</strong> ${approval.leaderComment}
                             </div>` : ''
-                        }
+            }
                     </div>
                 </div>
-                ${substituteSignature.name ? 
-                    `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
+                ${substituteSignature.name ?
+                `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
                         <strong>HLV TRỰC THAY</strong><br><br>
                         ${substituteSignatureHTML}
-                        ${substituteSignature.comment ? 
-                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        ${substituteSignature.comment ?
+                    `<div style="margin-top: 10px; font-size: 12px; color: #666;">
                                 <strong>Ý kiến:</strong> ${substituteSignature.comment}
                             </div>` : ''
-                        }
-                    </div>` : ''
                 }
+                    </div>` : ''
+            }
             </div>
             
             <div style="text-align: center; margin: 20px 0; background: white; padding: 20px;" class="no-print">
@@ -6419,11 +6714,11 @@ async function showPureA4JournalView(dogName, date, journalId = null) {
         </div>`;
 
         content.innerHTML = htmlTemplate +
-        '<style>@media print { .no-print { display: none !important; } body { margin: 0; padding: 0; } .a4-journal-view { max-width: none !important; margin: 0 !important; padding: 15mm !important; box-shadow: none !important; font-size: 12px !important; } } @media screen { .a4-journal-view { background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: "Times New Roman", serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm; } }</style>';
+            '<style>@media print { .no-print { display: none !important; } body { margin: 0; padding: 0; } .a4-journal-view { max-width: none !important; margin: 0 !important; padding: 15mm !important; box-shadow: none !important; font-size: 12px !important; } } @media screen { .a4-journal-view { background: white; max-width: 210mm; margin: 20px auto; padding: 20mm; font-family: "Times New Roman", serif; font-size: 14px; line-height: 1.4; box-shadow: 0 0 20px rgba(0,0,0,0.1); min-height: 297mm; } }</style>';
 
 
         console.log('✅ showPureA4JournalView completed successfully');
-        
+
     } catch (error) {
         console.error('❌ Error in showPureA4JournalView:', error);
         content.innerHTML = '<div style="text-align: center; padding: 50px; background: white;"><h3>❌ LỖI HIỂN THỊ NHẬT KÝ</h3><p>Có lỗi xảy ra khi hiển thị nhật ký: ' + error.message + '</p><button onclick="returnToJournalList()" style="background: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Quay lại</button></div>';
@@ -6530,17 +6825,17 @@ async function renderSignatureImageForA4(signatureData, signatureType) {
     try {
         // Try to get signature image from user data
         const userSignature = await getUserSignature(signatureData.name, signatureData.role || 'TRAINER');
-        
+
         if (userSignature && userSignature.signatureImage) {
             // Check if signature image exists
             const imageExists = await checkSignatureImageExists(userSignature.signatureImage);
-            
+
             if (imageExists) {
                 return `
                     <div style="text-align: center; margin: 10px 0;">
                         <img src="${userSignature.signatureImage}" 
                              alt="Chữ ký ${signatureData.name}" 
-                             style="max-width: 200px; max-height: 80px; border: 1px solid #ccc; 
+                             style="max-width: 200px; max-height: 80px; 
                                     background: white; padding: 5px; display: block; margin: 0 auto;"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         <div style="display: none; margin-top: 5px; padding: 10px; border: 2px solid #2196F3;
@@ -6557,14 +6852,13 @@ async function renderSignatureImageForA4(signatureData, signatureType) {
                 `;
             }
         }
-        
+
         // Fallback to text signature
         return `
             <div style="text-align: center; margin: 10px 0;">
                 <div style="margin-top: 5px; padding: 15px; border: 2px solid #2196F3;
                             background: linear-gradient(135deg, #f8f9ff, #e3f2fd); font-family: 'Dancing Script', cursive;
-                            font-size: 20px; text-align: center; color: #1976d2; font-weight: bold; border-radius: 8px;
-                            box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            font-size: 20px; text-align: center; color: #1976d2; font-weight: bold; border-radius: 8px;">
                     ✍️ ${signatureData.name}
                 </div>
                 <div style="margin-top: 5px; font-size: 12px; color: #666;">
@@ -6597,7 +6891,7 @@ async function renderSignatureImageForA4(signatureData, signatureType) {
 // Helper function to check if training section has data
 function hasTrainingData(journalData) {
     const hasBlocks = journalData.trainingBlocks && journalData.trainingBlocks.length > 0;
-    const hasComment = journalData.hlvComment && journalData.hlvComment.trim() !== '';
+    const hasComment = journalData.hlvComment && typeof journalData.hlvComment === 'string' && journalData.hlvComment.trim() !== '';
     return hasBlocks || hasComment;
 }
 
@@ -6606,24 +6900,24 @@ function hasCareData(journalData) {
     const meals = journalData.meals || {};
     const care = journalData.care || {};
     const health = journalData.health || {};
-    
+
     // Check for meaningful meal data (not just default values)
     const hasMealData = (meals.lunch && (
-        (meals.lunch.time && meals.lunch.time !== '11:00') || 
+        (meals.lunch.time && meals.lunch.time !== '11:00') ||
         (meals.lunch.amount && meals.lunch.amount !== 'Ăn hết') ||
         (meals.lunch.food && meals.lunch.food.length > 0) ||
-        (meals.lunch.otherFood && meals.lunch.otherFood.trim() !== '')
+        (meals.lunch.otherFood && typeof meals.lunch.otherFood === 'string' && meals.lunch.otherFood.trim() !== '')
     )) || (meals.dinner && (
-        (meals.dinner.time && meals.dinner.time !== '17:00') || 
+        (meals.dinner.time && meals.dinner.time !== '17:00') ||
         (meals.dinner.amount && meals.dinner.amount !== 'Ăn hết') ||
         (meals.dinner.food && meals.dinner.food.length > 0) ||
-        (meals.dinner.otherFood && meals.dinner.otherFood.trim() !== '')
+        (meals.dinner.otherFood && typeof meals.dinner.otherFood === 'string' && meals.dinner.otherFood.trim() !== '')
     ));
-    
-    const hasCareData = care && Object.values(care).some(value => value && value.trim() !== '');
-    
-    const hasHealthData = (health.status && health.status !== 'Tốt') || (health.other && health.other.trim() !== '');
-    
+
+    const hasCareData = care && Object.values(care).some(value => value && typeof value === 'string' && value.trim() !== '');
+
+    const hasHealthData = (health.status && health.status !== 'Tốt') || (health.other && typeof health.other === 'string' && health.other.trim() !== '');
+
     // Debug logging
     console.log('🔍 hasCareData debug:', {
         meals,
@@ -6634,7 +6928,7 @@ function hasCareData(journalData) {
         hasHealthData,
         result: hasMealData || hasCareData || hasHealthData
     });
-    
+
     return hasMealData || hasCareData || hasHealthData;
 }
 
@@ -6805,14 +7099,22 @@ function renderOperationBlocks(blocks) {
                 <p><strong>Ca ${index + 1}:</strong> ${timeRange || 'Chưa ghi giờ'}</p>
                 <p><strong>Địa điểm:</strong> ${locations}</p>
                 <p><strong>Nội dung:</strong> ${renderOperationContent(block)}</p>
-                <p><strong>Kết quả tác nghiệp:</strong> ${block.noViolation ? 'Không phát hiện vi phạm' : block.violationDetected ? 'Phát hiện dấu hiệu vi phạm' : 'Chưa ghi'}</p>
+                <p><strong>Kết quả tác nghiệp:</strong> ${getOperationResultsText(block)}</p>
                 ${block.otherIssues ? '<p><strong>Vấn đề khác:</strong> ' + block.otherIssues + '</p>' : ''}
             </div>
         `;
     }).join('');
 }
 
+function getOperationResultsText(block) {
+    const results = [];
 
+    if (block.noViolation) results.push('Không phát hiện vi phạm');
+    if (block.violationDetected) results.push('Phát hiện dấu hiệu vi phạm');
+    if (block.dogPerformance) results.push('Chó làm việc nhanh nhẹn, hưng phấn');
+
+    return results.length > 0 ? results.join(', ') : 'Chưa ghi';
+}
 
 function renderOperationContent(block) {
 
@@ -7072,9 +7374,9 @@ function convertFrontendToDatabaseFormat(frontendJournal) {
 
 // Function to convert care activities from database format to frontend format
 function convertCareActivitiesToFrontend(careActivities) {
-    const care = { 
-        morning: '', 
-        afternoon: '', 
+    const care = {
+        morning: '',
+        afternoon: '',
         evening: '',
         bath: false,
         brush: false,
@@ -7098,7 +7400,7 @@ function convertCareActivitiesToFrontend(careActivities) {
         } catch (e) {
             // Fallback to old string format
         }
-        
+
         // Old string format parsing
         const activities = careActivities.split(';').filter(a => a.trim());
 
@@ -7129,7 +7431,7 @@ async function getJournalFromDatabase(journalKey) {
         // Check if this is the new format with journal ID (4+ parts: dogName_date_id)
         if (keyParts.length >= 3) {
             const journalId = keyParts[keyParts.length - 1]; // Last part is journal ID
-            
+
             // Load specific journal by ID
             const response = await fetch(`/api/journals/${journalId}`);
             if (response.ok) {
@@ -7741,11 +8043,11 @@ async function addJournalToPendingManagerApproval() {
         // Get proper dog and trainer IDs
         const dogName = document.getElementById('journal_dog_name').value;
         const dogInfo = await window.journalDBManager.getDogByName(dogName);
-        
+
         if (!dogInfo) {
             throw new Error(`Không tìm thấy chó "${dogName}" trong cơ sở dữ liệu`);
         }
-        
+
         // Create journal data with proper IDs
         const journalData = {
             dog_id: dogInfo.id,
@@ -7764,7 +8066,7 @@ async function addJournalToPendingManagerApproval() {
             training_duration: 0,
             success_rate: 0
         };
-        
+
         console.log('🔍 Sending journal data to API:', journalData);
 
         const response = await fetch('/api/journals', {
@@ -7943,11 +8245,11 @@ async function setJournalPendingForManagerApproval() {
         // Get proper dog and trainer IDs
         const dogName = document.getElementById('journal_dog_name').value;
         const dogInfo = await window.journalDBManager.getDogByName(dogName);
-        
+
         if (!dogInfo) {
             throw new Error(`Không tìm thấy chó "${dogName}" trong cơ sở dữ liệu`);
         }
-        
+
         // Create journal data with proper IDs
         const journalData = {
             dog_id: dogInfo.id,
@@ -7966,7 +8268,7 @@ async function setJournalPendingForManagerApproval() {
             training_duration: 0,
             success_rate: 0
         };
-        
+
         const response = await fetch('/api/journals', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -8311,7 +8613,7 @@ async function substituteHvlApprove() {
 
 
 
-    if (!substituteName.trim()) {
+    if (!substituteName || typeof substituteName !== 'string' || !substituteName.trim()) {
 
         alert('Vui lòng nhập họ tên HLV trực thay!');
 
@@ -8658,7 +8960,7 @@ function removeLastTrainingBlock() {
 function toggleSection(sectionType) {
     const checkbox = document.getElementById('toggle_' + sectionType);
     const section = document.getElementById(sectionType + '-section');
-    
+
     if (checkbox && section) {
         if (checkbox.checked) {
             section.style.display = 'block';
@@ -9186,10 +9488,10 @@ async function viewOldJournals() {
 
     dogJournals.forEach(journal => {
         const journalData = journal.data;
-        
+
         // Lấy thông tin trainer
         const trainerName = journalData.trainer_name || 'Chưa xác định';
-        
+
         // Lấy trạng thái duyệt
         let approvalStatus = 'Chưa duyệt';
         if (journalData.approval_status === 'APPROVED') {
@@ -9199,10 +9501,10 @@ async function viewOldJournals() {
         } else {
             approvalStatus = '⏳ Chờ duyệt';
         }
-        
+
         // Lấy trạng thái sức khỏe
         const healthStatus = journalData.health_status || 'Không có thông tin';
-        
+
         // Lấy số lượng hoạt động huấn luyện
         let trainingCount = 0;
         if (journalData.training_activities) {
@@ -9213,10 +9515,10 @@ async function viewOldJournals() {
                 trainingCount = 0;
             }
         }
-        
+
         // Tạo text hiển thị với thông tin chi tiết
         const displayText = `${formatDateToDDMMYYYY(journal.date)} | ${trainerName} | ${approvalStatus} | Sức khỏe: ${healthStatus} | ${trainingCount} hoạt động`;
-        
+
         dateOptions += `<option value="${journal.date}" title="${displayText}">${displayText}</option>`;
     });
 
@@ -9232,6 +9534,46 @@ async function viewOldJournals() {
 
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+    // Initialize Select2 on the dropdown after modal is added to DOM
+    setTimeout(() => {
+        const selectElement = document.getElementById('oldJournalDateSelect');
+        if (selectElement && typeof $ !== 'undefined' && $.fn.select2) {
+            console.log('Initializing Select2 on oldJournalDateSelect');
+            $(selectElement).select2({
+                placeholder: 'Chọn ngày xem nhật ký',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#viewOldJournalModal'),
+                language: {
+                    noResults: function () {
+                        return 'Không tìm thấy nhật ký nào';
+                    },
+                    searching: function () {
+                        return 'Đang tìm kiếm...';
+                    }
+                },
+                templateResult: function (data) {
+                    if (!data.id) {
+                        return data.text;
+                    }
+
+                    // Simple template without custom styling to avoid conflicts
+                    return data.text;
+                },
+                templateSelection: function (data) {
+                    return data.text;
+                }
+            });
+            console.log('Select2 initialized successfully on oldJournalDateSelect');
+        } else {
+            console.error('Select2 initialization failed on oldJournalDateSelect:', {
+                selectElement: !!selectElement,
+                jquery: typeof $ !== 'undefined',
+                select2: typeof $ !== 'undefined' && $.fn.select2
+            });
+        }
+    }, 200);
+
 }
 
 
@@ -9243,9 +9585,14 @@ function closeOldJournalModal() {
     const modal = document.getElementById('viewOldJournalModal');
 
     if (modal) {
+        // Destroy Select2 instance before removing modal
+        const selectElement = document.getElementById('oldJournalDateSelect');
+        if (selectElement && typeof $ !== 'undefined' && $.fn.select2 && $(selectElement).hasClass('select2-hidden-accessible')) {
+            console.log('Destroying Select2 instance on oldJournalDateSelect');
+            $(selectElement).select2('destroy');
+        }
 
         modal.remove();
-
     }
 
 }
@@ -9276,6 +9623,104 @@ function viewSelectedOldJournal() {
 
     showPureA4JournalView(currentDogForJournal, selectedDate);
 
+}
+
+// Function to show training journal modal for AI search results
+function showTrainingJournalModal(journal) {
+    // Close AI search modal first
+    closeAISearch();
+
+    // Create modal HTML similar to viewOldJournalModal
+    const modalHtml = `
+        <div id="viewTrainingJournalModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 10px; max-width: 900px; width: 95%; max-height: 80vh; overflow-y: auto;">
+                <h3 style="margin-top: 0; color: #333;">📋 NHẬT KÝ HUẤN LUYỆN - ${journal.dog_name}</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #007bff;">
+                    <h4 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">ℹ️ Thông tin nhật ký:</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 13px;">
+                        <li><strong>Ngày:</strong> ${formatDateToDDMMYYYY(journal.journal_date)}</li>
+                        <li><strong>Huấn luyện viên:</strong> ${journal.trainer_name || 'N/A'}</li>
+                        <li><strong>Trạng thái:</strong> ${journal.approval_status}</li>
+                        <li><strong>Sức khỏe:</strong> ${journal.health_status || 'N/A'}</li>
+                        <li><strong>Thời tiết:</strong> ${journal.weather_conditions || 'N/A'}</li>
+                    </ul>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">🏃 Hoạt động huấn luyện:</h4>
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.training_activities || 'Chưa có thông tin'}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">🍽️ Chăm sóc & nuôi dưỡng:</h4>
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.care_activities || 'Chưa có thông tin'}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">🚔 Hoạt động tác nghiệp:</h4>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.operation_activities || 'Chưa có thông tin'}
+                    </div>
+                </div>
+                
+                ${journal.behavior_notes ? `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">📝 Ghi chú hành vi:</h4>
+                    <div style="background: #f8d7da; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.behavior_notes}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${journal.challenges ? `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">⚠️ Thách thức:</h4>
+                    <div style="background: #f8d7da; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.challenges}
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${journal.next_goals ? `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">🎯 Mục tiêu tiếp theo:</h4>
+                    <div style="background: #d1ecf1; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        ${journal.next_goals}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div style="text-align: right; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <button onclick="closeTrainingJournalModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; margin-right: 10px; cursor: pointer; font-size: 14px; transition: background 0.3s;">Đóng</button>
+                    <button onclick="exportTrainingJournalToPDF(${journal.id})" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.3s;">📄 Xuất PDF</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to DOM
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+// Function to close training journal modal
+function closeTrainingJournalModal() {
+    const modal = document.getElementById('viewTrainingJournalModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Function to export training journal to PDF
+function exportTrainingJournalToPDF(journalId) {
+    // Close modal first
+    closeTrainingJournalModal();
+
+    // For now, show an alert. In a real implementation, this would generate a PDF
+    alert(`Chức năng xuất PDF cho nhật ký ID ${journalId} sẽ được triển khai trong phiên bản tiếp theo.`);
 }
 
 
@@ -9421,31 +9866,31 @@ async function generatePDFFromA4View(dogName, date, journalData) {
                     <div style="width: 45%; text-align: center; border: 1px solid #000; padding: 20px; min-height: 150px;">
                         <strong>LÃNH ĐẠO ĐƠN VỊ</strong><br><br>
                         ${leaderSignatureHTML}
-                        ${leaderSignature.name && approval.leaderComment ? 
-                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        ${leaderSignature.name && approval.leaderComment ?
+                `<div style="margin-top: 10px; font-size: 12px; color: #666;">
                                 <strong>Nhận xét:</strong> ${approval.leaderComment}
                             </div>` : ''
-                        }
+            }
                     </div>
                 </div>
-                ${substituteSignature.name ? 
-                    `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
+                ${substituteSignature.name ?
+                `<div style="width: 100%; text-align: center; border: 1px solid #000; padding: 20px; margin-top: 20px; min-height: 100px;">
                         <strong>HLV TRỰC THAY</strong><br><br>
                         ${substituteSignatureHTML}
-                        ${substituteSignature.comment ? 
-                            `<div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        ${substituteSignature.comment ?
+                    `<div style="margin-top: 10px; font-size: 12px; color: #666;">
                                 <strong>Ý kiến:</strong> ${substituteSignature.comment}
                             </div>` : ''
-                        }
-                    </div>` : ''
                 }
+                    </div>` : ''
+            }
                 
                 <!-- Add note for form data (no signatures yet) -->
-                ${!hlvSignature.name && !leaderSignature.name ? 
-                    `<div style="width: 100%; text-align: center; margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px dashed #ccc; color: #666;">
+                ${!hlvSignature.name && !leaderSignature.name ?
+                `<div style="width: 100%; text-align: center; margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px dashed #ccc; color: #666;">
                         <strong>📝 Ghi chú:</strong> Đây là bản nháp từ form. Chữ ký sẽ được thêm sau khi lưu và duyệt.
                     </div>` : ''
-                }
+            }
             </div>
         </div>`;
 
@@ -9496,7 +9941,7 @@ async function generatePDFFromA4View(dogName, date, journalData) {
 
         // Show preview option first
         const showPreview = confirm('📄 PDF đã sẵn sàng!\n\nBạn muốn:\n• OK: Xem trước PDF trong tab mới\n• Cancel: Tải PDF trực tiếp');
-        
+
         if (showPreview) {
             // Show preview in new tab
             const previewWindow = window.open('', '_blank');
@@ -9553,10 +9998,10 @@ async function generatePDFFromA4View(dogName, date, journalData) {
             console.log('🔍 Starting html2pdf generation...');
             await html2pdf().set(opt).from(tempContainer).save();
             console.log('✅ PDF generated successfully');
-            
+
             // Show success message with more details
             alert(`✅ Đã xuất PDF thành công!\n\n📄 Tên file: Nhat_ky_${dogName}_${date}.pdf\n📁 Vị trí: Thư mục Downloads\n\nNếu không thấy file, hãy kiểm tra thư mục Downloads hoặc thanh thông báo trình duyệt.`);
-            
+
             // Also try to open the PDF in a new tab for immediate viewing
             try {
                 const pdfBlob = await html2pdf().set(opt).from(tempContainer).outputPdf('blob');
@@ -9849,7 +10294,7 @@ async function approveJournalAsManager(journalKey) {
 async function createTrainerNotification(journalData, action) {
     try {
         console.log('📢 Creating trainer notification for action:', action);
-        
+
         // Load trainer notifications from database
         const trainerNotifications = await getTrainerNotificationsFromDatabase();
 
@@ -10543,9 +10988,9 @@ async function approveJournalWithComment(journalKey) {
                     digitalSignature: generateDigitalSignature(currentUserName, currentUserRole, currentTime),
 
                     comment: managerComment, // SỬA: Lưu nhận xét vào chữ ký
-                    
+
                     signatureImage: signatureData.signatureImage, // SỬA: Lưu đường dẫn chữ ký thực
-                    
+
                     userId: signatureData.userId // SỬA: Lưu ID người dùng
 
                 };
@@ -10557,10 +11002,10 @@ async function approveJournalWithComment(journalKey) {
                     // Extract journal ID directly from journal key (new format: journal_dogName_date_id)
                     const keyParts = journalKey.replace('journal_', '').split('_');
                     const journalId = keyParts[keyParts.length - 1]; // Last part is the journal ID
-                    
+
                     console.log('🔍 Extracted journal ID from key:', journalId);
                     console.log('🔍 Journal key:', journalKey);
-                    
+
                     // Use the proper approval API endpoint instead of full update
                     // Get current user ID from database
                     let approverId = 1; // Default fallback
@@ -10578,7 +11023,7 @@ async function approveJournalWithComment(journalKey) {
                     } catch (error) {
                         console.warn('Could not get current user ID, using fallback:', error);
                     }
-                    
+
                     const approvalData = {
                         approver_id: approverId,
                         approved: true,
@@ -10586,7 +11031,7 @@ async function approveJournalWithComment(journalKey) {
                         leader_signature: JSON.stringify(journalData.approval.leaderSignature),
                         leader_signature_timestamp: journalData.approval.leaderSignature.timestamp
                     };
-                    
+
                     console.log('🔍 Sending approval data to API:', approvalData);
                     console.log('🔍 Signature data being sent:', {
                         leader_signature: approvalData.leader_signature,
@@ -10673,17 +11118,17 @@ function handleFileSelect(event) {
             event.target.value = '';
             return;
         }
-        
+
         // Validate file size (max 10MB)
         if (file.size > 10 * 1024 * 1024) {
             alert('File quá lớn. Vui lòng chọn file nhỏ hơn 10MB');
             event.target.value = '';
             return;
         }
-        
+
         selectedCarePlanFile = file;
         document.getElementById('uploadBtn').disabled = false;
-        
+
         // Update UI to show selected file
         const dropzone = document.querySelector('.upload-dropzone');
         dropzone.innerHTML = `
@@ -10700,20 +11145,20 @@ async function uploadCarePlan() {
         alert('Vui lòng chọn file PDF trước khi upload');
         return;
     }
-    
+
     const formData = new FormData();
     formData.append('care_plan', selectedCarePlanFile);
-    
+
     const uploadBtn = document.getElementById('uploadBtn');
     const progressDiv = document.getElementById('uploadProgress');
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
-    
+
     try {
         uploadBtn.disabled = true;
         uploadBtn.textContent = '⏳ Đang upload...';
         progressDiv.style.display = 'block';
-        
+
         const response = await fetch('/api/upload-care-plan', {
             method: 'POST',
             headers: {
@@ -10721,9 +11166,9 @@ async function uploadCarePlan() {
             },
             body: formData
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert('✅ Upload thành công!');
             // Reset UI
@@ -10733,7 +11178,7 @@ async function uploadCarePlan() {
         } else {
             alert('❌ Upload thất bại: ' + result.error);
         }
-        
+
     } catch (error) {
         console.error('Upload error:', error);
         alert('❌ Có lỗi khi upload: ' + error.message);
@@ -10749,7 +11194,7 @@ function resetUploadUI() {
     selectedCarePlanFile = null;
     document.getElementById('carePlanFile').value = '';
     document.getElementById('uploadBtn').disabled = true;
-    
+
     const dropzone = document.querySelector('.upload-dropzone');
     dropzone.innerHTML = `
         <div class="upload-icon">📄</div>
@@ -10761,17 +11206,17 @@ function resetUploadUI() {
 // Load current care plan PDF and display it directly
 async function loadCurrentCarePlan() {
     const viewerDiv = document.getElementById('carePlanViewer');
-    
+
     try {
         viewerDiv.innerHTML = '<div class="loading">Đang tải tài liệu...</div>';
-        
+
         const response = await fetch('/api/care-plans');
         const result = await response.json();
-        
+
         if (result.success && result.data.length > 0) {
             // Get the most recent care plan (first in the list)
             const currentFile = result.data[0];
-            
+
             viewerDiv.innerHTML = `
                 <div class="care-plan-info">
                     <div class="file-details">
@@ -10810,7 +11255,7 @@ async function loadCurrentCarePlan() {
                 </div>
             `;
         }
-        
+
     } catch (error) {
         console.error('Load current care plan error:', error);
         viewerDiv.innerHTML = '<div class="error">❌ Có lỗi khi tải tài liệu</div>';
@@ -10840,11 +11285,11 @@ async function deleteCarePlan(filename) {
         alert('Chỉ Admin mới có quyền xóa tài liệu');
         return;
     }
-    
+
     if (!confirm('Bạn có chắc chắn muốn xóa tài liệu này?')) {
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/care-plans/${filename}`, {
             method: 'DELETE',
@@ -10852,16 +11297,16 @@ async function deleteCarePlan(filename) {
                 'X-User-Role': currentUserRole
             }
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             alert('✅ Xóa thành công!');
             loadCurrentCarePlan(); // Reload the viewer
         } else {
             alert('❌ Xóa thất bại: ' + result.error);
         }
-        
+
     } catch (error) {
         console.error('Delete error:', error);
         alert('❌ Có lỗi khi xóa: ' + error.message);

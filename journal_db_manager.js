@@ -623,6 +623,8 @@ class JournalDatabaseManager {
             // Get other issues (textarea)
             const otherIssues = document.getElementById(`operation_other_issues_${blockId}`)?.value || '';
             const noViolation = document.getElementById(`noViolation-${blockId}`)?.checked || false;
+            const violationDetected = document.getElementById(`violationDetected-${blockId}`)?.checked || false;
+            const dogPerformance = document.getElementById(`dogPerformance-${blockId}`)?.checked || false;
 
             operationBlocksData.push({
                 blockId: blockId,
@@ -640,7 +642,9 @@ class JournalDatabaseManager {
                 otherOperation1Checked: otherOperation1Checked,
                 otherOperation2Checked: otherOperation2Checked,
                 otherIssues: otherIssues,
-                noViolation: noViolation
+                noViolation: noViolation,
+                violationDetected: violationDetected,
+                dogPerformance: dogPerformance
             });
         });
 

@@ -16,6 +16,7 @@ care-plans/
 # Database files (if they contain sensitive data)
 *.db-wal
 *.db-shm
+*.db
 
 # Environment files
 .env

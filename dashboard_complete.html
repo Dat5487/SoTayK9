@@ -537,6 +537,11 @@
             background: #5a6fd8;
         }
     </style>
+    
+    <!-- jQuery and Select2 CSS and JS for enhanced dropdowns -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
 
 <body>
@@ -1737,7 +1742,7 @@
 <td>${user.department || '<em>Chưa có</em>'}</td>
 <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
 <td>${assignedDogsText}</td>
-<td>${user.signature ? `<img src="signatures/${user.signature}" alt="Chữ ký" style="width: 60px; height: 30px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"><span style="display:none; color: #999; font-size: 11px;">File không tồn tại</span>` : '<em>Chưa có</em>'}</td>
+<td>${user.signature ? `<img src="signatures/${user.signature}" alt="Chữ ký" style="width: 60px; height: 30px; object-fit: contain; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'"><span style="display:none; color: #999; font-size: 11px;">File không tồn tại</span>` : '<em>Chưa có</em>'}</td>
 <td><span class="status-indicator status-${user.status.toLowerCase()}">${user.status}</span></td>
 <td>
 <button class="btn btn-warning" onclick="editUser(${user.id})" style="margin-right: 5px;">Sửa</button>
@@ -2067,6 +2072,7 @@
 <td>${trainer ? trainer.name : '<em>Chưa phân công</em>'}</td>
 <td><span class="status-indicator status-${statusClass}">${dog.status}</span></td>
 <td>
+<button class="btn btn-info" onclick="viewDogJournals('${dog.name}')" style="margin-right: 5px; font-size: 12px; padding: 4px 8px;">Xem</button>
 <button class="btn btn-warning" onclick="editDog(${dog.id})" style="margin-right: 5px; font-size: 12px; padding: 4px 8px;">Sửa</button>
 <button class="btn btn-danger" onclick="deleteDog(${dog.id})" style="font-size: 12px; padding: 4px 8px;">Xóa</button>
 </td>
@@ -2076,6 +2082,200 @@
 
             html += '</tbody></table>';
             container.innerHTML = html;
+        }
+
+        // Function to view all training journals for a specific dog
+        async function viewDogJournals(dogName) {
+            try {
+                console.log('🔍 Loading journals for dog:', dogName);
+                
+                // Fetch journals from database API
+                const response = await fetch(`${API_BASE_URL}/api/journals`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to fetch journals');
+                }
+                
+                const allJournals = result.data || [];
+                
+                // Filter journals for this specific dog
+                const dogJournals = allJournals.filter(journal => 
+                    journal.dog_name === dogName
+                );
+                
+                if (dogJournals.length === 0) {
+                    alert(`Chó ${dogName} chưa có nhật ký huấn luyện nào.`);
+                    return;
+                }
+                
+                // Sort by date (newest first)
+                dogJournals.sort((a, b) => new Date(b.journal_date) - new Date(a.journal_date));
+                
+                // Create dropdown options with detailed information
+                let journalOptions = '<option value="">Chọn nhật ký để xem</option>';
+                
+                dogJournals.forEach(journal => {
+                    // Get trainer name
+                    const trainerName = journal.trainer_name || 'Chưa xác định';
+                    
+                    // Get approval status
+                    let approvalStatus = 'Chưa duyệt';
+                    if (journal.approval_status === 'APPROVED') {
+                        approvalStatus = '✅ Đã duyệt';
+                    } else if (journal.approval_status === 'REJECTED') {
+                        approvalStatus = '❌ Bị từ chối';
+                    } else {
+                        approvalStatus = '⏳ Chờ duyệt';
+                    }
+                    
+                    // Get health status
+                    const healthStatus = journal.health_status || 'Không có thông tin';
+                    
+                    // Get training activities count
+                    let trainingCount = 0;
+                    if (journal.training_activities) {
+                        try {
+                            const trainingData = JSON.parse(journal.training_activities);
+                            trainingCount = trainingData.length || 0;
+                        } catch (e) {
+                            trainingCount = 0;
+                        }
+                    }
+                    
+                    // Create display text with detailed information
+                    const displayText = `${formatDateToDDMMYYYY(journal.journal_date)} | ${trainerName} | ${approvalStatus} | Sức khỏe: ${healthStatus} | ${trainingCount} hoạt động`;
+                    
+                    journalOptions += `<option value="${journal.journal_date}|${dogName}|${journal.id}" title="${displayText}">${displayText}</option>`;
+                });
+                
+                // Create modal with dropdown (similar to viewOldJournals)
+                const modalHtml = `
+                    <div id="dogJournalsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 95%; max-height: 80vh; overflow-y: auto;">
+                            <h3 style="margin-top: 0; color: #333;">📋 XEM NHẬT KÝ HUẤN LUYỆN - ${dogName}</h3>
+                            <p style="color: #666; margin-bottom: 20px;">Tìm thấy <strong>${dogJournals.length}</strong> nhật ký. Chọn nhật ký để xem bản PDF A4:</p>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">📅 Chọn nhật ký:</label>
+                                <select id="dogJournalSelect" style="width: 100%; padding: 12px; margin: 5px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background: white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    ${journalOptions}
+                                </select>
+                            </div>
+                            
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #007bff;">
+                                <h4 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">ℹ️ Thông tin hiển thị:</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #666; font-size: 13px;">
+                                    <li><strong>Ngày:</strong> Ngày của nhật ký</li>
+                                    <li><strong>Huấn luyện viên:</strong> Người phụ trách</li>
+                                    <li><strong>Trạng thái:</strong> Đã duyệt/Chờ duyệt/Bị từ chối</li>
+                                    <li><strong>Sức khỏe:</strong> Tình trạng sức khỏe của chó</li>
+                                    <li><strong>Hoạt động:</strong> Số lượng hoạt động huấn luyện</li>
+                                </ul>
+                            </div>
+                            
+                            <div style="text-align: right; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee;">
+                                <button onclick="closeDogJournalsModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; margin-right: 10px; cursor: pointer; font-size: 14px; transition: background 0.3s;">Hủy</button>
+                                <button onclick="viewSelectedDogJournal()" style="background: #007bff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.3s;">📄 Xem PDF A4</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add modal to page
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                // Initialize Select2 on the dropdown after modal is added to DOM
+                setTimeout(() => {
+                    const selectElement = document.getElementById('dogJournalSelect');
+                    if (selectElement && typeof $ !== 'undefined' && $.fn.select2) {
+                        console.log('Initializing Select2 on dogJournalSelect');
+                        $(selectElement).select2({
+                            placeholder: 'Chọn nhật ký để xem',
+                            allowClear: true,
+                            width: '100%',
+                            dropdownParent: $('#dogJournalsModal'),
+                            language: {
+                                noResults: function() {
+                                    return 'Không tìm thấy nhật ký nào';
+                                },
+                                searching: function() {
+                                    return 'Đang tìm kiếm...';
+                                }
+                            },
+                            templateResult: function(data) {
+                                if (!data.id) {
+                                    return data.text;
+                                }
+                                
+                                // Simple template without custom styling to avoid conflicts
+                                return data.text;
+                            },
+                            templateSelection: function(data) {
+                                return data.text;
+                            }
+                        });
+                        console.log('Select2 initialized successfully');
+                    } else {
+                        console.error('Select2 initialization failed:', {
+                            selectElement: !!selectElement,
+                            jquery: typeof $ !== 'undefined',
+                            select2: typeof $ !== 'undefined' && $.fn.select2
+                        });
+                    }
+                }, 200);
+                
+            } catch (error) {
+                console.error('Error loading dog journals:', error);
+                alert('Có lỗi xảy ra khi tải nhật ký: ' + error.message);
+            }
+        }
+        
+        // Helper function to close the dog journals modal
+        function closeDogJournalsModal() {
+            const modal = document.getElementById('dogJournalsModal');
+            if (modal) {
+                // Destroy Select2 instance before removing modal
+                const selectElement = document.getElementById('dogJournalSelect');
+                if (selectElement && typeof $ !== 'undefined' && $.fn.select2 && $(selectElement).hasClass('select2-hidden-accessible')) {
+                    console.log('Destroying Select2 instance');
+                    $(selectElement).select2('destroy');
+                }
+                
+                modal.remove();
+            }
+        }
+        
+        // Function to view selected journal from dropdown
+        function viewSelectedDogJournal() {
+            const selectedValue = document.getElementById('dogJournalSelect').value;
+            
+            if (!selectedValue) {
+                alert('Vui lòng chọn nhật ký để xem!');
+                return;
+            }
+            
+            try {
+                const [date, dogName, journalId] = selectedValue.split('|');
+                
+                // Close the modal first
+                closeDogJournalsModal();
+                
+                // Open the journal in the main web application
+                const journalKey = `journal_${dogName}_${date}_${journalId}`;
+                const url = `index.html?journalKey=${encodeURIComponent(journalKey)}&view=journal`;
+                
+                // Open in new tab to preserve dashboard state
+                const newWindow = window.open(url, '_blank');
+                
+                if (!newWindow) {
+                    // If popup blocked, show alert with instructions
+                    alert(`Để xem nhật ký chi tiết, vui lòng:\n1. Cho phép popup cho trang này\n2. Hoặc copy link sau và mở trong tab mới:\n${url}`);
+                }
+            } catch (error) {
+                console.error('Error viewing selected journal:', error);
+                alert('Có lỗi xảy ra khi xem nhật ký: ' + error.message);
+            }
         }
 
         // Journal Management Functions - DATABASE API ONLY
@@ -2414,12 +2614,12 @@ ${journal.approval_status !== 'APPROVED' ? `<button class="btn btn-success" oncl
             
             try {
                 const parsed = JSON.parse(signatureData);
-                if (parsed && parsed.name && parsed.name.trim() !== '') {
+                if (parsed && parsed.name && typeof parsed.name === 'string' && parsed.name.trim() !== '') {
                     return '✅';
                 }
             } catch (e) {
                 // If parsing fails, check if it's a non-empty string
-                if (signatureData.trim() !== '') {
+                if (signatureData && typeof signatureData === 'string' && signatureData.trim() !== '') {
                     return '✅';
                 }
             }
@@ -2828,9 +3028,9 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             
             // Filter out journals with empty training data (training_activities, care_activities, operation_activities)
             const journalsWithData = uniqueJournals.filter(journal => {
-                const hasTrainingData = journal.training_activities && journal.training_activities.trim() !== '';
-                const hasCareData = journal.care_activities && journal.care_activities.trim() !== '';
-                const hasOperationData = journal.operation_activities && journal.operation_activities.trim() !== '';
+                const hasTrainingData = journal.training_activities && typeof journal.training_activities === 'string' && journal.training_activities.trim() !== '';
+                const hasCareData = journal.care_activities && typeof journal.care_activities === 'string' && journal.care_activities.trim() !== '';
+                const hasOperationData = journal.operation_activities && typeof journal.operation_activities === 'string' && journal.operation_activities.trim() !== '';
                 
                 // Only include journals that have at least one type of data
                 return hasTrainingData || hasCareData || hasOperationData;
@@ -2873,23 +3073,23 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                 data.trainingDays.add(journal.journal_date);
                 
                 // Calculate training hours from fromTime to toTime in operation_activities
-                if (journal.operation_activities && journal.operation_activities.trim()) {
+                if (journal.operation_activities && typeof journal.operation_activities === 'string' && journal.operation_activities.trim()) {
                     const trainingHours = calculateTrainingHoursFromActivities(journal.operation_activities);
                     data.trainingHours += trainingHours;
                 }
                 
                 // Count operation days and results
-                if (journal.operation_activities && journal.operation_activities.trim()) {
+                if (journal.operation_activities && typeof journal.operation_activities === 'string' && journal.operation_activities.trim()) {
                     data.operationDays.add(journal.journal_date);
                     data.operationResults.push(journal.operation_activities);
                 }
                 
                 // Collect care activities and health status
-                if (journal.care_activities && journal.care_activities.trim()) {
+                if (journal.care_activities && typeof journal.care_activities === 'string' && journal.care_activities.trim()) {
                     data.careActivities.push(journal.care_activities);
                 }
                 
-                if (journal.health_status && journal.health_status.trim()) {
+                if (journal.health_status && typeof journal.health_status === 'string' && journal.health_status.trim()) {
                     data.healthStatus.push(journal.health_status);
                 }
             });
@@ -2941,7 +3141,7 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
                     const trainingDays = monthData ? monthData.trainingDays.size : 0;
                     const trainingHours = monthData ? Math.round(monthData.trainingHours * 10) / 10 : 0;
                     const operationDays = monthData ? monthData.operationDays.size : 0;
-                    const operationResults = monthData && monthData.operationDays.size > 0 ? 'Tốt' : '-';
+                    const operationResults = monthData && monthData.operationDays.size > 0 ? getOperationResultsDisplay(monthData) : '-';
                     const careSchedule = monthData && monthData.journalDates.size > 0 ? 
                         Array.from(monthData.journalDates).sort().map(date => formatDateToDDMMYYYY(date)).join(', ') : '-';
                     const healthStatus = monthData && monthData.healthStatus.length > 0 ? 
@@ -3023,6 +3223,13 @@ ${!(journal.approvalStatus && journal.approvalStatus.includes('Đã duyệt')) ?
             });
             
             return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+        }
+
+        function getOperationResultsDisplay(monthData) {
+            // For now, return a simple display since we need to analyze the operation data
+            // This could be enhanced to show specific operation results from the journal data
+            const hasOperations = monthData.operationDays && monthData.operationDays.size > 0;
+            return hasOperations ? 'Có hoạt động' : '-';
         }
 
         function getHealthStatusClass(healthStatus) {
