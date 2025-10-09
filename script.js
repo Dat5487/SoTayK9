@@ -1811,25 +1811,25 @@ function showContent(type) {
             <h2>Điều 12. Nguyên tắc chăm sóc, huấn luyện chó nghiệp vụ</h2>
             <ol>
                 <li>Việc chăm sóc, huấn luyện chó nghiệp vụ là công việc phải thực hiện hằng ngày. Huấn luyện viên chịu trách nhiệm hoàn toàn việc chăm sóc sức khỏe và huấn luyện chó nghiệp vụ do mình quản lý.</li>
-                <li>Huấn luyện thường xuyên, liên tục trong suốt quá trình sử dụng CNV.</li>
+                <li>Huấn luyện thường xuyên, liên tục trong suốt quá trình sử dụng chó nghiệp vụ.</li>
                 <li>Coi trọng cả ba nội dung: huấn luyện thể lực - kỷ luật, huấn luyện củng cố và huấn luyện nâng cao năng lực.</li>
-                <li>Huấn luyện sát thực tế địa bàn nơi công tác của huấn luyện viên và môi trường tác nghiệp của CNV.</li>
-                <li>Quy định này không áp dụng đối với huấn luyện viên, CNV đang tập huấn tại các cơ sở huấn luyện CNV.</li>
-                <li>Mọi trường hợp CNV bị bệnh, suy giảm sức khỏe, hoặc bị chết bởi yếu tố chủ quan, thiếu trách nhiệm; CNV bị suy giảm năng lực tác nghiệp, hoặc không được huấn luyện và sử dụng theo quy định đều phải kiểm điểm, xem xét trách nhiệm huấn luyện viên, các đơn vị liên quan và đơn vị quản lý. Nếu có vi phạm các quy định do lỗi chủ quan thì hạ bậc thi đua, xem xét kỷ luật.</li>
+                <li>Huấn luyện sát thực tế địa bàn nơi công tác của huấn luyện viên và môi trường tác nghiệp của chó nghiệp vụ.</li>
+                <li>Quy định này không áp dụng đối với huấn luyện viên, chó nghiệp vụ đang tập huấn tại các cơ sở huấn luyện chó nghiệp vụ.</li>
+                <li>Mọi trường hợp chó nghiệp vụ bị bệnh, suy giảm sức khỏe, hoặc bị chết bởi yếu tố chủ quan, thiếu trách nhiệm; chó nghiệp vụ bị suy giảm năng lực tác nghiệp, hoặc không được huấn luyện và sử dụng theo quy định đều phải kiểm điểm, xem xét trách nhiệm huấn luyện viên, các đơn vị liên quan và đơn vị quản lý. Nếu có vi phạm các quy định do lỗi chủ quan thì hạ bậc thi đua, xem xét kỷ luật.</li>
             </ol>
 
             <h2>Điều 13. Quy trình công tác chăm sóc, huấn luyện chó nghiệp vụ hằng ngày của huấn luyện viên và nhân viên chăn nuôi, nhân giống</h2>
 
             <h3>Nội dung công việc</h3>
 
-            <p><strong>1.1.</strong> Từ khi nhận chó nghiệp vụ đến khi thải loại, huấn luyện viên, nhân viên nhân giống, chăn nuôi đảm nhiệm hoàn toàn và có trách nhiệm thực hiện đúng, đủ mọi quy định về chăm sóc, nuôi dưỡng, huấn luyện, sử dụng CNV. Nếu có vi phạm các quy định do lỗi chủ quan thì phải bị hạ bậc thi đua và xem xét kỷ luật. Kết quả nuôi dưỡng, huấn luyện, sử dụng CNV là căn cứ quan trọng nhất đánh giá kết quả công tác, bình xét thi đua khen thưởng và kỷ luật đối với huấn luyện viên.</p>
+            <p><strong>1.1.</strong> Từ khi nhận chó nghiệp vụ đến khi thải loại, huấn luyện viên, nhân viên nhân giống, chăn nuôi đảm nhiệm hoàn toàn và có trách nhiệm thực hiện đúng, đủ mọi quy định về chăm sóc, nuôi dưỡng, huấn luyện, sử dụng chó nghiệp vụ. Nếu có vi phạm các quy định do lỗi chủ quan thì phải bị hạ bậc thi đua và xem xét kỷ luật. Kết quả nuôi dưỡng, huấn luyện, sử dụng chó nghiệp vụ là căn cứ quan trọng nhất đánh giá kết quả công tác, bình xét thi đua khen thưởng và kỷ luật đối với huấn luyện viên.</p>
 
-            <p>Huấn luyện viên và nhân viên chăn nuôi, nhân giống có nhiệm vụ đảm bảo khẩu phần ăn và đủ nước sạch cho chó uống; đủ thuốc phòng chữa bệnh thông thường. Dọn dẹp vệ sinh chuồng trại và môi trường xung quanh, đảm bảo khô, thoáng, sạch. Môi trường xung quanh đảm bảo vệ sinh. Đảm bảo CNV luôn khỏe mạnh để huấn luyện, tác nghiệp hoặc sinh sản làm giống, cụ thể:</p>
+            <p>Huấn luyện viên và nhân viên chăn nuôi, nhân giống có nhiệm vụ đảm bảo khẩu phần ăn và đủ nước sạch cho chó uống; đủ thuốc phòng chữa bệnh thông thường. Dọn dẹp vệ sinh chuồng trại và môi trường xung quanh, đảm bảo khô, thoáng, sạch. Môi trường xung quanh đảm bảo vệ sinh. Đảm bảo chó nghiệp vụ luôn khỏe mạnh để huấn luyện, tác nghiệp hoặc sinh sản làm giống, cụ thể:</p>
 
             <ul>
                 <li><strong>a. Vệ sinh chuồng nuôi:</strong>
                 <ul>
-                    <li>Dọn vệ sinh nền chuồng, tường, hàng rào bên trong chuồng nuôi CNV;</li>
+                    <li>Dọn vệ sinh nền chuồng, tường, hàng rào bên trong chuồng nuôi chó nghiệp vụ;</li>
                     <li>Kiểm tra, diệt ve, bọ, ký sinh trùng trong chuồng (nếu có);</li>
                     <li>Quét dọn vệ sinh khu vực xung quanh chuồng chó;</li>
                 </ul>
@@ -1859,27 +1859,27 @@ function showContent(type) {
                 </li>
             </ul>
 
-            <p><strong>1.2.</strong> Huấn luyện viên phải chấp hành nghiêm chỉnh quy định về huấn luyện, sử dụng CNV bao gồm:</p>
+            <p><strong>1.2.</strong> Huấn luyện viên phải chấp hành nghiêm chỉnh quy định về huấn luyện, sử dụng chó nghiệp vụ bao gồm:</p>
 
             <ul>
                 <li>Lập kế hoạch huấn luyện: Cụ thể nội dung huấn luyện về thể lực, kỷ luật và nghiệp vụ; thời gian và địa điểm huấn luyện. Tổng thời gian huấn luyện hằng ngày không dưới 90 phút. Ghi chép tiến độ, nội dung và kết quả, đề xuất kiến nghị.</li>
-                <li>Xây dựng và thực hiện kế hoạch huấn luyện củng cố năng lực cho CNV khi kiểm tra không đạt yêu cầu.</li>
+                <li>Xây dựng và thực hiện kế hoạch huấn luyện củng cố năng lực cho chó nghiệp vụ khi kiểm tra không đạt yêu cầu.</li>
                 <li>Thực hiện kế hoạch huấn luyện: do huấn luyện viên chủ động thực hiện phù hợp với thời tiết, sức khỏe và môi trường luyện tập.</li>
-                <li>Huấn luyện thường xuyên, củng cố năng lực cho CNV. Yêu cầu CNV không suy giảm thể lực, có tiến bộ về năng lực so với khi tốt nghiệp.</li>
-                <li>Huấn luyện nâng cao tại môi trường công tác. Yêu cầu CNV thích nghi môi trường tác nghiệp, hưng phấn khi hoạt động, phát hiện các mẫu ma túy giấu chỗ khó tìm, có mùi ngụy trang, có độ khuyếch tán thấp.</li>
-                <li>Huấn luyện chó phát hiện ma túy (huấn luyện củng cố và huấn luyện nâng cao): mỗi CNV phải được tập luyện tối thiểu 03 lần, mỗi lần tối thiểu 10 phút trong một buổi tập.</li>
+                <li>Huấn luyện thường xuyên, củng cố năng lực cho chó nghiệp vụ. Yêu cầu chó nghiệp vụ không suy giảm thể lực, có tiến bộ về năng lực so với khi tốt nghiệp.</li>
+                <li>Huấn luyện nâng cao tại môi trường công tác. Yêu cầu chó nghiệp vụ thích nghi môi trường tác nghiệp, hưng phấn khi hoạt động, phát hiện các mẫu ma túy giấu chỗ khó tìm, có mùi ngụy trang, có độ khuyếch tán thấp.</li>
+                <li>Huấn luyện chó phát hiện ma túy (huấn luyện củng cố và huấn luyện nâng cao): mỗi chó nghiệp vụ phải được tập luyện tối thiểu 03 lần, mỗi lần tối thiểu 10 phút trong một buổi tập.</li>
                 <li>Huấn luyện các động tác cơ bản: thực hiện 02 lượt các động tác cơ bản và thể lực như: đi, đứng, nằm, ngồi, về chỗ, cắp vật...</li>
                 <li>Cập nhật, ghi chép đầy đủ vào Sổ nhật ký, cấm hồi ký. (có xác nhận của lãnh đạo phụ trách).</li>
-                <li>Đối với CNV không đạt yêu cầu huấn luyện viên không đạt danh hiệu hoàn thành nhiệm vụ được phân công.</li>
-                <li>Khi sử dụng CNV: Huấn luyện viên và CNV có mặt đúng giờ, với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường, sử dụng CNV theo các quy trình do Tổng cục ban hành.</li>
+                <li>Đối với chó nghiệp vụ không đạt yêu cầu huấn luyện viên không đạt danh hiệu hoàn thành nhiệm vụ được phân công.</li>
+                <li>Khi sử dụng chó nghiệp vụ: Huấn luyện viên và chó nghiệp vụ có mặt đúng giờ, với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường, sử dụng chó nghiệp vụ theo các quy trình do Tổng cục ban hành.</li>
                 <li>Chuẩn bị đầy đủ dụng cụ, trang thiết bị huấn luyện: Mẫu tập; Trang thiết bị chuyên dụng: panh tập, găng tay, dây cương, rọ mõm, cổ dề, vật thưởng; Các vật dụng khác tùy theo nội dung tập luyện: va ly, thùng carton...</li>
             </ul>
 
             <p><strong>1.3.</strong> Huấn luyện viên phải lập và thực hiện thời gian biểu công việc hằng ngày, ghi chép nội dung, kết quả công tác và kiến nghị nếu có vào Sổ nhật ký:</p>
             <ul>
                 <li>Công việc chăm sóc nuôi dưỡng.</li>
-                <li>Nội dung, phương pháp, thời gian, địa điểm huấn luyện về thể lực và nghiệp vụ cho CNV.</li>
-                <li>Diễn biến và kết quả sử dụng CNV tác nghiệp.</li>
+                <li>Nội dung, phương pháp, thời gian, địa điểm huấn luyện về thể lực và nghiệp vụ cho chó nghiệp vụ.</li>
+                <li>Diễn biến và kết quả sử dụng chó nghiệp vụ tác nghiệp.</li>
             </ul>
 
             <h3>2. Thời gian biểu thực hiện:</h3>
@@ -1887,23 +1887,23 @@ function showContent(type) {
                 <li>Vệ sinh chuồng trại: vào đầu giờ sáng trước khi làm việc và cuối buổi chiều khi kết thúc ngày làm việc, cụ thể: 07h00’ - 07h20’ và 16h45’ - 17h00’;</li>
                 <li>Cho chó dạo chơi, vận động và kiểm tra sức khỏe chó: 07h20’ - 07h45’;</li>
                 <li>Chuẩn bị dụng cụ, trang bị huấn luyện: 07h45’ - 08h00’, 13h45’ - 14h00’;</li>
-                <li>Huấn luyện CNV: từ 08h00’ đến 09h00’; 14h00’ - 15h00’;</li>
+                <li>Huấn luyện chó nghiệp vụ: từ 08h00’ đến 09h00’; 14h00’ - 15h00’;</li>
                 <li>Cho chó ăn: 10h30’ - 11h00’ và 16h30’ - 17h00’.</li>
             </ul>
 
             <p>Nếu do công việc hoặc thời tiết bất thường không thể thực hiện các công việc theo đúng lịch trên thì huấn luyện viên báo cáo với lãnh đạo để điều chỉnh lịch cho phù hợp vào thời gian khác trong cùng ngày làm việc; tuy nhiên, phải đảm bảo đúng, đủ nội dung và thời lượng của từng công việc nêu trên.</p>
 
-            <p><strong>3.</strong> Đối với nhân viên chăn nuôi, nhân giống không thực hiện các nội dung liên quan đến công tác huấn luyện và sử dụng CNV.</p>
+            <p><strong>3.</strong> Đối với nhân viên chăn nuôi, nhân giống không thực hiện các nội dung liên quan đến công tác huấn luyện và sử dụng chó nghiệp vụ.</p>
 
             <h2>Điều 14. Đánh giá kết quả nuôi dưỡng và phòng chữa bệnh</h2>
             <ul>
-                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Giỏi:</strong> Là huấn luyện viên thực hiện đúng mọi công việc trong quy trình và trách nhiệm chăm sóc nuôi dưỡng; CNV khỏe mạnh đáp ứng yêu cầu huấn luyện và sử dụng.</li>
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Giỏi:</strong> Là huấn luyện viên thực hiện đúng mọi công việc trong quy trình và trách nhiệm chăm sóc nuôi dưỡng; chó nghiệp vụ khỏe mạnh đáp ứng yêu cầu huấn luyện và sử dụng.</li>
 
-                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Khá:</strong> Là huấn luyện viên thực hiện đúng theo quy định về trách nhiệm của huấn luyện viên, không để CNV bị bệnh nhưng thể lực CNV còn hạn chế (ví dụ: sức bền làm việc của CNV ngắn dưới 10 phút, chó quá béo hoặc gầy yếu thiếu cân) hoặc do một số điều kiện khách quan chưa khắc phục được (chuồng nuôi, môi trường không đảm bảo).</li>
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Khá:</strong> Là huấn luyện viên thực hiện đúng theo quy định về trách nhiệm của huấn luyện viên, không để chó nghiệp vụ bị bệnh nhưng thể lực chó nghiệp vụ còn hạn chế (ví dụ: sức bền làm việc của chó nghiệp vụ ngắn dưới 10 phút, chó quá béo hoặc gầy yếu thiếu cân) hoặc do một số điều kiện khách quan chưa khắc phục được (chuồng nuôi, môi trường không đảm bảo).</li>
 
-                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Trung bình:</strong> Là huấn luyện viên thực hiện không đầy đủ theo quy định hoặc để CNV bị bệnh.</li>
+                <li><strong>Công tác nuôi dưỡng, chăm sóc đạt loại Trung bình:</strong> Là huấn luyện viên thực hiện không đầy đủ theo quy định hoặc để chó nghiệp vụ bị bệnh.</li>
 
-                <li><strong>Công tác nuôi dưỡng, chăm sóc không đạt yêu cầu:</strong> Là huấn luyện viên thực hiện không theo quy định và để CNV bị ốm bệnh, phát hiện muộn phải thải loại hoặc CNV bị chết.</li>
+                <li><strong>Công tác nuôi dưỡng, chăm sóc không đạt yêu cầu:</strong> Là huấn luyện viên thực hiện không theo quy định và để chó nghiệp vụ bị ốm bệnh, phát hiện muộn phải thải loại hoặc chó nghiệp vụ bị chết.</li>
             </ul>
             </main>
             `;
@@ -1919,22 +1919,22 @@ function showContent(type) {
             <h2>Điều 15. Huấn luyện thể lực và kỷ luật</h2>
 
             <p><strong>1. Nội dung động tác cơ bản và kỷ luật:</strong></p>
-            <p>Huấn luyện CNV thực hiện các động tác: Đi, đứng, nằm, ngồi bên cạnh chủ; điều khiển ngửi, sủa, gọi lại, cắp vật, vượt chướng ngại vật.</p>
+            <p>Huấn luyện chó nghiệp vụ thực hiện các động tác: Đi, đứng, nằm, ngồi bên cạnh chủ; điều khiển ngửi, sủa, gọi lại, cắp vật, vượt chướng ngại vật.</p>
 
             <p><strong>2. Nội dung tập thể lực:</strong></p>
             <ul>
-                <li>Hằng ngày huấn luyện viên tập thể lực cho CNV: bơi, chui ống, chạy trên cầu độc mộc, nhảy vượt chướng ngại vật, nhảy qua vòng.</li>
-                <li>Hằng tuần huấn luyện viên phải cho CNV dã ngoại vận động hai lần, mỗi lần (hành quân và chạy bộ) từ 2km đến 5km.</li>
-                <li>Việc tập cơ bản, thể lực phải thực hiện sau khi đã tập chuyên khoa. Sau khi hoàn thành huấn luyện thể lực, huấn luyện viên kiểm tra hệ vận động, cho CNV uống nước, chải lông và cho CNV nghỉ ngơi xong mới chuẩn bị công tác tác nghiệp.</li>
+                <li>Hằng ngày huấn luyện viên tập thể lực cho chó nghiệp vụ: bơi, chui ống, chạy trên cầu độc mộc, nhảy vượt chướng ngại vật, nhảy qua vòng.</li>
+                <li>Hằng tuần huấn luyện viên phải cho chó nghiệp vụ dã ngoại vận động hai lần, mỗi lần (hành quân và chạy bộ) từ 2km đến 5km.</li>
+                <li>Việc tập cơ bản, thể lực phải thực hiện sau khi đã tập chuyên khoa. Sau khi hoàn thành huấn luyện thể lực, huấn luyện viên kiểm tra hệ vận động, cho chó nghiệp vụ uống nước, chải lông và cho chó nghiệp vụ nghỉ ngơi xong mới chuẩn bị công tác tác nghiệp.</li>
             </ul>
 
             <p><strong>3. Yêu cầu đối với chó nghiệp vụ:</strong></p>
-            <p>Hoàn thành các nội dung, khối lượng huấn luyện; CNV duy trì vững chắc các phản xạ có điều kiện và thực hiện chính xác, thuần thục từng động tác dựa trên khẩu lệnh, điệu bộ của huấn luyện viên; có sức bền, sự dẻo dai trong quá trình tác nghiệp liên tục tối thiểu 5 phút ngoài trời mùa nóng, 10-15 phút trên phương tiện, 15-20 phút trong bóng râm.</p>
+            <p>Hoàn thành các nội dung, khối lượng huấn luyện; chó nghiệp vụ duy trì vững chắc các phản xạ có điều kiện và thực hiện chính xác, thuần thục từng động tác dựa trên khẩu lệnh, điệu bộ của huấn luyện viên; có sức bền, sự dẻo dai trong quá trình tác nghiệp liên tục tối thiểu 5 phút ngoài trời mùa nóng, 10-15 phút trên phương tiện, 15-20 phút trong bóng râm.</p>
 
             <p><strong>4. Yêu cầu đối với huấn luyện viên:</strong></p>
             <ul>
                 <li>Thực hiện hết khối lượng huấn luyện, có động tác, cử chỉ dứt khoát, khẩu lệnh to rõ ràng, tác phong nhanh nhẹn.</li>
-                <li>Điều khiển được CNV hoạt động theo khẩu lệnh; CNV hưng phấn, quấn chủ không có biểu hiện tự do hay sợ hãi.</li>
+                <li>Điều khiển được chó nghiệp vụ hoạt động theo khẩu lệnh; chó nghiệp vụ hưng phấn, quấn chủ không có biểu hiện tự do hay sợ hãi.</li>
                 <li>Xử lý kịp thời những tình huống phát sinh trong quá trình huấn luyện.</li>
             </ul>
 
@@ -1955,23 +1955,23 @@ function showContent(type) {
 
             <h2>Điều 17. Huấn luyện nâng cao năng lực cho chó nghiệp vụ</h2>
 
-            <p>Huấn luyện nâng cao năng lực của CNV thực hiện theo phương châm huấn luyện củng cố rồi nâng cao và củng cố rồi tiếp tục nâng cao. Huấn luyện theo các tình huống tại cửa khẩu như sau:</p>
+            <p>Huấn luyện nâng cao năng lực của chó nghiệp vụ thực hiện theo phương châm huấn luyện củng cố rồi nâng cao và củng cố rồi tiếp tục nâng cao. Huấn luyện theo các tình huống tại cửa khẩu như sau:</p>
             <ul>
-                <li>Trực tiếp giấu mẫu tập vào kho hàng, hàng hóa, hành lý, phương tiện vận chuyển qua lại tại khu cửa khẩu. Hướng dẫn CNV tìm từ thấp lên cao, từ ngoài vào trong.</li>
-                <li>Khi CNV thành thục phản xạ tìm kiếm, hướng tới không cần phải điều khiển, chỉ dẫn CNV tìm kiếm vào khu vực cần kiểm tra, để CNV sẽ tự tìm kiếm theo phản xạ đã được huấn luyện.</li>
-                <li>Trực tiếp giấu mẫu tập trên người theo dõi đánh giá khả năng phát hiện nguồn hơi của CNV. Từ biểu hiện tìm kiếm ngửi đến khả năng phát hiện nguồn hơi và phản ứng của CNV với mẫu tập cụ thể.</li>
-                <li>Yêu cầu: CNV hưng phấn khi tác nghiệp phát hiện ra các mẫu ma túy được cất giấu tinh vi, độ khuyếch tán thấp hoặc có mùi ngụy trang; chó có biểu hiện chính xác (cào, sủa, ngồi), phản ứng rõ ràng với các nguồn hơi ma túy.</li>
-                <li>Đối với CNV được giao tại cửa khẩu sân bay quốc tế CNV phải có khả năng lùng sục tìm kiếm thời gian kéo dài trên băng chuyền, có khả năng ngửi người tốt.</li>
-                <li>Đối với CNV được giao tại các cảng biển, cảng sông quốc tế thời gian tác nghiệp đạt tối thiểu 10 phút ngoài trời mùa nóng, từ 10–15 phút trên phương tiện, từ 15–20 phút trong bóng râm. CNV có khả năng nhảy cao, sục tìm trong tàu thuyền, ca nô, container, phương tiện xe ô tô, chịu khó ngửi trong điều kiện thời tiết nóng.</li>
+                <li>Trực tiếp giấu mẫu tập vào kho hàng, hàng hóa, hành lý, phương tiện vận chuyển qua lại tại khu cửa khẩu. Hướng dẫn chó nghiệp vụ tìm từ thấp lên cao, từ ngoài vào trong.</li>
+                <li>Khi chó nghiệp vụ thành thục phản xạ tìm kiếm, hướng tới không cần phải điều khiển, chỉ dẫn chó nghiệp vụ tìm kiếm vào khu vực cần kiểm tra, để chó nghiệp vụ sẽ tự tìm kiếm theo phản xạ đã được huấn luyện.</li>
+                <li>Trực tiếp giấu mẫu tập trên người theo dõi đánh giá khả năng phát hiện nguồn hơi của chó nghiệp vụ. Từ biểu hiện tìm kiếm ngửi đến khả năng phát hiện nguồn hơi và phản ứng của chó nghiệp vụ với mẫu tập cụ thể.</li>
+                <li>Yêu cầu: chó nghiệp vụ hưng phấn khi tác nghiệp phát hiện ra các mẫu ma túy được cất giấu tinh vi, độ khuyếch tán thấp hoặc có mùi ngụy trang; chó có biểu hiện chính xác (cào, sủa, ngồi), phản ứng rõ ràng với các nguồn hơi ma túy.</li>
+                <li>Đối với chó nghiệp vụ được giao tại cửa khẩu sân bay quốc tế chó nghiệp vụ phải có khả năng lùng sục tìm kiếm thời gian kéo dài trên băng chuyền, có khả năng ngửi người tốt.</li>
+                <li>Đối với chó nghiệp vụ được giao tại các cảng biển, cảng sông quốc tế thời gian tác nghiệp đạt tối thiểu 10 phút ngoài trời mùa nóng, từ 10–15 phút trên phương tiện, từ 15–20 phút trong bóng râm. chó nghiệp vụ có khả năng nhảy cao, sục tìm trong tàu thuyền, ca nô, container, phương tiện xe ô tô, chịu khó ngửi trong điều kiện thời tiết nóng.</li>
             </ul>
 
             <h2>Điều 18. Đánh giá kết quả huấn luyện chó nghiệp vụ</h2>
 
             <p><strong>1. Phương pháp đánh giá:</strong></p>
             <ul>
-                <li>Đánh giá bằng kiểm tra trực tiếp việc thực hiện các động tác cơ bản và hoạt động thể lực của CNV.</li>
-                <li>Đánh giá kết quả huấn luyện bằng số lượng mẫu tập do CNV lùng sục, phát hiện ngay tại khu vực huấn luyện, làm việc hằng ngày (khi kiểm tra không giấu quá 3 mẫu).</li>
-                <li>Đánh giá định tính về tính độc lập, sự tập trung và hưng phấn, dẻo dai và tuân lệnh huấn luyện viên trong quá trình làm việc của CNV.</li>
+                <li>Đánh giá bằng kiểm tra trực tiếp việc thực hiện các động tác cơ bản và hoạt động thể lực của chó nghiệp vụ.</li>
+                <li>Đánh giá kết quả huấn luyện bằng số lượng mẫu tập do chó nghiệp vụ lùng sục, phát hiện ngay tại khu vực huấn luyện, làm việc hằng ngày (khi kiểm tra không giấu quá 3 mẫu).</li>
+                <li>Đánh giá định tính về tính độc lập, sự tập trung và hưng phấn, dẻo dai và tuân lệnh huấn luyện viên trong quá trình làm việc của chó nghiệp vụ.</li>
             </ul>
 
             <p><strong>2. Tiêu chuẩn đánh giá:</strong></p>
@@ -1993,16 +1993,16 @@ function showContent(type) {
             </ul>
 
             <h3>2.3. Chó nghiệp vụ trung bình</h3>
-            <p>Chó nghiệp vụ có phản xạ tìm kiếm vững chắc, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra, CNV phát hiện từ 02 mẫu trở lên và mắc một trong các lỗi dưới đây:</p>
+            <p>Chó nghiệp vụ có phản xạ tìm kiếm vững chắc, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra, chó nghiệp vụ phát hiện từ 02 mẫu trở lên và mắc một trong các lỗi dưới đây:</p>
             <ul>
-                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra nhưng khi được định hướng CNV kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra nhưng khi được định hướng chó nghiệp vụ kiểm tra lại đầy đủ.</li>
                 <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
             </ul>
 
             <h3>2.4. Chó nghiệp vụ không đạt yêu cầu</h3>
             <p><strong>a.</strong> Chó nghiệp vụ có phản xạ tìm kiếm, đảm bảo sức bền, sự dẻo dai, tập trung và hưng phấn trong quá trình kiểm tra nhưng mắc 02/03 lỗi dưới đây:</p>
             <ul>
-                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra. Nhưng khi được định hướng CNV kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra. Nhưng khi được định hướng chó nghiệp vụ kiểm tra lại đầy đủ.</li>
                 <li>Chó nghiệp vụ phát hiện dưới 02 mẫu.</li>
                 <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
             </ul>
@@ -2010,7 +2010,7 @@ function showContent(type) {
             <p><strong>b.</strong> Chó nghiệp vụ mắc 03 lỗi trở lên dưới đây:</p>
             <ul>
                 <li>Phản xạ tìm kiếm không vững chắc, chóng chán, không tập trung, có biểu hiện ức chế, không chịu ngửi.</li>
-                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra, khi được định hướng CNV không kiểm tra lại đầy đủ.</li>
+                <li>Chó nghiệp vụ bỏ sót một số khu vực, phương tiện... được yêu cầu kiểm tra, khi được định hướng chó nghiệp vụ không kiểm tra lại đầy đủ.</li>
                 <li>Chó nghiệp vụ phát hiện dưới 02 mẫu.</li>
                 <li>Chó nghiệp vụ có biểu hiện khi phát hiện vật nhưng không rõ ràng.</li>
             </ul>
@@ -2027,45 +2027,45 @@ function showContent(type) {
 
             <p><strong>1.</strong> Đối với Cục Điều tra chống buôn lậu: Thực hiện theo điều động của cấp có thẩm quyền, theo chuyên án hoặc tăng cường đột xuất, có thời hạn cho các đơn vị khi có yêu cầu.</p>
 
-            <p><strong>2.</strong> Đối với các Cục Hải quan tỉnh, thành phố được giao CNV:</p>
+            <p><strong>2.</strong> Đối với các Cục Hải quan tỉnh, thành phố được giao chó nghiệp vụ:</p>
             <ol>
                 <li>
                 <p><strong>2.1.</strong> Tổ chức nắm tình hình về hoạt động buôn bán, vận chuyển trái phép các chất ma túy, chất nổ qua biên giới; xác định mức độ rủi ro, khả năng tội phạm lợi dụng hoạt động xuất nhập khẩu, xuất nhập cảnh để buôn bán, vận chuyển trái phép các loại hàng cấm qua địa bàn đơn vị quản lý.</p>
                 </li>
 
                 <li>
-                <p><strong>2.2.</strong> Chỉ đạo xây dựng, phê duyệt và tổ chức thực hiện kế hoạch sử dụng CNV vào công tác kiểm tra phát hiện. Nội dung kế hoạch phải cụ thể về:</p>
+                <p><strong>2.2.</strong> Chỉ đạo xây dựng, phê duyệt và tổ chức thực hiện kế hoạch sử dụng chó nghiệp vụ vào công tác kiểm tra phát hiện. Nội dung kế hoạch phải cụ thể về:</p>
                 <ul>
                     <li>Loại mục tiêu, đối tượng lựa chọn kiểm tra;</li>
-                    <li>Nội dung kiểm tra, việc phối hợp giữa sử dụng CNV với các biện pháp nghiệp vụ hải quan khác;</li>
-                    <li>Thời gian, địa điểm, số lượng CNV được sử dụng;</li>
+                    <li>Nội dung kiểm tra, việc phối hợp giữa sử dụng chó nghiệp vụ với các biện pháp nghiệp vụ hải quan khác;</li>
+                    <li>Thời gian, địa điểm, số lượng chó nghiệp vụ được sử dụng;</li>
                     <li>Công tác đảm bảo và phương án xử lý khi phát hiện ra ma túy, chất nổ;</li>
-                    <li>Đảm bảo mỗi CNV phải được tác nghiệp tại hiện trường tối thiểu 2 lần (30-40 phút/lần) trong một ngày làm việc.</li>
+                    <li>Đảm bảo mỗi chó nghiệp vụ phải được tác nghiệp tại hiện trường tối thiểu 2 lần (30-40 phút/lần) trong một ngày làm việc.</li>
                 </ul>
                 </li>
 
                 <li>
-                <p><strong>2.3.</strong> Sử dụng CNV theo quyết định của cấp có thẩm quyền.</p>
+                <p><strong>2.3.</strong> Sử dụng chó nghiệp vụ theo quyết định của cấp có thẩm quyền.</p>
                 </li>
 
                 <li>
-                <p><strong>2.4.</strong> Chấp hành chỉ đạo về nghiệp vụ quản lý, sử dụng và điều động CNV của Cục trưởng Cục Điều tra chống buôn lậu, Cục trưởng Cục Hải quan tỉnh, liên tỉnh, thành phố trực tiếp quản lý.</p>
+                <p><strong>2.4.</strong> Chấp hành chỉ đạo về nghiệp vụ quản lý, sử dụng và điều động chó nghiệp vụ của Cục trưởng Cục Điều tra chống buôn lậu, Cục trưởng Cục Hải quan tỉnh, liên tỉnh, thành phố trực tiếp quản lý.</p>
                 </li>
             </ol>
 
             <h2>Điều 23. Nhiệm vụ của huấn luyện viên trong quá trình sử dụng chó nghiệp vụ</h2>
 
-            <p>Có mặt đúng giờ cùng CNV với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường. Huấn luyện viên sử dụng CNV theo các quy trình do Tổng cục Hải quan ban hành; sử dụng CNV đúng việc, đúng chỗ, đúng thời điểm, phát huy năng lực phòng ngừa tội phạm và phát hiện hàng cấm của CNV.</p>
+            <p>Có mặt đúng giờ cùng chó nghiệp vụ với trang bị đầy đủ, sẵn sàng thực hiện theo mệnh lệnh của cán bộ lãnh đạo tại hiện trường. Huấn luyện viên sử dụng chó nghiệp vụ theo các quy trình do Tổng cục Hải quan ban hành; sử dụng chó nghiệp vụ đúng việc, đúng chỗ, đúng thời điểm, phát huy năng lực phòng ngừa tội phạm và phát hiện hàng cấm của chó nghiệp vụ.</p>
 
             <ol>
                 <li>
-                <p> Sử dụng CNV để tuần tra, kiểm tra, khám xét theo kế hoạch, quyết định của cấp có thẩm quyền quy định tại Điều 24 của quy định này.</p>
+                <p> Sử dụng chó nghiệp vụ để tuần tra, kiểm tra, khám xét theo kế hoạch, quyết định của cấp có thẩm quyền quy định tại Điều 24 của quy định này.</p>
                 </li>
                 <li>
                 <p> Thực hiện đúng quy trình, thao tác nghiệp vụ đã được huấn luyện; có thái độ văn minh lịch sự, tôn trọng và có ý thức bảo vệ tài sản của khách hàng.</p>
                 </li>
                 <li>
-                <p> Khi CNV phát hiện có nguồn hơi các loại hàng cấm phải thông báo ngay cho công chức hải quan phối hợp kiểm tra biết và thực hiện các biện pháp bảo vệ, khẩn trương lục soát thu giữ tang vật, truy bắt đối tượng. Báo cáo ngay cho lãnh đạo để xin ý kiến chỉ đạo.</p>
+                <p> Khi chó nghiệp vụ phát hiện có nguồn hơi các loại hàng cấm phải thông báo ngay cho công chức hải quan phối hợp kiểm tra biết và thực hiện các biện pháp bảo vệ, khẩn trương lục soát thu giữ tang vật, truy bắt đối tượng. Báo cáo ngay cho lãnh đạo để xin ý kiến chỉ đạo.</p>
                 </li>
             </ol>
 
@@ -2075,36 +2075,36 @@ function showContent(type) {
             <ul>
                 <li>Tổng cục trưởng Tổng cục Hải quan.</li>
                 <li>Cục trưởng Cục Điều tra chống buôn lậu; Cục trưởng Cục Hải quan tỉnh, liên tỉnh, thành phố.</li>
-                <li>Đội trưởng Đội Quản lý, huấn luyện và sử dụng CNV, Đội trưởng Đội Kiểm soát ma túy thuộc Cục Điều tra chống buôn lậu, Chi cục trưởng Chi cục Hải quan, Đội trưởng Đội Kiểm soát phòng, chống ma túy, Đội kiểm soát Hải quan thuộc Cục Hải quan tỉnh, thành phố.</li>
+                <li>Đội trưởng Đội Quản lý, huấn luyện và sử dụng chó nghiệp vụ, Đội trưởng Đội Kiểm soát ma túy thuộc Cục Điều tra chống buôn lậu, Chi cục trưởng Chi cục Hải quan, Đội trưởng Đội Kiểm soát phòng, chống ma túy, Đội kiểm soát Hải quan thuộc Cục Hải quan tỉnh, thành phố.</li>
                 <li>Hoặc người được uỷ quyền theo quy định của pháp luật.</li>
             </ul>
 
-            <p><strong>2.</strong> Thẩm quyền điều động CNV:</p>
+            <p><strong>2.</strong> Thẩm quyền điều động chó nghiệp vụ:</p>
             <ul>
-                <li>Tổng cục trưởng Tổng cục Hải quan có quyền điều động CNV kèm huấn luyện viên trong toàn ngành.</li>
-                <li>Cục trưởng Cục Điều tra chống buôn lậu có quyền điều động CNV kèm huấn luyện viên trong toàn ngành để sử dụng trong những trường hợp cấp thiết (theo vụ việc/ chuyên án).</li>
-                <li>Cục trưởng Cục Hải quan các tỉnh, liên tỉnh, thành phố có quyền điều động CNV trong đơn vị trực thuộc.</li>
+                <li>Tổng cục trưởng Tổng cục Hải quan có quyền điều động chó nghiệp vụ kèm huấn luyện viên trong toàn ngành.</li>
+                <li>Cục trưởng Cục Điều tra chống buôn lậu có quyền điều động chó nghiệp vụ kèm huấn luyện viên trong toàn ngành để sử dụng trong những trường hợp cấp thiết (theo vụ việc/ chuyên án).</li>
+                <li>Cục trưởng Cục Hải quan các tỉnh, liên tỉnh, thành phố có quyền điều động chó nghiệp vụ trong đơn vị trực thuộc.</li>
             </ul>
 
-            <p><strong>3.</strong> Khi quyết định sử dụng CNV, những người được quy định tại khoản 1 Điều này thông báo cho đơn vị quản lý CNV để kịp thời đưa CNV đến địa điểm kiểm tra theo yêu cầu. Trong trường hợp bất khả kháng không thể điều động phải báo cáo ngay cho người quyết định sử dụng CNV biết.</p>
+            <p><strong>3.</strong> Khi quyết định sử dụng chó nghiệp vụ, những người được quy định tại khoản 1 Điều này thông báo cho đơn vị quản lý chó nghiệp vụ để kịp thời đưa chó nghiệp vụ đến địa điểm kiểm tra theo yêu cầu. Trong trường hợp bất khả kháng không thể điều động phải báo cáo ngay cho người quyết định sử dụng chó nghiệp vụ biết.</p>
 
-            <p><strong>4.</strong> Việc quyết định, đề xuất sử dụng CNV được thực hiện bằng văn bản. Trường hợp khẩn cấp thì báo cáo bằng điện thoại trước và gửi văn bản sau.</p>
+            <p><strong>4.</strong> Việc quyết định, đề xuất sử dụng chó nghiệp vụ được thực hiện bằng văn bản. Trường hợp khẩn cấp thì báo cáo bằng điện thoại trước và gửi văn bản sau.</p>
 
-            <p><strong>5.</strong> Mọi trường hợp quyết định sử dụng CNV tại các Chi cục Hải quan đều phải thông báo cho Chi cục trưởng biết để phối hợp thực hiện.</p>
+            <p><strong>5.</strong> Mọi trường hợp quyết định sử dụng chó nghiệp vụ tại các Chi cục Hải quan đều phải thông báo cho Chi cục trưởng biết để phối hợp thực hiện.</p>
 
             <h2>Điều 25. Trách nhiệm phối hợp sử dụng chó nghiệp vụ trong ngành Hải quan</h2>
 
             <ol>
                 <li>
-                <p> Chi cục trưởng, Đội trưởng Đội Kiểm soát, Đội trưởng Đội ma tuý thuộc Chi cục Hải quan cửa khẩu phải thường xuyên có kế hoạch chỉ đạo huấn luyện viên sử dụng cơ sở, phương tiện sẵn có phục vụ việc chăm sóc, sử dụng CNV; cử cán bộ làm việc với chủ hàng, đơn vị quản lý kho bãi xuất trình hàng hóa, tạo hiện trường cho CNV tác nghiệp và phối hợp với huấn luyện viên sử dụng CNV thực hiện việc kiểm tra phát hiện ma túy, chất nổ, hàng cấm tại địa hoạt động hải quan.</p>
+                <p> Chi cục trưởng, Đội trưởng Đội Kiểm soát, Đội trưởng Đội ma tuý thuộc Chi cục Hải quan cửa khẩu phải thường xuyên có kế hoạch chỉ đạo huấn luyện viên sử dụng cơ sở, phương tiện sẵn có phục vụ việc chăm sóc, sử dụng chó nghiệp vụ; cử cán bộ làm việc với chủ hàng, đơn vị quản lý kho bãi xuất trình hàng hóa, tạo hiện trường cho chó nghiệp vụ tác nghiệp và phối hợp với huấn luyện viên sử dụng chó nghiệp vụ thực hiện việc kiểm tra phát hiện ma túy, chất nổ, hàng cấm tại địa hoạt động hải quan.</p>
                 </li>
 
                 <li>
-                <p> Công chức làm nhiệm vụ thu nhập thông tin nghiệp vụ hải quan, tiếp nhận đăng ký tờ khai, kiểm tra thực tế hàng hóa, giám sát, kiểm soát hải quan, kiểm soát ma túy khi có thông tin nghi vấn về các loại hàng cấm được cất giấu trong hàng hóa xuất nhập khẩu, phương tiện vận tải và trong đối tượng xuất nhập cảnh phải báo cáo ngay lãnh đạo phụ trách trực tiếp và đề nghị sử dụng CNV để kiểm tra phát hiện.</p>
+                <p> Công chức làm nhiệm vụ thu nhập thông tin nghiệp vụ hải quan, tiếp nhận đăng ký tờ khai, kiểm tra thực tế hàng hóa, giám sát, kiểm soát hải quan, kiểm soát ma túy khi có thông tin nghi vấn về các loại hàng cấm được cất giấu trong hàng hóa xuất nhập khẩu, phương tiện vận tải và trong đối tượng xuất nhập cảnh phải báo cáo ngay lãnh đạo phụ trách trực tiếp và đề nghị sử dụng chó nghiệp vụ để kiểm tra phát hiện.</p>
                 </li>
 
                 <li>
-                <p> Công chức được phân công kiểm tra cần trao đổi những thông tin nghi vấn về vị trí cất giấu các loại hàng cấm với huấn luyện viên CNV; yêu cầu chủ hàng hoặc người đại diện hợp pháp của chủ hàng xếp dỡ hàng hóa để CNV tác nghiệp thuận lợi.</p>
+                <p> Công chức được phân công kiểm tra cần trao đổi những thông tin nghi vấn về vị trí cất giấu các loại hàng cấm với huấn luyện viên chó nghiệp vụ; yêu cầu chủ hàng hoặc người đại diện hợp pháp của chủ hàng xếp dỡ hàng hóa để chó nghiệp vụ tác nghiệp thuận lợi.</p>
                 </li>
             </ol>
 
@@ -2114,16 +2114,16 @@ function showContent(type) {
 
             <p><strong>Các trường hợp sử dụng chó nghiệp vụ:</strong></p>
             <ol>
-                <li><p><strong>1.1.</strong> Sử dụng CNV để kiểm tra hải quan đối với: hàng hóa, hành lý xuất nhập cảnh, phương tiện vận tải xuất cảnh – nhập cảnh – quá cảnh nghi vấn có cất giấu ma túy hoặc các mặt hàng cấm khác theo phân luồng của hệ thống quản lý rủi ro.</p></li>
-                <li><p><strong>1.2.</strong> Sử dụng CNV thường xuyên theo kế hoạch được phê duyệt để răn đe phòng ngừa và phát hiện tội phạm tại các địa bàn trọng điểm.</p></li>
-                <li><p><strong>1.3.</strong> Sử dụng CNV đột xuất theo quyết định của cấp có thẩm quyền phục vụ đấu tranh chuyên án hoặc kiểm tra, khám xét các đối tượng trọng điểm.</p></li>
-                <li><p><strong>1.4.</strong> Sử dụng CNV theo quyết định của cấp có thẩm quyền để phối hợp với các lực lượng chức năng ngoài địa bàn hoạt động hải quan.</p></li>
+                <li><p><strong>1.1.</strong> Sử dụng chó nghiệp vụ để kiểm tra hải quan đối với: hàng hóa, hành lý xuất nhập cảnh, phương tiện vận tải xuất cảnh – nhập cảnh – quá cảnh nghi vấn có cất giấu ma túy hoặc các mặt hàng cấm khác theo phân luồng của hệ thống quản lý rủi ro.</p></li>
+                <li><p><strong>1.2.</strong> Sử dụng chó nghiệp vụ thường xuyên theo kế hoạch được phê duyệt để răn đe phòng ngừa và phát hiện tội phạm tại các địa bàn trọng điểm.</p></li>
+                <li><p><strong>1.3.</strong> Sử dụng chó nghiệp vụ đột xuất theo quyết định của cấp có thẩm quyền phục vụ đấu tranh chuyên án hoặc kiểm tra, khám xét các đối tượng trọng điểm.</p></li>
+                <li><p><strong>1.4.</strong> Sử dụng chó nghiệp vụ theo quyết định của cấp có thẩm quyền để phối hợp với các lực lượng chức năng ngoài địa bàn hoạt động hải quan.</p></li>
             </ol>
 
             <p><strong>2. Căn cứ xác định đối tượng để sử dụng chó nghiệp vụ kiểm tra:</strong></p>
             <ul>
                 <li>Thông qua Hệ thống quản lý rủi ro (Phiếu xác định thông tin trọng điểm đối với chuyến bay, phương tiện vận tải, lô hàng, đối tượng trọng điểm);</li>
-                <li>Căn cứ thông tin nghiệp vụ trên các Hệ thống Emanifest, Hệ thống thông tin nghiệp vụ hải quan, Hệ thống VNACCS/VCIS…để đưa ra danh sách lô hàng đề nghị sử dụng CNV kiểm tra.</li>
+                <li>Căn cứ thông tin nghiệp vụ trên các Hệ thống Emanifest, Hệ thống thông tin nghiệp vụ hải quan, Hệ thống VNACCS/VCIS…để đưa ra danh sách lô hàng đề nghị sử dụng chó nghiệp vụ kiểm tra.</li>
                 <li>Thông tin từ các lực lượng chức năng liên quan cung cấp;</li>
                 <li>Qua thực tế giám sát của công chức;</li>
                 <li>Người xuất cảnh, nhập cảnh có hành lý phải khai báo theo quy định;</li>
@@ -2132,7 +2132,7 @@ function showContent(type) {
             </ul>
 
             <p><strong>2.1. Thời gian, địa điểm sử dụng chó nghiệp vụ:</strong></p>
-            <p>Trong mỗi ca làm việc cần có tối thiểu 02 huấn luyện viên và 02 CNV để kiểm tra chéo, đảm bảo kết quả khách quan (trừ trường hợp bất khả kháng chỉ còn 01 CNV do CNV bị chết hoặc thải loại hoặc huấn luyện viên vắng mặt vì lý do khách quan).</p>
+            <p>Trong mỗi ca làm việc cần có tối thiểu 02 huấn luyện viên và 02 chó nghiệp vụ để kiểm tra chéo, đảm bảo kết quả khách quan (trừ trường hợp bất khả kháng chỉ còn 01 chó nghiệp vụ do chó nghiệp vụ bị chết hoặc thải loại hoặc huấn luyện viên vắng mặt vì lý do khách quan).</p>
 
             <p><strong>2.2. Sử dụng chó nghiệp vụ kiểm tra hành lý, hành khách, phương tiện tại cửa khẩu sân bay quốc tế:</strong></p>
             <p><strong>a. Địa điểm kiểm tra:</strong></p>
@@ -2196,21 +2196,21 @@ function showContent(type) {
             <p><strong>Trường hợp 1:</strong> Kiểm tra phát hiện các loại hàng cấm cất giấu trong hành lý, hàng hóa, phương tiện đang chịu sự giám sát hải quan.</p>
             <ol>
                 <li>
-                <p>Huấn luyện viên phối hợp với cán bộ giám sát, kiểm soát hải quan đưa CNV vào khu vực tập kết hàng hóa xuất nhập khẩu, phương tiện xuất cảnh, nhập cảnh chưa làm thủ tục hải quan hoặc hàng hóa phương tiện đã hoàn thành thủ tục hải quan nhưng chưa xuất khẩu, xuất cảnh đang để trong kho, bến, bãi, trên băng chuyền tại các cảng biển, ga hàng không, ga xe lửa liên vận quốc tế và các điểm thông quan trong nội địa để ngửi phát hiện ma túy, chất nổ và các hàng cấm khác.</p>
+                <p>Huấn luyện viên phối hợp với cán bộ giám sát, kiểm soát hải quan đưa chó nghiệp vụ vào khu vực tập kết hàng hóa xuất nhập khẩu, phương tiện xuất cảnh, nhập cảnh chưa làm thủ tục hải quan hoặc hàng hóa phương tiện đã hoàn thành thủ tục hải quan nhưng chưa xuất khẩu, xuất cảnh đang để trong kho, bến, bãi, trên băng chuyền tại các cảng biển, ga hàng không, ga xe lửa liên vận quốc tế và các điểm thông quan trong nội địa để ngửi phát hiện ma túy, chất nổ và các hàng cấm khác.</p>
                 </li>
 
                 <li>
-                <p>Huấn luyện viên sử dụng CNV để kiểm tra hàng hóa, phương tiện theo chiến thuật chia khu vực để kiểm tra trọng điểm. Công chức hải quan làm nhiệm vụ giám sát kho, bãi yêu cầu chủ kho mở cửa kho, hỗ trợ đảm bảo an toàn cho huấn luyện viên trong suốt quá trình làm việc của CNV. Trong quá trình kiểm tra, huấn luyện viên gặp khó khăn cần hỗ trợ để bốc dỡ hàng hóa nhằm tạo điều kiện thuận lợi cho CNV tác nghiệp thì yêu cầu công chức hải quan trao đổi với đơn vị quản lý kho, bãi bố trí phương tiện, nhân lực bốc dỡ để tạo điều kiện cho CNV làm việc. Nếu CNV phát hiện có hơi ma túy, chất nổ hàng cấm khác trong hàng hóa thì đánh giấu vị trí phát hiện, thông báo ngay cho công chức hải quan phối hợp bí mật giám sát và báo cáo lãnh đạo để kiểm tra chi tiết theo hướng dẫn tại trường hợp 2.</p>
+                <p>Huấn luyện viên sử dụng chó nghiệp vụ để kiểm tra hàng hóa, phương tiện theo chiến thuật chia khu vực để kiểm tra trọng điểm. Công chức hải quan làm nhiệm vụ giám sát kho, bãi yêu cầu chủ kho mở cửa kho, hỗ trợ đảm bảo an toàn cho huấn luyện viên trong suốt quá trình làm việc của chó nghiệp vụ. Trong quá trình kiểm tra, huấn luyện viên gặp khó khăn cần hỗ trợ để bốc dỡ hàng hóa nhằm tạo điều kiện thuận lợi cho chó nghiệp vụ tác nghiệp thì yêu cầu công chức hải quan trao đổi với đơn vị quản lý kho, bãi bố trí phương tiện, nhân lực bốc dỡ để tạo điều kiện cho chó nghiệp vụ làm việc. Nếu chó nghiệp vụ phát hiện có hơi ma túy, chất nổ hàng cấm khác trong hàng hóa thì đánh giấu vị trí phát hiện, thông báo ngay cho công chức hải quan phối hợp bí mật giám sát và báo cáo lãnh đạo để kiểm tra chi tiết theo hướng dẫn tại trường hợp 2.</p>
 
                 <p>Việc kiểm tra hàng hóa trong kho, bãi chỉ thực hiện trong giờ làm việc của doanh nghiệp kinh doanh kho bãi.</p>
                 </li>
 
                 <li>
-                <p>Trường hợp CNV phát hiện có hơi ma túy, chất nổ, hàng cấm khác trong hành lý nhập khẩu của khách nhập cảnh đang chờ nhận thì bí mật theo dõi xác định chủ hành lý, áp giải đối tượng và hành lý vào phòng làm việc để kiểm tra chi tiết theo hướng dẫn tại Trường hợp 2.</p>
+                <p>Trường hợp chó nghiệp vụ phát hiện có hơi ma túy, chất nổ, hàng cấm khác trong hành lý nhập khẩu của khách nhập cảnh đang chờ nhận thì bí mật theo dõi xác định chủ hành lý, áp giải đối tượng và hành lý vào phòng làm việc để kiểm tra chi tiết theo hướng dẫn tại Trường hợp 2.</p>
                 </li>
 
                 <li>
-                <p>Trường hợp sử dụng CNV kiểm tra hàng hóa, bưu phẩm, bưu kiện tại địa bàn chuyển phát nhanh, CNV sẽ kiểm tra tại khu vực khai thác hàng hóa, phân loại hàng hóa, khu vực máy soi. Ngoài ra CNV sẽ được tác nghiệp trong kho, kệ tạm giữ (trình tự như kiểm tra trong kho hàng hóa thông thường).</p>
+                <p>Trường hợp sử dụng chó nghiệp vụ kiểm tra hàng hóa, bưu phẩm, bưu kiện tại địa bàn chuyển phát nhanh, chó nghiệp vụ sẽ kiểm tra tại khu vực khai thác hàng hóa, phân loại hàng hóa, khu vực máy soi. Ngoài ra chó nghiệp vụ sẽ được tác nghiệp trong kho, kệ tạm giữ (trình tự như kiểm tra trong kho hàng hóa thông thường).</p>
                 </li>
             </ol>
 
@@ -2223,10 +2223,10 @@ function showContent(type) {
                     <li>Bố trí đủ cán bộ, nhân viên để chủ động thực hiện các biện pháp đề phòng đối tượng chống cự, cướp, tẩu tán tang vật, chạy trốn.</li>
                     <li>Trực tiếp thông báo cho chủ hàng, người đại diện hợp pháp của chủ hàng hoặc người điều khiển phương tiện biết mục đích, nội dung và yêu cầu họ, chứng kiến quá trình kiểm tra.</li>
                     <li>Quan sát toàn diện bên ngoài, bên trong phương tiện và hàng hóa sẽ kiểm tra, phỏng vấn và quan sát hành vi, thái độ của chủ hàng hoặc người điều khiển phương tiện để phát hiện các vị trí nghi vấn giấu ma túy, chất nổ...</li>
-                    <li>Yêu cầu chủ hàng xuất trình toàn bộ hàng hóa để CNV tác nghiệp được thuận lợi.</li>
-                    <li>Sử dụng CNV kiểm tra lần lượt bên ngoài, bên trong phương tiện vận tải, hàng hóa; tập trung kiểm tra kỹ lưỡng những vị trí nghi vấn.</li>
-                    <li>Ngoài hàng hóa, huấn luyện viên phải sử dụng CNV ngửi các loại bao bì đóng gói, các loại container, pallet (kệ, giá đỡ) các vật dụng khác đã và đang chứa hàng hóa được kiểm tra.</li>
-                    <li>Khi CNV phát hiện có hơi ma túy, chất nổ hàng cấm trên phương tiện, hàng hóa, hành lý phải mở và kiểm tra chi tiết, xác định có hay không có ma túy, chất nổ.</li>
+                    <li>Yêu cầu chủ hàng xuất trình toàn bộ hàng hóa để chó nghiệp vụ tác nghiệp được thuận lợi.</li>
+                    <li>Sử dụng chó nghiệp vụ kiểm tra lần lượt bên ngoài, bên trong phương tiện vận tải, hàng hóa; tập trung kiểm tra kỹ lưỡng những vị trí nghi vấn.</li>
+                    <li>Ngoài hàng hóa, huấn luyện viên phải sử dụng chó nghiệp vụ ngửi các loại bao bì đóng gói, các loại container, pallet (kệ, giá đỡ) các vật dụng khác đã và đang chứa hàng hóa được kiểm tra.</li>
+                    <li>Khi chó nghiệp vụ phát hiện có hơi ma túy, chất nổ hàng cấm trên phương tiện, hàng hóa, hành lý phải mở và kiểm tra chi tiết, xác định có hay không có ma túy, chất nổ.</li>
                     <li>Nếu phát hiện có hàng cấm được cất giấu thì thực hiện theo quy định của Tổng cục về quy trình phát hiện ngăn chặn, xử lý các vụ việc mua bán, vận chuyển trái phép các chất ma tuý của ngành Hải quan và theo Điều 27 của quy định này.</li>
                     <li>Nếu không phát hiện ra hàng cấm thì làm thủ tục thông quan theo quy định.</li>
                 </ul>
@@ -2235,25 +2235,25 @@ function showContent(type) {
 
             <p><strong>Trường hợp 3:</strong> Kiểm tra phát hiện các loại hàng cấm trong hoạt động tuần tra hải quan.</p>
             <ol>
-                <li>Huấn luyện viên sử dụng CNV kiểm tra các địa điểm, đối tượng theo mệnh lệnh của tổ trưởng tổ tuần tra.</li>
+                <li>Huấn luyện viên sử dụng chó nghiệp vụ kiểm tra các địa điểm, đối tượng theo mệnh lệnh của tổ trưởng tổ tuần tra.</li>
                 <li>Trường hợp phát hiện có hơi ma túy, chất nổ thì báo cáo tổ trưởng tổ tuần tra, tổ chức bảo vệ khu vực, vị trí phát hiện ma túy và lục soát để xác định và thu giữ tang vật.</li>
                 <li>Trường hợp kiểm tra phát hiện có hơi ma túy, chất nổ trên người, hành lý của đối tượng thì áp tải đối tượng về trụ sở cơ quan để kiểm tra làm rõ.</li>
-                <li>Kết thúc tuần tra, tổ trưởng tuần tra xác nhận kết quả làm việc của huấn luyện viên và CNV. Báo cáo cấp có thẩm quyền, đề xuất biện pháp xử lý vụ việc, tang vật và đối tượng đã phát hiện, cất giữ.</li>
+                <li>Kết thúc tuần tra, tổ trưởng tuần tra xác nhận kết quả làm việc của huấn luyện viên và chó nghiệp vụ. Báo cáo cấp có thẩm quyền, đề xuất biện pháp xử lý vụ việc, tang vật và đối tượng đã phát hiện, cất giữ.</li>
             </ol>
 
-            <p><strong>Trường hợp 4:</strong> Sử dụng CNV trong khám xét theo thủ tục hành chính, tố tụng hình sự.</p>
+            <p><strong>Trường hợp 4:</strong> Sử dụng chó nghiệp vụ trong khám xét theo thủ tục hành chính, tố tụng hình sự.</p>
             <ol>
-                <li>Khi có lệnh khám xét của cấp có thẩm quyền và phân công của thủ trưởng đơn vị, huấn luyện viên sử dụng CNV tham gia khám xét.</li>
-                <li>Người chỉ huy khám xét phải đảm bảo an toàn và tạo điều kiện để huấn luyện viên sử dụng CNV hoạt động thuận lợi.</li>
-                <li>Trong quá trình khám xét huấn luyện viên sử dụng CNV theo trình tự, thao tác nghiệp vụ đã được huấn luyện (chia khu vực và kiểm tra lần lượt hết các khu vực cần khám xét) và theo lệnh của người chỉ huy khám xét.</li>
-                <li>Khi CNV phát hiện có hơi ma túy, chất nổ, hàng cấm huấn luyện viên phải báo cáo ngay với người chỉ huy khám xét để lục soát, tìm kiếm và thu giữ tang vật.</li>
+                <li>Khi có lệnh khám xét của cấp có thẩm quyền và phân công của thủ trưởng đơn vị, huấn luyện viên sử dụng chó nghiệp vụ tham gia khám xét.</li>
+                <li>Người chỉ huy khám xét phải đảm bảo an toàn và tạo điều kiện để huấn luyện viên sử dụng chó nghiệp vụ hoạt động thuận lợi.</li>
+                <li>Trong quá trình khám xét huấn luyện viên sử dụng chó nghiệp vụ theo trình tự, thao tác nghiệp vụ đã được huấn luyện (chia khu vực và kiểm tra lần lượt hết các khu vực cần khám xét) và theo lệnh của người chỉ huy khám xét.</li>
+                <li>Khi chó nghiệp vụ phát hiện có hơi ma túy, chất nổ, hàng cấm huấn luyện viên phải báo cáo ngay với người chỉ huy khám xét để lục soát, tìm kiếm và thu giữ tang vật.</li>
             </ol>
 
             <h2>Điều 27. Xử lý tình huống</h2>
 
             <ol>
                 <li>
-                <p>Trong khi kiểm tra nếu CNV phát hiện nguồn hơi các loại hàng cấm trong hàng hóa, hành lý, phương tiện vận tải của đối tượng được hưởng chế độ ưu đãi miễn trừ thì Tổng cục trưởng Tổng cục Hải quan quyết định việc xử lý theo quy định.</p>
+                <p>Trong khi kiểm tra nếu chó nghiệp vụ phát hiện nguồn hơi các loại hàng cấm trong hàng hóa, hành lý, phương tiện vận tải của đối tượng được hưởng chế độ ưu đãi miễn trừ thì Tổng cục trưởng Tổng cục Hải quan quyết định việc xử lý theo quy định.</p>
                 </li>
 
                 <li>
@@ -2269,13 +2269,13 @@ function showContent(type) {
                 </li>
 
                 <li>
-                <p>Đối với trường hợp CNV chủ động phát hiện thấy các chất ma túy, chất cấm trong khi kiểm tra hành lý, hành khách xuất nhập cảnh, quá cảnh, hàng hóa xuất nhập khẩu, hàng hóa quá cảnh, phương tiện xuất nhập cảnh, quá cảnh…qua địa bàn hải quan, theo kế hoạch đã được các cấp lãnh đạo phê duyệt phân công thường xuyên hằng ngày, hằng tuần thì huấn luyện viên báo cáo lãnh đạo đơn vị và phối hợp với công chức hải quan tại địa bàn lập biên bản bàn giao tang vật cho các Đội nghiệp vụ nơi tác nghiệp để tiếp tục thực hiện theo quy trình, quy định của pháp luật.</p>
+                <p>Đối với trường hợp chó nghiệp vụ chủ động phát hiện thấy các chất ma túy, chất cấm trong khi kiểm tra hành lý, hành khách xuất nhập cảnh, quá cảnh, hàng hóa xuất nhập khẩu, hàng hóa quá cảnh, phương tiện xuất nhập cảnh, quá cảnh…qua địa bàn hải quan, theo kế hoạch đã được các cấp lãnh đạo phê duyệt phân công thường xuyên hằng ngày, hằng tuần thì huấn luyện viên báo cáo lãnh đạo đơn vị và phối hợp với công chức hải quan tại địa bàn lập biên bản bàn giao tang vật cho các Đội nghiệp vụ nơi tác nghiệp để tiếp tục thực hiện theo quy trình, quy định của pháp luật.</p>
                 </li>
 
                 <li>
                 <p><strong>Hồ sơ, báo cáo:</strong></p>
                 <ul>
-                    <li>Huấn luyện viên viết nhật ký kết quả tác nghiệp, kiểm tra, khám xét sau mỗi buổi làm việc. Trường hợp CNV phát hiện ra ma túy, chất nổ thì tham gia lập và ký biên bản kiểm tra, thu giữ tang vật, biên bản bắt giữ đối tượng nếu có.</li>
+                    <li>Huấn luyện viên viết nhật ký kết quả tác nghiệp, kiểm tra, khám xét sau mỗi buổi làm việc. Trường hợp chó nghiệp vụ phát hiện ra ma túy, chất nổ thì tham gia lập và ký biên bản kiểm tra, thu giữ tang vật, biên bản bắt giữ đối tượng nếu có.</li>
                     <li>Công chức Hải quan kiểm tra thực tế hàng hóa là người chủ trì việc viết ấn chỉ.</li>
                     <li>Trường hợp phát hiện ra ma túy, chất nổ thì lập biên bản kiểm tra, thu giữ tang vật và biên bản bắt giữ đối tượng vi phạm nếu có.</li>
                     <li>Nếu không phát hiện ra ma túy, chất nổ thì báo cáo lãnh đạo và làm thủ tục hải quan theo quy định.</li>
@@ -2496,9 +2496,6 @@ async function showDogProfileForm(dogName) {
     content.innerHTML = `
 
         <div class="dog-profile-container">
-
-            ${isReadOnly ? '<div class="read-only-banner">CHẾ ĐỘ XEM - Chỉ Admin mới có thể chỉnh sửa</div>' : ''}
-
             
 
             <div class="dog-profile-header">
@@ -3474,7 +3471,7 @@ async function preloadAllAudio() {
         },
         {
             title: 'QUY TRÌNH CHĂM SÓC',
-            content: 'Việc chăm sóc, nuôi dưỡng CNV (chó nghiệp vụ) là công việc phải được thực hiện hàng ngày và liên tục trong suốt quá trình sử dụng. Trách nhiệm được phân công rõ ràng: Huấn luyện viên chịu trách nhiệm toàn diện về sức khỏe của CNV do mình quản lý. Nhân viên thú y tham mưu cho lãnh đạo về công tác chăn nuôi, theo dõi sức khỏe, xây dựng khẩu phần ăn, và trực tiếp thực hiện tiêm phòng, chẩn đoán, điều trị bệnh cho CNV.'
+            content: 'Việc chăm sóc, nuôi dưỡng chó nghiệp vụ (chó nghiệp vụ) là công việc phải được thực hiện hàng ngày và liên tục trong suốt quá trình sử dụng. Trách nhiệm được phân công rõ ràng: Huấn luyện viên chịu trách nhiệm toàn diện về sức khỏe của chó nghiệp vụ do mình quản lý. Nhân viên thú y tham mưu cho lãnh đạo về công tác chăn nuôi, theo dõi sức khỏe, xây dựng khẩu phần ăn, và trực tiếp thực hiện tiêm phòng, chẩn đoán, điều trị bệnh cho chó nghiệp vụ.'
         },
         {
             title: 'QUY TRÌNH SỬ DỤNG',
